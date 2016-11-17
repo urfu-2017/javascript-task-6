@@ -73,7 +73,7 @@ while (!femaleIterator.done()) {
 }
 
 console.info(invitedFriends);
-// Sam, Julia
+// Sam, Sally
 // Brad, Emily
 // Mat, Sharon
 // Julia
