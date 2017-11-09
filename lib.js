@@ -39,7 +39,7 @@ function invitedGuests(friends, filter, maxLevel) {
         return friend.best;
     });
     let invitedFriends = [];
-    while (maxLevel && guests.length) {
+    while (maxLevel > 0 && guests.length) {
         let possibleGuests = [];
         console.info(guests);
         guests
@@ -93,7 +93,7 @@ function Iterator(friends, filter) {
  */
 function LimitedIterator(friends, filter, maxLevel) {
     Iterator.call(this, friends, filter);
-    this.invitedGuests = invitedGuests(friends, filter, Number(maxLevel));
+    this.invitedGuests = invitedGuests(friends, filter, Number(maxLeve));
 }
 
 LimitedIterator.prototype = Object.create(Iterator.prototype);
