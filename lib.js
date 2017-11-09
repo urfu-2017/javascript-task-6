@@ -39,9 +39,8 @@ function invitedGuests(friends, filter, maxLevel) {
         return friend.best;
     });
     let invitedFriends = [];
-    while (maxLevel && guests.length) {
-        let possibleGuests = [];
-        console.info(guests);
+    while (maxLevel > 0 && guests.length !== 0) {
+        let countFriend = guests.length;
         guests
             .sort(alphabeticalOrder)
             .forEach((friend) => {
@@ -49,11 +48,11 @@ function invitedGuests(friends, filter, maxLevel) {
                     invitedFriends.push(friend);
                     friend.friends.forEach((name) => {
                         let invitedFriend = getFriend(friends, name);
-                        possibleGuests.push(invitedFriend);
+                        guests.push(invitedFriend);
                     });
                 }
             });
-        guests = possibleGuests.slice(0);
+        guests.splice(0, countFriend);
         maxLevel--;
     }
 
