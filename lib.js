@@ -1,6 +1,6 @@
 'use strict';
 
-function sortFriends(friendOne, friendTwo) {
+function compareFriends(friendOne, friendTwo) {
     let nameOne = friendOne.name;
     let nameTwo = friendTwo.name;
 
@@ -12,34 +12,32 @@ function sortFriends(friendOne, friendTwo) {
 }
 
 function findNotVisitedFriends(friends, resource) {
-    return friends.filter(friend => !resource.some(element => element === friend));
+    return friends.filter(friend => !resource.includes(friend));
 }
 
 function getFriends(friends, filter, maxLevel = Infinity) {
     let bestFriends = friends
         .filter(friend => friend.best)
-        .sort(sortFriends);
+        .sort(compareFriends);
 
-    let _friends = [];
+    let findedFriends = [];
 
     while (bestFriends.length > 0 && maxLevel > 0) {
-        _friends = _friends.concat(bestFriends);
+        findedFriends = findedFriends.concat(bestFriends);
 
         let nextFriends = bestFriends
             .reduce((result, bestFriend) =>
                 result.concat(findNotVisitedFriends(bestFriend.friends, result)),
             [])
-            .map(name => friends.filter(friend => friend.name === name)[0]);
+            .map(name => friends.find(friend => friend.name === name));
 
-        bestFriends = findNotVisitedFriends(nextFriends, _friends)
-            .sort(sortFriends);
+        bestFriends = findNotVisitedFriends(nextFriends, findedFriends)
+            .sort(compareFriends);
 
         maxLevel--;
     }
 
-    _friends = _friends.filter(filter.filter);
-
-    return _friends;
+    return findedFriends.filter(filter.filter);
 }
 
 /**
