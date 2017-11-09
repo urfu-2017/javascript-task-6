@@ -41,6 +41,7 @@ function invitedGuests(friends, filter, maxLevel) {
     let invitedFriends = [];
     while (maxLevel && guests.length) {
         let possibleGuests = [];
+        console.info(guests);
         guests
             .sort(alphabeticalOrder)
             .forEach((friend) => {
@@ -52,7 +53,7 @@ function invitedGuests(friends, filter, maxLevel) {
                     });
                 }
             });
-        guests = possibleGuests;
+        guests = possibleGuests.slice(0);
         maxLevel--;
     }
 
