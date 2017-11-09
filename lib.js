@@ -7,7 +7,7 @@
  * @param {Filter} filter
  */
 function Iterator(friends, filter) {
-    console.info(friends, filter);
+    console.info(friends, filter, 'test');
 }
 
 /**
