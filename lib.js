@@ -93,7 +93,7 @@ function Iterator(friends, filter) {
  */
 function LimitedIterator(friends, filter, maxLevel) {
     Iterator.call(this, friends, filter);
-    this.invitedGuests = invitedGuests(friends, filter, Number(maxLeve));
+    this.invitedGuests = invitedGuests(friends, filter, maxLevel);
 }
 
 LimitedIterator.prototype = Object.create(Iterator.prototype);
