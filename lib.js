@@ -39,7 +39,7 @@ function invitedGuests(friends, filter, maxLevel) {
         return friend.best;
     });
     let invitedFriends = [];
-    while (maxLevel > 0 && guests.length !== 0) {
+    while (maxLevel && guests.length) {
         let countFriend = guests.length;
         guests
             .sort(alphabeticalOrder)
