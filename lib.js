@@ -7,7 +7,75 @@
  * @param {Filter} filter
  */
 function Iterator(friends, filter) {
-    console.info(friends, filter);
+    if (!(filter instanceof Filter)) {
+        throw new TypeError();
+    }
+
+    this._currentPosition = -1;
+    this._currentFriends = friends.filter(friend => friend.best);
+    this._nextFriends = [];
+    this._workedFriends = [];
+
+    this._iterationCondition = function () {
+        return this._currentPosition + 1 < this._currentFriends.length;
+    };
+
+    this._setNextFriends = function (currentFriend) {
+        this._nextFriends = this._nextFriends.concat(
+            friends.filter(friend =>
+                currentFriend.friends.indexOf(friend.name) !== -1 &&
+                this._workedFriends.indexOf(friend) === -1 &&
+                this._currentFriends.indexOf(friend) === -1
+            )
+        );
+    };
+
+    this._onEndCurrentFriends = function () {
+        return null;
+    };
+
+    this._getNext = function () {
+        while (this._iterationCondition()) {
+            this._currentPosition++;
+
+            const currentFriend = this._currentFriends[this._currentPosition];
+            this._workedFriends.push(currentFriend);
+            this._setNextFriends(currentFriend);
+
+            const isLastFriend = this._currentPosition === this._currentFriends.length - 1;
+            const isEmptyNextFriends = this._nextFriends.length === 0;
+            if (isLastFriend && !isEmptyNextFriends) {
+                this._currentFriends = this._nextFriends
+                    .sort((a, b) => b.name > a.name ? -1 : 1)
+                    .sort((a, b) => (b.best || 0) - (a.best || 0));
+
+                this._currentPosition = -1;
+                this._nextFriends = [];
+
+                this._onEndCurrentFriends();
+            }
+
+            if (filter.isValid(currentFriend)) {
+                return currentFriend;
+            }
+        }
+
+        return null;
+    };
+
+    this.next = function () {
+        const result = this._currentValue;
+
+        this._currentValue = this._getNext();
+
+        return result;
+    };
+
+    this.done = function () {
+        return this._currentValue === null;
+    };
+
+    this._currentValue = this._getNext();
 }
 
 /**
@@ -19,15 +87,37 @@ function Iterator(friends, filter) {
  * @param {Number} maxLevel – максимальный круг друзей
  */
 function LimitedIterator(friends, filter, maxLevel) {
-    console.info(friends, filter, maxLevel);
+    Iterator.call(this, friends, filter);
+
+    this._currentLevel = 1;
+
+    this._iterationCondition = function () {
+        return this._currentPosition + 1 < this._currentFriends.length &&
+               this._currentLevel <= maxLevel;
+    };
+
+    this._onEndCurrentFriends = function () {
+        this._currentLevel++;
+    };
+
+    this.done = function () {
+        const isLastCurrentFriend = this._currentPosition >= this._currentFriends.length - 1;
+        const isLastLevel = this._currentLevel === maxLevel;
+
+        return (this._currentValue === null) || (isLastLevel && isLastCurrentFriend);
+    };
 }
+
+LimitedIterator.prototype = Object.create(Iterator);
 
 /**
  * Фильтр друзей
  * @constructor
  */
 function Filter() {
-    console.info('Filter');
+    this.isValid = function () {
+        throw new Error('Not implement method!');
+    };
 }
 
 /**
@@ -36,8 +126,12 @@ function Filter() {
  * @constructor
  */
 function MaleFilter() {
-    console.info('MaleFilter');
+    this.isValid = function (friend) {
+        return friend.gender === 'male';
+    };
 }
+
+MaleFilter.prototype = Object.create(Filter.prototype);
 
 /**
  * Фильтр друзей-девушек
@@ -45,8 +139,12 @@ function MaleFilter() {
  * @constructor
  */
 function FemaleFilter() {
-    console.info('FemaleFilter');
+    this.isValid = function (friend) {
+        return friend.gender === 'female';
+    };
 }
+
+FemaleFilter.prototype = Object.create(Filter.prototype);
 
 exports.Iterator = Iterator;
 exports.LimitedIterator = LimitedIterator;
