@@ -48,6 +48,7 @@ function LimitedIterator(friends, filter, maxLevel) {
     this.friendsCount = 0;
 }
 LimitedIterator.prototype = Object.create(Iterator.prototype); // Объявляю прототип
+LimitedIterator.prototype.constructor = LimitedIterator;
 // Почему-то не работал setPrototype, так и не разобрался :O
 
 /**
@@ -71,6 +72,7 @@ function MaleFilter() {
     };
 }
 MaleFilter.prototype = Object.create(Filter.prototype);
+MaleFilter.prototype.constructor = MaleFilter;
 
 /**
  * Фильтр друзей-девушек
@@ -83,6 +85,7 @@ function FemaleFilter() {
     };
 }
 FemaleFilter.prototype = Object.create(Filter.prototype);
+FemaleFilter.prototype.constructor = FemaleFilter;
 
 function getFriends(friends, filter, maxLevel) {
     let inviteFriends = []; // Массив всех найденных друзей, еще без фильтрации, потенциальные
