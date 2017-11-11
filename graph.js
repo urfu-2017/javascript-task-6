@@ -45,14 +45,10 @@ module.exports = class {
 
     setDeeps(nodes, deep) {
         if (nodes.length === 0) {
-            this.nodes.filter(node => node.deep === Infinity).forEach(node => {
-                node.deep = deep;
-            });
-
-            return;
+            return this.filter(node => node.deep !== Infinity);
         }
         let newNodes = new Set();
-        nodes.forEach(node => {
+        nodes.sort(compareNode).forEach(node => {
             if (!node.visited) {
                 node.visited = true;
                 node.deep = deep;
@@ -63,7 +59,7 @@ module.exports = class {
                 });
             }
         });
-        this.setDeeps([...newNodes].sort(compareNode), deep + 1);
+        this.setDeeps([...newNodes], deep + 1);
     }
 
     filter(func) {
@@ -74,4 +70,3 @@ module.exports = class {
         return this.nodes.length > 0 ? this.nodes.shift().value : null;
     }
 };
-
