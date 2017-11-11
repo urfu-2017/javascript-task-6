@@ -56,7 +56,7 @@ class Iterator {
         let prev = this._current;
         this._current = this._iterator.next();
 
-        return prev.value;
+        return prev.value === undefined ? null : prev.value;
     }
 
     done() {
