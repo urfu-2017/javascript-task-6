@@ -1,5 +1,7 @@
 'use strict';
 
+let Graph = require('./graph');
+
 /**
  * Итератор по друзьям
  * @constructor
@@ -7,8 +9,17 @@
  * @param {Filter} filter
  */
 function Iterator(friends, filter) {
-    console.info(friends, filter);
+    if (!(filter instanceof Filter)) {
+        throw new TypeError('This is Not the Filter You Are Looking For');
+    }
+    this.graph = new Graph(friends, filter);
 }
+Iterator.prototype.done = function () {
+    return this.graph.nodes.length === 0;
+};
+Iterator.prototype.next = function () {
+    return this.graph.next();
+};
 
 /**
  * Итератор по друзям с ограничением по кругу
@@ -19,15 +30,19 @@ function Iterator(friends, filter) {
  * @param {Number} maxLevel – максимальный круг друзей
  */
 function LimitedIterator(friends, filter, maxLevel) {
-    console.info(friends, filter, maxLevel);
+    this.graph = new Graph(friends, filter);
+    this.graph.filter(node => node.deep < maxLevel);
 }
+LimitedIterator.prototype = Object.create(Iterator.prototype);
+LimitedIterator.prototype.constructor = LimitedIterator;
+
 
 /**
  * Фильтр друзей
  * @constructor
  */
 function Filter() {
-    console.info('Filter');
+    this.func = () => true;
 }
 
 /**
@@ -36,8 +51,11 @@ function Filter() {
  * @constructor
  */
 function MaleFilter() {
-    console.info('MaleFilter');
+    this.func = friend => friend.gender === 'male';
 }
+MaleFilter.prototype = Object.create(Filter.prototype);
+MaleFilter.prototype.constructor = MaleFilter;
+
 
 /**
  * Фильтр друзей-девушек
@@ -45,8 +63,10 @@ function MaleFilter() {
  * @constructor
  */
 function FemaleFilter() {
-    console.info('FemaleFilter');
+    this.func = friend => friend.gender === 'female';
 }
+FemaleFilter.prototype = Object.create(Filter.prototype);
+FemaleFilter.prototype.constructor = FemaleFilter;
 
 exports.Iterator = Iterator;
 exports.LimitedIterator = LimitedIterator;
