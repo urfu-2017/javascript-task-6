@@ -30,7 +30,7 @@ Iterator.prototype.next = function () {
  * @param {Number} maxLevel – максимальный круг друзей
  */
 function LimitedIterator(friends, filter, maxLevel) {
-    this.graph = new Graph(friends, filter);
+    Iterator.call(this, friends, filter);
     this.graph.filter(node => node.deep < maxLevel);
 }
 LimitedIterator.prototype = Object.create(Iterator.prototype);
