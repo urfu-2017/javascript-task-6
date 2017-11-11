@@ -95,7 +95,7 @@ module.exports = class {
     }
 
     next() {
-        return this.nodes.shift().value;
+        return this.nodes.length > 0 ? this.nodes.shift().value : null;
     }
 };
 
