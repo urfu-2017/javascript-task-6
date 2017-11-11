@@ -45,6 +45,10 @@ module.exports = class {
 
     setDeeps(nodes, deep) {
         if (nodes.length === 0) {
+            this.nodes.filter(node => node.deep === Infinity).forEach(node => {
+                node.deep = deep;
+            });
+
             return;
         }
         let newNodes = new Set();
