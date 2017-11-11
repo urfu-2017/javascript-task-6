@@ -90,7 +90,7 @@ function getFriends(friends, filter, maxLevel) {
         return friend.best;
     });
     // Пока кол-во кругов позволяет и круг родитель не пустой начинаю 
-    while (maxLevel > 0 && circle.length) {
+    while (maxLevel > 0 && circle.length > 0) {
         circle.sort((f1, f2) => { // Сортирую по алфавиту
             return f1.name > f2.name;
         });
