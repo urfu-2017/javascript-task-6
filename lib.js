@@ -83,12 +83,11 @@ let stringCompare = (a, b) => a.name < b.name ? -1 : 1;
 
 function makeFriendsList(friends, filter, level) {
     let currentLevelFriends = friends.filter(friend => friend.best).sort(stringCompare);
-    let invitedFriends = [].concat(currentLevelFriends);
+    let invitedFriends = [];
 
-    level--;
     while (level > 0 && currentLevelFriends.length !== 0) {
+        invitedFriends = invitedFriends.concat(currentLevelFriends);
         let nextLevelFriends = getNextLevel(friends, invitedFriends, currentLevelFriends);
-        invitedFriends = invitedFriends.concat(nextLevelFriends);
         currentLevelFriends = nextLevelFriends;
         level--;
     }
