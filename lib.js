@@ -100,6 +100,7 @@ function getNextLevel(allFriends, invitedFriends, currentLevelFriends) {
     let nextLevelFriends = [];
     currentLevelFriends.forEach(friend => {
         let nextFriends = getNextNamesFromFriend(friend, invitedFriends, allFriends);
+        nextFriends = nextFriends.filter(friend_ => !nextLevelFriends.includes(friend_));
         nextLevelFriends = nextLevelFriends.concat(nextFriends);
     });
 
