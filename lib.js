@@ -79,10 +79,10 @@ class LimitedIterator extends Iterator {
 }
 
 
-let stringCompare = (a, b) => a.name < b.name ? -1 : 1;
+let nameCompare = (a, b) => a.name < b.name ? -1 : 1;
 
 function makeFriendsList(friends, filter, level) {
-    let currentLevelFriends = friends.filter(friend => friend.best).sort(stringCompare);
+    let currentLevelFriends = friends.filter(friend => friend.best).sort(nameCompare);
     let invitedFriends = [];
 
     while (level > 0 && currentLevelFriends.length !== 0) {
@@ -98,15 +98,15 @@ function makeFriendsList(friends, filter, level) {
 function getNextLevel(allFriends, invitedFriends, currentLevelFriends) {
     let nextLevelFriends = [];
     currentLevelFriends.forEach(friend => {
-        let nextFriends = getNextNamesFromFriend(friend, invitedFriends, allFriends);
+        let nextFriends = getNextFromFriend(friend, invitedFriends, allFriends);
         nextFriends = nextFriends.filter(friend_ => !nextLevelFriends.includes(friend_));
         nextLevelFriends = nextLevelFriends.concat(nextFriends);
     });
 
-    return nextLevelFriends.sort(stringCompare);
+    return nextLevelFriends.sort(nameCompare);
 }
 
-function getNextNamesFromFriend(friend, invitedFriends, allFriends) {
+function getNextFromFriend(friend, invitedFriends, allFriends) {
     let friendNames = friend.friends
         .filter(friendOfFriend => !isInvited(invitedFriends, friendOfFriend));
 
