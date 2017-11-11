@@ -105,25 +105,23 @@ function getFriends(friends, filter, maxLevel) {
 }
 // Функция поиска человека-объекта по имени
 function findByName(friends, name) {
-    let finder = null;
-    friends.forEach((friend) => {
-        if (friend.name === name) {
-            finder = friend;
+    for (let i = 0; i < friends.length; i++) {
+        if (friends[i].name === name) {
+            return friends[i];
         }
-    });
+    }
 
-    return finder;
+    return null;
 }
 // Проверка, нет ли человека уже в списке потенциально-приглашенных
 function alreadyAddFriend(inviteFriends, name) {
-    let finder = false;
-    inviteFriends.forEach((inviteFriend) => {
-        if (inviteFriend.name === name) {
-            finder = true;
+    for (let i = 0; i < inviteFriends.length; i++) {
+        if (inviteFriends[i].name === name) {
+            return true;
         }
-    });
+    }
 
-    return finder;
+    return false;
 }
 // Создание нового круга основываясь на предыдущих функциях
 function createCircleNew(circle, friends, inviteFriends) {
