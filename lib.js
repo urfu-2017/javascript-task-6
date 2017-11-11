@@ -1,36 +1,81 @@
 'use strict';
 
 /**
+ * Фильтр друзей
+ * @constructor
+ */
+class Filter {
+    constructor(gender) {
+        if (gender) {
+            this.filterFunc = function (friend) {
+                return friend.gender === gender;
+            };
+        } else {
+            this.filterFunc = function () {
+                return true;
+            };
+        }
+    }
+}
+
+/**
+ * Фильтр друзей
+ * @extends Filter
+ * @constructor
+ */
+class MaleFilter extends Filter {
+    constructor() {
+        super('male');
+    }
+}
+
+/**
+ * Фильтр друзей-девушек
+ * @extends Filter
+ * @constructor
+ */
+class FemaleFilter extends Filter {
+    constructor() {
+        super('female');
+    }
+}
+
+/**
  * Итератор по друзьям
  * @constructor
  * @param {Object[]} friends
  * @param {Filter} filter
  */
-function Iterator(friends, filter) {
-    if (!(filter instanceof Filter)) {
-        throw new TypeError('!Filter');
+class Iterator {
+    constructor(friends, filter, maxLevel) {
+        if (!maxLevel) {
+            maxLevel = Infinity;
+        }
+        if (!(filter instanceof Filter)) {
+            throw new TypeError('!Filter');
+        }
+        // friends = массив приглашенных друзей, friendsCount - индекс для обхода
+        this.friends = getFriends(friends, filter, maxLevel); // Т.к. Инфинити > 0 всегда 
+        this.friendsCount = 0;
     }
-    // friends = массив приглашенных друзей, friendsCount - индекс для обхода
-    this.friends = getFriends(friends, filter, Infinity); // Т.к. Инфинити > 0 всегда при любых +-
-    this.friendsCount = 0;
+    done() {
+        if (this.friendsCount >= this.friends.length) { // Если индекс превысил кол-во людей
+            return true;
+        }
+
+        return false;
+    }
+    next() {
+        if (!this.done()) {
+            let i = this.friendsCount;
+            this.friendsCount += 1;
+
+            return this.friends[i];
+        }
+
+        return null;
+    }
 }
-Iterator.prototype.done = function () { // Добавляю метод done в конструктор
-    if (this.friendsCount >= this.friends.length) { // Если индекс превысил кол-во людей
-        return true;
-    }
-
-    return false;
-};
-Iterator.prototype.next = function () { // Добавляю метод next в конструктор
-    if (!this.done()) {
-        let i = this.friendsCount;
-        this.friendsCount += 1;
-
-        return this.friends[i];
-    }
-
-    return null;
-};
 
 /**
  * Итератор по друзям с ограничением по кругу
@@ -40,52 +85,11 @@ Iterator.prototype.next = function () { // Добавляю метод next в �
  * @param {Filter} filter
  * @param {Number} maxLevel – максимальный круг друзей
  */
-function LimitedIterator(friends, filter, maxLevel) {
-    if (!(filter instanceof Filter)) {
-        throw new TypeError('!Filter');
+class LimitedIterator extends Iterator {
+    constructor(friends, filter, maxLevel) {
+        super(friends, filter, maxLevel);
     }
-    this.friends = getFriends(friends, filter, maxLevel);
-    this.friendsCount = 0;
 }
-LimitedIterator.prototype = Object.create(Iterator.prototype); // Объявляю прототип
-LimitedIterator.prototype.constructor = LimitedIterator;
-// Почему-то не работал setPrototype, так и не разобрался :O
-
-/**
- * Фильтр друзей
- * @constructor
- */
-function Filter() {
-    this.filterFunc = function () {
-        return true;
-    };
-}
-
-/**
- * Фильтр друзей
- * @extends Filter
- * @constructor
- */
-function MaleFilter() {
-    this.filterFunc = function (friend) {
-        return friend.gender === 'male';
-    };
-}
-MaleFilter.prototype = Object.create(Filter.prototype);
-MaleFilter.prototype.constructor = MaleFilter;
-
-/**
- * Фильтр друзей-девушек
- * @extends Filter
- * @constructor
- */
-function FemaleFilter() {
-    this.filterFunc = function (friend) {
-        return friend.gender === 'female';
-    };
-}
-FemaleFilter.prototype = Object.create(Filter.prototype);
-FemaleFilter.prototype.constructor = FemaleFilter;
 
 function getFriends(friends, filter, maxLevel) {
     let inviteFriends = []; // Массив всех найденных друзей, еще без фильтрации, потенциальные
@@ -93,7 +97,7 @@ function getFriends(friends, filter, maxLevel) {
         return friend.best;
     });
     // Пока кол-во кругов позволяет и круг родитель не пустой начинаю 
-    while (maxLevel > 0 && circle.length > 0) {
+    while (maxLevel > 0 && circle.length) {
         circle.sort((f1, f2) => { // Сортирую по алфавиту
             return f1.name > f2.name;
         });
