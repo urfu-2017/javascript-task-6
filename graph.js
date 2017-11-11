@@ -22,11 +22,14 @@ class Node {
 }
 
 let compareNode = (node1, node2) => {
+    if (node1.value.name === node2.value.name) {
+        return 0;
+    }
     if (node1.deep !== node2.deep) {
-        return node1.deep > node2.deep;
+        return node1.deep > node2.deep ? 1 : -1;
     }
 
-    return node1.value.name > node2.value.name;
+    return node1.value.name > node2.value.name ? 1 : -1;
 };
 
 module.exports = class {
