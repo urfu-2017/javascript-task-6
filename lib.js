@@ -11,7 +11,7 @@ function Iterator(friends, filter) {
         throw new TypeError('!Filter');
     }
     // friends = массив приглашенных друзей, friendsCount - индекс для обхода
-    this.friends = getFriends(friends, filter, 100);
+    this.friends = getFriends(friends, filter, Infinity);
     this.friendsCount = 0;
 }
 Iterator.prototype.done = function () { // Добавляю метод done в конструктор
@@ -117,9 +117,11 @@ function findByName(friends, name) {
 // Проверка, нет ли человека уже в списке потенциально-приглашенных
 function alreadyAddFriend(inviteFriends, friend) {
     let finder = false;
+    if (friend === null) {
+        return true;
+    }
     inviteFriends.forEach((inviteFriend) => {
-        // Можно бы было сравнивать через имя, но подумал так "надежней"
-        if (JSON.stringify(inviteFriend) === JSON.stringify(friend)) {
+        if (inviteFriend.name === friend.name) {
             finder = true;
         }
     });
