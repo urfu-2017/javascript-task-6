@@ -11,7 +11,7 @@ function Iterator(friends, filter) {
         throw new TypeError('!Filter');
     }
     // friends = массив приглашенных друзей, friendsCount - индекс для обхода
-    this.friends = getFriends(friends, filter, Infinity);
+    this.friends = getFriends(friends, filter, Infinity); // Т.к. Инфинити > 0 всегда при любых +-
     this.friendsCount = 0;
 }
 Iterator.prototype.done = function () { // Добавляю метод done в конструктор
@@ -115,13 +115,10 @@ function findByName(friends, name) {
     return finder;
 }
 // Проверка, нет ли человека уже в списке потенциально-приглашенных
-function alreadyAddFriend(inviteFriends, friend) {
+function alreadyAddFriend(inviteFriends, name) {
     let finder = false;
-    if (friend === null) {
-        return true;
-    }
     inviteFriends.forEach((inviteFriend) => {
-        if (inviteFriend.name === friend.name) {
+        if (inviteFriend.name === name) {
             finder = true;
         }
     });
@@ -133,8 +130,8 @@ function createCircleNew(circle, friends, inviteFriends) {
     let circleNew = [];
     circle.forEach((person) => {
         person.friends.forEach((name) => {
-            let friend = findByName(friends, name);
-            if (!alreadyAddFriend(inviteFriends, friend)) {
+            if (!alreadyAddFriend(inviteFriends, name)) {
+                let friend = findByName(friends, name);
                 circleNew.push(friend);
             }
         });
