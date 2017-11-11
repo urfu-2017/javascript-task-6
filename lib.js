@@ -86,7 +86,7 @@ function makeFriendsList(friends, filter, level) {
     let invitedFriends = [].concat(currentLevelFriends);
 
     level--;
-    while (level > 0 && invitedFriends.length !== friends.length) {
+    while (level > 0 && currentLevelFriends.length !== 0) {
         let nextLevelFriends = getNextLevel(friends, invitedFriends, currentLevelFriends);
         invitedFriends = invitedFriends.concat(nextLevelFriends);
         currentLevelFriends = nextLevelFriends;
