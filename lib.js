@@ -48,7 +48,6 @@ function Iterator(friends, filter) {
         throw new TypeError();
     }
 
-    this.currentGuestIndex = 0;
     this.invitedGuests = collectInvitedFriends(friends, filter);
 }
 
@@ -57,7 +56,7 @@ function Iterator(friends, filter) {
  * @returns {null|Object} null если обход закончен иначе объект описывающий друга.
  */
 Iterator.prototype.next = function () {
-    return this.done() ? null : this.invitedGuests[this.currentGuestIndex++];
+    return this.done() ? null : this.invitedGuests.shift();
 };
 
 /**
@@ -65,7 +64,7 @@ Iterator.prototype.next = function () {
  * @returns {boolean} true, если обход закончен, и false в противном случае.
  */
 Iterator.prototype.done = function () {
-    return this.currentGuestIndex === this.invitedGuests.length;
+    return this.invitedGuests.length === 0;
 };
 
 /**
