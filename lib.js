@@ -129,9 +129,7 @@ Object.assign(Iterator.prototype, {
  * @param {Number} maxLevel – максимальный круг друзей
  */
 function LimitedIterator(friends, filter, maxLevel) {
-    if (!(filter instanceof Filter)) {
-        throw new TypeError();
-    }
+    this.check(filter);
     this.friends = friends;
     this.map = {};
     for (let friend of friends) {
@@ -150,6 +148,11 @@ function LimitedIterator(friends, filter, maxLevel) {
 }
 
 Object.assign(LimitedIterator.prototype, Iterator.prototype, {
+    check(filter) {
+        if (!(filter instanceof Filter)) {
+            throw new TypeError();
+        }
+    },
     stop() {
         this.checkoutCurrentIfNeed();
 
