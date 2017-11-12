@@ -7,6 +7,9 @@
  * @param {Filter} filter
  */
 function Iterator(friends, filter) {
+    if (!(filter instanceof Filter)) {
+        throw new TypeError();
+    }
     this.friends = friends;
     this.map = {};
     for (let friend of friends) {
@@ -126,6 +129,9 @@ Object.assign(Iterator.prototype, {
  * @param {Number} maxLevel – максимальный круг друзей
  */
 function LimitedIterator(friends, filter, maxLevel) {
+    if (!(filter instanceof Filter)) {
+        throw new TypeError();
+    }
     this.friends = friends;
     this.map = {};
     for (let friend of friends) {
@@ -185,7 +191,7 @@ function MaleFilter() {
         return friend.gender === 'male';
     };
 }
-Object.assign(MaleFilter.prototype, Filter.prototype);
+MaleFilter.prototype = Object.create(Filter.prototype);
 
 
 /**
@@ -198,7 +204,7 @@ function FemaleFilter() {
         return friend.gender === 'female';
     };
 }
-Object.assign(MaleFilter.prototype, Filter.prototype);
+FemaleFilter.prototype = Object.create(Filter.prototype);
 
 exports.Iterator = Iterator;
 exports.LimitedIterator = LimitedIterator;
