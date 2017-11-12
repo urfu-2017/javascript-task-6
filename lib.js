@@ -10,14 +10,11 @@ let friendsSortRule = (first, second) => first.name.localeCompare(second.name);
  * @returns {Object[]} – отфильрованный и отсортированный список приглашаемых друзей.
  */
 function collectInvitedFriends(friends, filter, maxLevel = Infinity) {
-    let invitedFriends = [];
+    let currentLevelFriends = friends.filter(friend => friend.best);
 
-    let currentLevelFriends = friends.filter(friend => friend.best).sort(friendsSortRule);
-    invitedFriends.splice(invitedFriends.length, 0, ...currentLevelFriends);
-
-    let currentLevelIndex = 1;
-    while (currentLevelIndex < maxLevel && currentLevelFriends.length > 0) {
-        let nextLevelFriends = currentLevelFriends
+    let invitedFriends = [...currentLevelFriends];
+    while (currentLevelFriends.length > 0 && maxLevel > 1) {
+        currentLevelFriends = currentLevelFriends
             .reduce((acc, friend) => acc.concat(friend.friends), [])
             .map(friendName => friends.find(friend => friend.name === friendName))
             .filter((friend, pos, arr) => {
@@ -25,12 +22,11 @@ function collectInvitedFriends(friends, filter, maxLevel = Infinity) {
             })
             .sort(friendsSortRule);
 
-        currentLevelIndex++;
-        currentLevelFriends = nextLevelFriends;
         invitedFriends.splice(invitedFriends.length, 0, ...currentLevelFriends);
+        maxLevel--;
     }
 
-    return filter.filter(invitedFriends);
+    return invitedFriends.filter(filter.condition);
 }
 
 /**
@@ -85,15 +81,6 @@ Object.setPrototypeOf(LimitedIterator.prototype, Iterator.prototype);
 function Filter() {
     this.condition = () => true;
 }
-
-/**
- * Фильтрация приглашаемых гостей по заданному критерию.
- * @param {Object[]} friends – список гостей.
- * @returns {Object[]} – отфильтрованный по критерию список гостей.
- */
-Filter.prototype.filter = function (friends) {
-    return friends.filter(this.condition);
-};
 
 /**
  * Фильтр друзей
