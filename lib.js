@@ -93,17 +93,13 @@ function getFriends(friends, filter, maxLevel) {
     let circle = friends.filter((friend) => { // Создаю первый круг - лучшие друзья
         return friend.best;
     });
-    let fa = function (name) {
-        return inviteFriends.indexOf(name) === -1;
-    };
     // Пока кол-во кругов позволяет и круг родитель не пустой начинаю 
-    while (maxLevel > 0 && circle.length > 0) {
+    while (maxLevel > 0 && circle.length) {
         circle.sort((f1, f2) => { // Сортирую по алфавиту
             return f1.name > f2.name;
         });
         inviteFriends = inviteFriends.concat(circle); // Плюсую найденный круг
-        circle = createCircleNew(circle, friends); // Создаю новый
-        circle = circle.filter(fa);
+        circle = createCircleNew(circle, friends, inviteFriends); // Создаю новый
         maxLevel -= 1;
     }
     // Теперь фильтрую по заданому фильтру
@@ -121,18 +117,27 @@ function findByName(friends, name) {
 
     return null;
 }
+// Проверка, нет ли человека уже в списке потенциально-приглашенных
+function alreadyAddFriend(inviteFriends, name) {
+    for (let i = 0; i < inviteFriends.length; i++) {
+        if (inviteFriends[i].name === name) {
+            return true;
+        }
+    }
+
+    return false;
+}
 // Создание нового круга основываясь на предыдущих функциях
-function createCircleNew(circle, friends) {
+function createCircleNew(circle, friends, inviteFriends) {
     let circleNew = [];
     circle.forEach((person) => {
         person.friends.forEach((name) => {
-            if (circleNew.indexOf(name) === -1) {
-                circleNew.push(name);
+            if (!alreadyAddFriend(inviteFriends, name) &&
+                !alreadyAddFriend(circleNew, name)) {
+                let friend = findByName(friends, name);
+                circleNew.push(friend);
             }
         });
-    });
-    circleNew = circleNew.map((name) => {
-        return findByName(friends, name);
     });
 
     return circleNew;
