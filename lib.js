@@ -75,6 +75,7 @@ function Iterator(friends, filter) {
     this._friend = findFriends(friends, filter);
 }
 Iterator.prototype = new IteratorProto();
+Iterator.constructor = Iterator;
 
 /**
  * Итератор по друзям с ограничением по кругу
@@ -88,6 +89,7 @@ function LimitedIterator(friends, filter, maxLevel) {
     this._friend = findFriends(friends, filter, maxLevel);
 }
 LimitedIterator.prototype = Iterator.prototype;
+LimitedIterator.constructor = LimitedIterator;
 
 /**
  * Фильтр друзей
@@ -106,6 +108,7 @@ function MaleFilter() {
     this.filtrate = (friend) => friend.gender === 'male';
 }
 MaleFilter.prototype = new Filter();
+MaleFilter.constructor = Filter;
 
 /**
  * Фильтр друзей-девушек
@@ -116,6 +119,7 @@ function FemaleFilter() {
     this.filtrate = (friend) => friend.gender === 'female';
 }
 FemaleFilter.prototype = new Filter();
+FemaleFilter.constructor = FemaleFilter;
 
 exports.Iterator = Iterator;
 exports.LimitedIterator = LimitedIterator;
