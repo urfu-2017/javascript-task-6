@@ -84,9 +84,11 @@ function getAllGuests(friends, filter, maxFriendsCircle = Infinity) {
 }
 
 function getNewGuests(currentFriendsCircle, allGuests, friends) {
-    return currentFriendsCircle.reduce((friendsOfFriends, item) =>
-        friendsOfFriends.concat(item.friends)
-        , [])
+    return currentFriendsCircle
+        .reduce((friendsOfFriends, currentFriend) =>
+            friendsOfFriends.concat(currentFriend.friends
+                .filter(friend => !friendsOfFriends.includes(friend)))
+            , [])
         .map(name => friends.find(friend => friend.name === name))
         .filter(friend => !allGuests.includes(friend));
 }
