@@ -106,9 +106,13 @@ Object.assign(Iterator.prototype, {
     checkoutCurrentIfNeed() {
         if (this.index === this.current.length) {
             if (this.future.length === 0) {
+
+                /*
                 this.current = this.friends.filter(f => !this.returns.includes(f) &&
                                                         !this.current.includes(f) &&
                                                          this.filter.apply(f));
+                */
+                this.current = [];
             } else {
                 this.current = this.future;
                 this.future = [];
