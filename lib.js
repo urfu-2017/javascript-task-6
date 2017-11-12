@@ -75,23 +75,20 @@ function getAllGuests(friends, filter, maxFriendsCircle = Infinity) {
     while (currentFriendsCircle.length > 0 && maxFriendsCircle > 0) {
         allGuests = allGuests.concat(currentFriendsCircle);
 
-        let newGuests = currentFriendsCircle
-            .reduce((result, bestFriend) =>
-                result.concat(findNotVisitedFriends(bestFriend.friends, result)),
-            [])
-            .map(name => friends.find(friend => friend.name === name));
-
-        currentFriendsCircle = findNotVisitedFriends(newGuests, allGuests)
-            .sort(friendsSort);
-
+        let newGuests = getNewGuests(currentFriendsCircle, allGuests, friends);
+        currentFriendsCircle = newGuests.sort(friendsSort);
         maxFriendsCircle--;
     }
 
     return allGuests.filter(filter.isInvitedFriend);
 }
 
-function findNotVisitedFriends(friends, resource) {
-    return friends.filter(friend => !resource.includes(friend));
+function getNewGuests(currentFriendsCircle, allGuests, friends) {
+    return currentFriendsCircle.reduce((friendsOfFriends, item) =>
+        friendsOfFriends.concat(item.friends.filter(friend => !friendsOfFriends.includes(friend)))
+        , [])
+        .map(name => friends.find(friend => friend.name === name))
+        .filter(friend => !allGuests.includes(friend));
 }
 
 function friendsSort(firstFriend, secondFriend) {
