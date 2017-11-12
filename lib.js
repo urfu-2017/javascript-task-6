@@ -24,9 +24,7 @@ function collectInvitedFriends(friends, filter, maxLevel = Infinity) {
         let nextLevelFriends = currentLevelFriends
             .reduce((acc, friend) => acc.concat(friend.friends), [])
             .map(friendName => friends.find(friend => friend.name === friendName))
-            .filter((friend, pos, arr) => {
-                return !invitedFriends.includes(friend) && arr.indexOf(friend) === pos;
-            })
+            .filter((friend) => !invitedFriends.includes(friend))
             .sort(friendsSortRule);
 
         currentLevelIndex++;
