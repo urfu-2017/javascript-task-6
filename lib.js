@@ -10,23 +10,23 @@ exports.isStar = true;
  * @param {Number} maxLevel
  * @returns {Array<name, friends, gender, best>}
  */
-function getEnumerator(friends, filter, maxLevel = Infinity) {
+function getFriendsInTraversalOrder(friends, filter, maxLevel = Infinity) {
     let nameFriendToCircleNumber = calculateCircleNumbers(friends);
 
     return filter.filter(friends)
         .filter(friend => friend.name in nameFriendToCircleNumber &&
                 nameFriendToCircleNumber[friend.name] <= maxLevel)
-        .sort((thisFriend, otherFriend) => {
-            if (nameFriendToCircleNumber[thisFriend.name] <
-                nameFriendToCircleNumber[otherFriend.name]) {
+        .sort((a, b) => {
+            if (nameFriendToCircleNumber[a.name] <
+                nameFriendToCircleNumber[b.name]) {
                 return - 1;
             }
-            if (nameFriendToCircleNumber[thisFriend.name] >
-                nameFriendToCircleNumber[otherFriend.name]) {
+            if (nameFriendToCircleNumber[a.name] >
+                nameFriendToCircleNumber[b.name]) {
                 return 1;
             }
 
-            return thisFriend.name <= otherFriend.name ? -1 : 1;
+            return a.name <= b.name ? -1 : 1;
         });
 }
 
@@ -69,8 +69,8 @@ function calculateCircleNumbers(friends) {
  */
 function Iterator(friends, filter) {
     this.checkFilterType(filter);
-    this.enumerator = getEnumerator(friends, filter);
     this.index = 0;
+    this.collection = getFriendsInTraversalOrder(friends, filter);
 }
 
 Object.assign(Iterator.prototype, {
@@ -81,15 +81,14 @@ Object.assign(Iterator.prototype, {
         }
     },
     done() {
-        return this.index >= this.enumerator.length;
+        return this.index >= this.collection.length;
     },
     next() {
         if (this.done()) {
             return null;
         }
-        this.index++;
 
-        return this.enumerator[this.index - 1];
+        return this.collection[this.index++];
     }
 });
 
@@ -102,24 +101,24 @@ Object.assign(Iterator.prototype, {
  * @param {Number} maxLevel – максимальный круг друзей
  */
 function LimitedIterator(friends, filter, maxLevel) {
-    this.checkFilterType(filter);
-    this.enumerator = getEnumerator(friends, filter, maxLevel);
-    this.index = 0;
+    this.superClass(friends, filter);
+    this.collection = getFriendsInTraversalOrder(friends, filter, maxLevel);
 }
 
-Object.setPrototypeOf(LimitedIterator.prototype, Iterator.prototype);
+LimitedIterator.prototype = Object.create(Iterator.prototype,
+    { 'superClass': { value: Iterator } });
 
 /**
  * Фильтр друзей
  * @constructor
  */
 function Filter() {
-    this.selectionCondition = () => true;
+    this.checkCondition = () => true;
 }
 
 Object.assign(Filter.prototype, {
     filter(friends) {
-        return friends.filter(friend => this.selectionCondition(friend));
+        return friends.filter(this.checkCondition);
     }
 });
 
@@ -129,10 +128,10 @@ Object.assign(Filter.prototype, {
  * @constructor
  */
 function MaleFilter() {
-    this.selectionCondition = friend => friend.gender === 'male';
+    this.checkCondition = friend => friend.gender === 'male';
 }
 
-Object.setPrototypeOf(MaleFilter.prototype, Filter.prototype);
+MaleFilter.prototype = Object.create(Filter.prototype);
 
 /**
  * Фильтр друзей-девушек
@@ -140,10 +139,10 @@ Object.setPrototypeOf(MaleFilter.prototype, Filter.prototype);
  * @constructor
  */
 function FemaleFilter() {
-    this.selectionCondition = friend => friend.gender === 'female';
+    this.checkCondition = friend => friend.gender === 'female';
 }
 
-Object.setPrototypeOf(FemaleFilter.prototype, Filter.prototype);
+FemaleFilter.prototype = Object.create(Filter.prototype);
 
 exports.Iterator = Iterator;
 exports.LimitedIterator = LimitedIterator;
