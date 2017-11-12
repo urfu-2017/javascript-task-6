@@ -35,8 +35,7 @@ function LimitedIterator(friends, filter, maxLevel) {
     Iterator.call(this, friends, filter);
     this._guests = getAllGuests(friends, filter, maxLevel);
 }
-LimitedIterator.prototype = Object.create(Iterator.prototype);
-LimitedIterator.prototype.constructor = LimitedIterator;
+Object.setPrototypeOf(LimitedIterator.prototype, Iterator.prototype);
 
 /**
  * Фильтр друзей
@@ -54,8 +53,7 @@ function Filter() {
 function MaleFilter() {
     this.isInvitedFriend = friend => friend.gender === 'male';
 }
-MaleFilter.prototype = Object.create(Filter.prototype);
-MaleFilter.prototype.constructor = MaleFilter;
+Object.setPrototypeOf(MaleFilter.prototype, Filter.prototype);
 
 /**
  * Фильтр друзей-девушек
@@ -65,10 +63,9 @@ MaleFilter.prototype.constructor = MaleFilter;
 function FemaleFilter() {
     this.isInvitedFriend = friend => friend.gender === 'female';
 }
-FemaleFilter.prototype = Object.create(Filter.prototype);
-FemaleFilter.prototype.constructor = FemaleFilter;
+Object.setPrototypeOf(FemaleFilter.prototype, Filter.prototype);
 
-function getAllGuests(friends, filter, maxFriendsCircle = Number.MAX_SAFE_INTEGER) {
+function getAllGuests(friends, filter, maxFriendsCircle = Infinity) {
     let currentFriendsCircle = friends
         .filter(friend => friend.best)
         .sort(friendsSort);
@@ -78,7 +75,7 @@ function getAllGuests(friends, filter, maxFriendsCircle = Number.MAX_SAFE_INTEGE
     while (currentFriendsCircle.length > 0 && maxFriendsCircle > 0) {
         allGuests = allGuests.concat(currentFriendsCircle);
 
-        let newGuests = getNewGuests(currentFriendsCircle, allGuests, filter, friends);
+        let newGuests = getNewGuests(currentFriendsCircle, allGuests, friends);
         currentFriendsCircle = newGuests.sort(friendsSort);
         maxFriendsCircle--;
     }
@@ -86,7 +83,7 @@ function getAllGuests(friends, filter, maxFriendsCircle = Number.MAX_SAFE_INTEGE
     return allGuests.filter(filter.isInvitedFriend);
 }
 
-function getNewGuests(currentFriendsCircle, allGuests, filter, friends) {
+function getNewGuests(currentFriendsCircle, allGuests, friends) {
     return currentFriendsCircle.reduce((friendsOfFriends, item) => {
         let friendsNames = item.friends || [];
         let newFriends = friends.filter(friend => friendsNames.includes(friend.name));
