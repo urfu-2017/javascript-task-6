@@ -32,11 +32,7 @@ Iterator.prototype.next = function () {
  * @param {Number} maxLevel – максимальный круг друзей
  */
 function LimitedIterator(friends, filter, maxLevel) {
-    if (!(filter instanceof Filter)) {
-        throw new TypeError();
-    }
-
-    this._index = 0;
+    Iterator.call(this, friends, filter);
     this._guests = getAllGuests(friends, filter, maxLevel);
 }
 Object.setPrototypeOf(LimitedIterator.prototype, Iterator.prototype);
