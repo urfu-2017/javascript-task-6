@@ -55,9 +55,7 @@ function IteratorProto() {
     };
     this.next = function () {
         const result = (this.done()) ? null : this._friend[this._index];
-        if (result !== null) {
-            this._index++;
-        }
+        this._index++;
 
         return result;
     };
@@ -74,7 +72,7 @@ function Iterator(friends, filter) {
     this._friend = findFriends(friends, filter);
 }
 Iterator.prototype = new IteratorProto();
-Iterator.constructor = Iterator;
+Iterator.prototype.constructor = Iterator;
 
 /**
  * Итератор по друзям с ограничением по кругу
@@ -87,8 +85,8 @@ Iterator.constructor = Iterator;
 function LimitedIterator(friends, filter, maxLevel) {
     this._friend = findFriends(friends, filter, maxLevel);
 }
-LimitedIterator.prototype = Iterator.prototype;
-LimitedIterator.constructor = LimitedIterator;
+Object.setPrototypeOf(LimitedIterator.prototype, Iterator.prototype);
+LimitedIterator.prototype.constructor = LimitedIterator;
 
 /**
  * Фильтр друзей
@@ -107,7 +105,7 @@ function MaleFilter() {
     this.filtrate = (friend) => friend.gender === 'male';
 }
 MaleFilter.prototype = new Filter();
-MaleFilter.constructor = MaleFilter;
+MaleFilter.prototype.constructor = MaleFilter;
 
 /**
  * Фильтр друзей-девушек
@@ -118,7 +116,7 @@ function FemaleFilter() {
     this.filtrate = (friend) => friend.gender === 'female';
 }
 FemaleFilter.prototype = new Filter();
-FemaleFilter.constructor = FemaleFilter;
+FemaleFilter.prototype.constructor = FemaleFilter;
 
 exports.Iterator = Iterator;
 exports.LimitedIterator = LimitedIterator;
