@@ -45,8 +45,8 @@ function distributeByLevels(friends, filter, maxLevel) {
     if (!friends || !maxLevel || maxLevel < 1) {
         return [];
     }
-    let invited = [];
     let nextLevel = [];
+    let invited = [];
     let objectForFriends = makeFriendsByName(friends);
     friends.sort(compareNames).forEach(person => {
         if (person.best) {
