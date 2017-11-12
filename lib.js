@@ -70,20 +70,16 @@ function FemaleFilter() {
 Object.setPrototypeOf(FemaleFilter.prototype, Filter.prototype);
 
 function getAllGuests(friends, filter, maxFriendsCircle = Number.MAX_SAFE_INTEGER) {
-    if (maxFriendsCircle < 1) {
-
-        return [];
-    }
-    let bestFrieds = friends
+    let currentFriendsCircle = friends
         .filter(friend => friend.best)
         .sort(friendsSort);
 
-    let allGuests = bestFrieds.slice();
-    let currentFriendsCircle = bestFrieds.slice();
+    let allGuests = [];
 
-    while (currentFriendsCircle.length > 0 && maxFriendsCircle > 1) {
+    while (currentFriendsCircle.length > 0 && maxFriendsCircle > 0) {
+        allGuests = allGuests.concat(currentFriendsCircle.sort(friendsSort));
+
         let newGuests = getNewGuests(currentFriendsCircle, allGuests, filter, friends);
-        allGuests = allGuests.concat(newGuests.sort(friendsSort));
         currentFriendsCircle = newGuests;
         maxFriendsCircle--;
     }
@@ -95,8 +91,9 @@ function getNewGuests(currentFriendsCircle, allGuests, filter, friends) {
     return currentFriendsCircle.reduce((friendsOfFriends, item) => {
         let friendsNames = item.friends || [];
         let newFriends = friends.filter(friend => friendsNames.includes(friend.name));
+        friendsOfFriends = friendsOfFriends.concat(newFriends);
 
-        return friendsOfFriends.concat(newFriends);
+        return friendsOfFriends;
     }, []).filter(friend => !allGuests.includes(friend));
 }
 
