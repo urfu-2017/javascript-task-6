@@ -41,7 +41,7 @@ function findBestFriends(arg, allFriends, noInviteFriends) {
 
         return false;
 
-    });
+    }).sort(functionCompareByName);
     friendsOnLevel.names = friendsFriendsOnLevel;
 }
 
