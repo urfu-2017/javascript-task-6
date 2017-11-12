@@ -17,14 +17,12 @@ function collectInvitedFriends(friends, filter, maxLevel = Infinity) {
 
     let currentLevelIndex = 1;
     while (currentLevelIndex < maxLevel && currentLevelFriends.length > 0) {
-        // 1. Собираем имена друзей следующего круга
-        // 2. Получаем объекты этих друзей
-        // 3. Оставляем только уникальных в списке и не приглашённых ранее
-        // 4. Сортируем друзей текущего круга в алфавитном порядке
         let nextLevelFriends = currentLevelFriends
             .reduce((acc, friend) => acc.concat(friend.friends), [])
             .map(friendName => friends.find(friend => friend.name === friendName))
-            .filter((friend) => !invitedFriends.includes(friend))
+            .filter((friend, pos, arr) => {
+                return !invitedFriends.includes(friend) && arr.indexOf(friend) === pos;
+            })
             .sort(friendsSortRule);
 
         currentLevelIndex++;
@@ -74,12 +72,11 @@ Iterator.prototype.done = function () {
  * @param {Number} maxLevel – максимальный круг друзей
  */
 function LimitedIterator(friends, filter, maxLevel) {
-    Object.getPrototypeOf(LimitedIterator.prototype).constructor.call(this, friends, filter);
+    Iterator.call(this, friends, filter);
     this.invitedGuests = collectInvitedFriends(friends, filter, maxLevel);
 }
 
-LimitedIterator.prototype = Object.create(Iterator.prototype);
-LimitedIterator.prototype.constructor = LimitedIterator;
+Object.setPrototypeOf(LimitedIterator.prototype, Iterator.prototype);
 
 /**
  * Фильтр друзей
@@ -107,8 +104,7 @@ function MaleFilter() {
     this.condition = friend => friend.gender === 'male';
 }
 
-MaleFilter.prototype = Object.create(Filter.prototype);
-MaleFilter.prototype.constructor = MaleFilter;
+Object.setPrototypeOf(MaleFilter.prototype, Filter.prototype);
 
 /**
  * Фильтр друзей-девушек
@@ -119,8 +115,7 @@ function FemaleFilter() {
     this.condition = friend => friend.gender === 'female';
 }
 
-FemaleFilter.prototype = Object.create(Filter.prototype);
-FemaleFilter.prototype.constructor = FemaleFilter;
+Object.setPrototypeOf(FemaleFilter.prototype, Filter.prototype);
 
 exports.Iterator = Iterator;
 exports.LimitedIterator = LimitedIterator;
