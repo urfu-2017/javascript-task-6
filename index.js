@@ -72,6 +72,9 @@ while (!femaleIterator.done()) {
     invitedFriends.push(femaleIterator.next());
 }
 
+var filter = new lib.Filter();
+console.info(filter.check(friends[0]));
+
 console.info(invitedFriends);
 // Sam, Sally
 // Brad, Emily
