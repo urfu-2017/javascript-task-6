@@ -132,6 +132,9 @@ function createCircleNew(circle, friends, inviteFriends) {
     let circleNew = [];
     circle.forEach((person) => {
         person.friends.forEach((name) => {
+            // Вот тут сидела ошибка(!), я не проверял внутрений список на дубли, а он мог
+            // добавить одного и того же человека дважды, так как его не было в исходном,
+            // но он уже был найден в этом круге
             if (!alreadyAddFriend(inviteFriends, name) &&
                 !alreadyAddFriend(circleNew, name)) {
                 let friend = findByName(friends, name);
