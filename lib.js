@@ -6,14 +6,14 @@ function getFriends(friends, filter, maxLevel) {
     let result = [];
     let initialCircle = friends
         .filter(friend => friend.best)
-        .sort((a, b) => a.name > b.name);
+        .sort((a, b) => a.name.localeCompare(b.name));
     while (maxLevel-- > 0 && initialCircle.length) {
         result = result.concat(initialCircle);
         let nextCircle = initialCircle
-            .reduce((acc, friend) => acc.concat(friend.friends), [])
+            .reduce((acc, friend) => acc.concat(getArrayDiff(friend.friends, acc)), [])
             .map(name => friends.find(friend => friend.name === name));
         initialCircle = getArrayDiff(nextCircle, result)
-            .sort((a, b) => a.name > b.name);
+            .sort((a, b) => a.name.localeCompare(b.name));
     }
 
     return result.filter(filter.check);
