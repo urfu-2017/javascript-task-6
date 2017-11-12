@@ -10,10 +10,12 @@ let friendsSortRule = (first, second) => first.name.localeCompare(second.name);
  * @returns {Object[]} – отфильрованный и отсортированный список приглашаемых друзей.
  */
 function collectInvitedFriends(friends, filter, maxLevel = Infinity) {
+    let invitedFriends = [];
     let currentLevelFriends = friends.filter(friend => friend.best);
 
-    let invitedFriends = [...currentLevelFriends];
-    while (currentLevelFriends.length > 0 && maxLevel > 1) {
+    while (currentLevelFriends.length > 0 && maxLevel > 0) {
+        invitedFriends.splice(invitedFriends.length, 0, ...currentLevelFriends);
+
         currentLevelFriends = currentLevelFriends
             .reduce((acc, friend) => acc.concat(friend.friends), [])
             .map(friendName => friends.find(friend => friend.name === friendName))
@@ -22,7 +24,6 @@ function collectInvitedFriends(friends, filter, maxLevel = Infinity) {
             })
             .sort(friendsSortRule);
 
-        invitedFriends.splice(invitedFriends.length, 0, ...currentLevelFriends);
         maxLevel--;
     }
 
