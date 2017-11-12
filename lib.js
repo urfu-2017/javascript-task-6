@@ -11,7 +11,7 @@ let friendsSortRule = (first, second) => first.name.localeCompare(second.name);
  */
 function collectInvitedFriends(friends, filter, maxLevel = Infinity) {
     let invitedFriends = [];
-    let currentLevelFriends = friends.filter(friend => friend.best);
+    let currentLevelFriends = friends.filter(friend => friend.best).sort(friendsSortRule);
 
     while (currentLevelFriends.length > 0 && maxLevel > 0) {
         invitedFriends.splice(invitedFriends.length, 0, ...currentLevelFriends);
