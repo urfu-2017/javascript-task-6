@@ -1,5 +1,9 @@
 'use strict';
 
+function unite(arr1, arr2) {
+    return [...new Set(arr1.concat(arr2))];
+}
+
 function getFriendBy(name, friends) {
     return friends.find(friend => friend.name === name);
 }
@@ -47,13 +51,13 @@ class Iter {
     }
 
     _switchLevel() {
-        this._visited.push.apply(this._visited, this._levelNames);
+        this._visited = unite(this._visited, this._levelNames);
         const namesCount = this._levelNames.length;
 
         for (let i = 0; i < namesCount; i++) {
             const name = this._levelNames.shift();
             const friend = getFriendBy(name, this._friends);
-            this._levelNames.push.apply(
+            this._levelNames = unite(
                 this._levelNames,
                 friend.friends.filter(friendName => !this._visited.includes(friendName))
             );
