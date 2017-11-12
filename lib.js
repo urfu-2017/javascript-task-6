@@ -19,7 +19,7 @@ function getFilteredFriends(friends, filter, maxLevel = Infinity) {
     }).sort(sortFunc);
     let nextLevel = [];
     let alreadyChecked = [];
-    while (currLevel.length && maxLevel) {
+    while (currLevel.length && maxLevel > 0) {
         let person = currLevel.pop();
         if (filter.check(person) && alreadyChecked.indexOf(person.name) === -1) {
             result.push(person);
