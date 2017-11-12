@@ -87,7 +87,7 @@ Iterator.prototype = new IteratorProto();
 function LimitedIterator(friends, filter, maxLevel) {
     this._friend = findFriends(friends, filter, maxLevel);
 }
-LimitedIterator.prototype = new IteratorProto();
+LimitedIterator.prototype = Iterator.prototype;
 
 /**
  * Фильтр друзей
