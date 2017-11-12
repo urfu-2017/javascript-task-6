@@ -87,21 +87,11 @@ function getAllGuests(friends, filter, maxFriendsCircle = Infinity) {
         maxFriendsCircle--;
     }
 
-    return allGuests.filter(filter.filter);
+    return allGuests.filter(filter.isInvitedFriend);
 }
 
 function findNotVisitedFriends(friends, resource) {
     return friends.filter(friend => !resource.includes(friend));
-}
-
-function getNewGuests(currentFriendsCircle, allGuests, friends) {
-    return currentFriendsCircle.reduce((friendsOfFriends, item) => {
-        let friendsNames = item.friends || [];
-        let newFriends = friends.filter(friend => friendsNames.includes(friend.name));
-        friendsOfFriends = friendsOfFriends.concat(newFriends);
-
-        return friendsOfFriends;
-    }, []).filter(friend => !allGuests.includes(friend));
 }
 
 function friendsSort(firstFriend, secondFriend) {
