@@ -16,7 +16,7 @@ function collectInvitedFriends(friends, filter, maxLevel = Infinity) {
     invitedFriends.splice(invitedFriends.length, 0, ...currentLevelFriends);
 
     let currentLevelIndex = 1;
-    while (currentLevelIndex < maxLevel && invitedFriends.length !== friends.length) {
+    while (currentLevelIndex < maxLevel && currentLevelFriends.length > 0) {
         // 1. Собираем имена друзей следующего круга
         // 2. Получаем объекты этих друзей
         // 3. Оставляем только уникальных в списке и не приглашённых ранее
