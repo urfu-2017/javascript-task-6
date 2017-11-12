@@ -41,23 +41,17 @@ LimitedIterator.prototype.constructor = LimitedIterator;
  * Фильтр друзей
  * @constructor
  */
-function Filter() {
-    this.filter = () => true;
-}
-Filter.prototype.func = function (obj) {
-    return this.filter(obj);
-};
+function Filter() {}
+Filter.prototype.func = () => true;
 
 /**
  * Фильтр друзей
  * @extends Filter
  * @constructor
  */
-function MaleFilter() {
-    this.filter = friend => friend.gender === 'male';
-}
+function MaleFilter() {}
 MaleFilter.prototype = Object.create(Filter.prototype);
-MaleFilter.prototype.constructor = MaleFilter;
+MaleFilter.prototype.func = friend => friend.gender === 'male';
 
 
 /**
@@ -65,11 +59,9 @@ MaleFilter.prototype.constructor = MaleFilter;
  * @extends Filter
  * @constructor
  */
-function FemaleFilter() {
-    this.filter = friend => friend.gender === 'female';
-}
+function FemaleFilter() {}
 FemaleFilter.prototype = Object.create(Filter.prototype);
-FemaleFilter.prototype.constructor = FemaleFilter;
+FemaleFilter.prototype.func = friend => friend.gender === 'female';
 
 exports.Iterator = Iterator;
 exports.LimitedIterator = LimitedIterator;
