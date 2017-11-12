@@ -9,13 +9,11 @@ function checkFilter(filter) {
     }
 }
 function findFriend(friendName, friends) {
-    for (let i = 1; i < friends.length; i++) {
+    for (let i = 0; i < friends.length; i++) {
         if (friendName === friends[i].name) {
             return friends[i];
         }
     }
-
-    return -1;
 }
 
 function getLevelFriends(previousLevelFriend, resultFriends, friends) {
@@ -24,8 +22,7 @@ function getLevelFriends(previousLevelFriend, resultFriends, friends) {
         friend.friends.forEach(nextLevelFriendName => {
             const nextLevelFriend = findFriend(nextLevelFriendName, friends);
             if (levelFriend.indexOf(nextLevelFriend) === -1 &&
-                resultFriends.indexOf(nextLevelFriend) === -1 &&
-                nextLevelFriend !== -1) {
+                resultFriends.indexOf(nextLevelFriend) === -1) {
                 levelFriend.push(nextLevelFriend);
             }
         });
