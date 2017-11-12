@@ -105,7 +105,7 @@ function MaleFilter() {
     this.filtrate = (friend) => friend.gender === 'male';
 }
 MaleFilter.prototype = new Filter();
-MaleFilter.constructor = Filter;
+MaleFilter.constructor = MaleFilter;
 
 /**
  * Фильтр друзей-девушек
