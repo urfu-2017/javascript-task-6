@@ -12,73 +12,18 @@ function filterNames(names, filter, friends) {
     return names.filter(name => filter.isCorrect(getFriendBy(name, friends)));
 }
 
-class Iter {
-    constructor(friends, filter) {
-        if (!(filter instanceof Filter)) {
-            throw new TypeError();
-        }
+function switchFriendsLevel(levelNames, friends, visited) {
+    let nextLevelNames = [];
 
-        this._friends = friends;
-        this._filter = filter;
-        this._i = 0;
-        this._level = 1;
-        this._visited = [];
-        this._levelNames = friends
-            .filter(friend => friend.best)
-            .map(friend => friend.name)
-            .sort();
-        this._correctLevelNames = filterNames(this._levelNames, this._filter, this._friends);
+    for (let name of levelNames) {
+        const friend = getFriendBy(name, friends);
+        nextLevelNames = unite(
+            nextLevelNames,
+            friend.friends.filter(friendName => !visited.includes(friendName))
+        );
     }
 
-    next() {
-        while (!this.done()) {
-            const friend = getFriendBy(this._correctLevelNames[this._i], this._friends);
-
-            this._i += 1;
-
-            if (this._i === this._correctLevelNames.length) {
-                this._switchLevel();
-            }
-
-            return friend;
-        }
-
-        return null;
-    }
-
-    done() {
-        return this._correctLevelNames.length === 0;
-    }
-
-    _switchLevel() {
-        this._visited = unite(this._visited, this._levelNames);
-        const namesCount = this._levelNames.length;
-
-        for (let i = 0; i < namesCount; i++) {
-            const name = this._levelNames.shift();
-            const friend = getFriendBy(name, this._friends);
-            this._levelNames = unite(
-                this._levelNames,
-                friend.friends.filter(friendName => !this._visited.includes(friendName))
-            );
-        }
-
-        this._levelNames.sort();
-        this._correctLevelNames = filterNames(this._levelNames, this._filter, this._friends);
-        this._i = 0;
-        this._level += 1;
-    }
-}
-
-class LimitedIter extends Iter {
-    constructor(friends, filter, maxLevel) {
-        super(friends, filter);
-        this._maxLevel = maxLevel;
-    }
-
-    done() {
-        return super.done() || this._level > this._maxLevel;
-    }
+    return nextLevelNames;
 }
 
 /**
@@ -88,7 +33,47 @@ class LimitedIter extends Iter {
  * @param {Filter} filter
  */
 function Iterator(friends, filter) {
-    return new Iter(friends, filter);
+    if (!(filter instanceof Filter)) {
+        throw new TypeError();
+    }
+
+    this._friends = friends;
+    this._filter = filter;
+    this._i = 0;
+    this._level = 1;
+    this._maxLevel = Infinity;
+    this._visited = [];
+    this._levelNames = friends
+        .filter(friend => friend.best)
+        .map(friend => friend.name)
+        .sort();
+    this._correctLevelNames = filterNames(this._levelNames, this._filter, this._friends);
+
+    this.next = () => {
+        while (!this.done()) {
+            const friend = getFriendBy(this._correctLevelNames[this._i], this._friends);
+
+            this._i += 1;
+
+            if (this._i === this._correctLevelNames.length) {
+                this._visited = unite(this._visited, this._levelNames);
+                this._levelNames = switchFriendsLevel(
+                    this._levelNames, this._friends, this._visited
+                ).sort();
+                this._correctLevelNames = filterNames(
+                    this._levelNames, this._filter, this._friends
+                );
+                this._i = 0;
+                this._level += 1;
+            }
+
+            return friend;
+        }
+
+        return null;
+    };
+
+    this.done = () => this._correctLevelNames.length === 0 || this._level > this._maxLevel;
 }
 
 /**
@@ -100,15 +85,18 @@ function Iterator(friends, filter) {
  * @param {Number} maxLevel – максимальный круг друзей
  */
 function LimitedIterator(friends, filter, maxLevel) {
-    return new LimitedIter(friends, filter, maxLevel);
+    Iterator.call(this, friends, filter);
+    this._maxLevel = maxLevel;
 }
+
+Object.setPrototypeOf(LimitedIterator.prototype, Iterator.prototype);
 
 /**
  * Фильтр друзей
  * @constructor
  */
 function Filter() {
-    this.isCorrect = friend => friend !== 'undefined';
+    this.isCorrect = () => true;
 }
 
 /**
