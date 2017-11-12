@@ -1,29 +1,42 @@
 'use strict';
 
-function unite(arr1, arr2) {
-    return [...new Set(arr1.concat(arr2))];
-}
-
 function getFriendBy(name, friends) {
     return friends.find(friend => friend.name === name);
 }
 
-function filterNames(names, filter, friends) {
-    return names.filter(name => filter.isCorrect(getFriendBy(name, friends)));
+function compareFriends(friend1, friend2) {
+    return friend1.level === friend2.level
+        ? friend1.friend.name > friend2.friend.name
+        : friend1.level - friend2.level;
 }
 
-function switchFriendsLevel(levelNames, friends, visited) {
-    let nextLevelNames = [];
+function filterFriends(friends, filter, maxLevel = Infinity) {
+    const visitedFriends = [];
+    const selectedFriends = friends
+        .filter(friend => friend.best)
+        .map(friend => ({ friend, level: 1 }));
 
-    for (let name of levelNames) {
-        const friend = getFriendBy(name, friends);
-        nextLevelNames = unite(
-            nextLevelNames,
-            friend.friends.filter(friendName => !visited.includes(friendName))
-        );
+    while (selectedFriends.length !== 0) {
+        const selectedFriend = selectedFriends.shift();
+
+        if (selectedFriend.level > maxLevel) {
+            break;
+        }
+
+        visitedFriends.push(selectedFriend);
+        selectedFriend.friend.friends.forEach(name => {
+            if (!visitedFriends.some(friend => friend.friend.name === name) &&
+                    !selectedFriends.some(friend => friend.friend.name === name)) {
+                const friend = getFriendBy(name, friends);
+                selectedFriends.push({ friend, level: selectedFriend.level + 1 });
+            }
+        });
     }
 
-    return nextLevelNames;
+    return visitedFriends
+        .sort(compareFriends)
+        .map(friend => friend.friend)
+        .filter(filter.isSuitable);
 }
 
 /**
@@ -37,43 +50,11 @@ function Iterator(friends, filter) {
         throw new TypeError();
     }
 
-    this._friends = friends;
-    this._filter = filter;
     this._i = 0;
-    this._level = 1;
-    this._maxLevel = Infinity;
-    this._visited = [];
-    this._levelNames = friends
-        .filter(friend => friend.best)
-        .map(friend => friend.name)
-        .sort();
-    this._correctLevelNames = filterNames(this._levelNames, this._filter, this._friends);
+    this._friends = filterFriends(friends, filter);
 
-    this.next = () => {
-        while (!this.done()) {
-            const friend = getFriendBy(this._correctLevelNames[this._i], this._friends);
-
-            this._i += 1;
-
-            if (this._i === this._correctLevelNames.length) {
-                this._visited = unite(this._visited, this._levelNames);
-                this._levelNames = switchFriendsLevel(
-                    this._levelNames, this._friends, this._visited
-                ).sort();
-                this._correctLevelNames = filterNames(
-                    this._levelNames, this._filter, this._friends
-                );
-                this._i = 0;
-                this._level += 1;
-            }
-
-            return friend;
-        }
-
-        return null;
-    };
-
-    this.done = () => this._correctLevelNames.length === 0 || this._level > this._maxLevel;
+    this.next = () => this.done() ? null : this._friends[this._i++];
+    this.done = () => this._i === this._friends.length;
 }
 
 /**
@@ -86,7 +67,8 @@ function Iterator(friends, filter) {
  */
 function LimitedIterator(friends, filter, maxLevel) {
     Iterator.call(this, friends, filter);
-    this._maxLevel = maxLevel;
+
+    this._friends = filterFriends(friends, filter, maxLevel);
 }
 
 Object.setPrototypeOf(LimitedIterator.prototype, Iterator.prototype);
@@ -96,7 +78,7 @@ Object.setPrototypeOf(LimitedIterator.prototype, Iterator.prototype);
  * @constructor
  */
 function Filter() {
-    this.isCorrect = () => true;
+    this.isSuitable = () => true;
 }
 
 /**
@@ -105,7 +87,7 @@ function Filter() {
  * @constructor
  */
 function MaleFilter() {
-    this.isCorrect = friend => friend.gender === 'male';
+    this.isSuitable = friend => friend.gender === 'male';
 }
 
 Object.setPrototypeOf(MaleFilter.prototype, Filter.prototype);
@@ -116,7 +98,7 @@ Object.setPrototypeOf(MaleFilter.prototype, Filter.prototype);
  * @constructor
  */
 function FemaleFilter() {
-    this.isCorrect = friend => friend.gender === 'female';
+    this.isSuitable = friend => friend.gender === 'female';
 }
 
 Object.setPrototypeOf(FemaleFilter.prototype, Filter.prototype);
