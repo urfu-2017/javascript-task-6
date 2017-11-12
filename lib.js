@@ -55,7 +55,9 @@ function IteratorProto() {
     };
     this.next = function () {
         const result = (this.done()) ? null : this._friend[this._index];
-        this._index++;
+        if (result !== null) {
+            this._index++;
+        }
 
         return result;
     };
