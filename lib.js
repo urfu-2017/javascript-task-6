@@ -35,7 +35,8 @@ function LimitedIterator(friends, filter, maxLevel) {
     Iterator.call(this, friends, filter);
     this._guests = getAllGuests(friends, filter, maxLevel);
 }
-Object.setPrototypeOf(LimitedIterator.prototype, Iterator.prototype);
+LimitedIterator.prototype = Object.create(Iterator.prototype);
+LimitedIterator.prototype.constructor = LimitedIterator;
 
 /**
  * Фильтр друзей
@@ -53,7 +54,8 @@ function Filter() {
 function MaleFilter() {
     this.isInvitedFriend = friend => friend.gender === 'male';
 }
-Object.setPrototypeOf(MaleFilter.prototype, Filter.prototype);
+MaleFilter.prototype = Object.create(Filter.prototype);
+MaleFilter.prototype.constructor = MaleFilter;
 
 /**
  * Фильтр друзей-девушек
@@ -63,9 +65,10 @@ Object.setPrototypeOf(MaleFilter.prototype, Filter.prototype);
 function FemaleFilter() {
     this.isInvitedFriend = friend => friend.gender === 'female';
 }
-Object.setPrototypeOf(FemaleFilter.prototype, Filter.prototype);
+FemaleFilter.prototype = Object.create(Filter.prototype);
+FemaleFilter.prototype.constructor = FemaleFilter;
 
-function getAllGuests(friends, filter, maxFriendsCircle = Infinity) {
+function getAllGuests(friends, filter, maxFriendsCircle = Number.MAX_SAFE_INTEGER) {
     let currentFriendsCircle = friends
         .filter(friend => friend.best)
         .sort(friendsSort);
