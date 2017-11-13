@@ -20,7 +20,7 @@ function defaultSort(depths) {
 function getFriendsDepths(allFriends) {
     var depths = {};
     allFriends.forEach(function (friend) {
-        depths[friend.name] = allFriends.length + 1;
+        depths[friend.name] = Infinity;
     });
     var best = allFriends.filter(function (friend) {
         return friend.best;
