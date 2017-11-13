@@ -80,7 +80,10 @@ function Iterator(friends, filter) {
         throw new TypeError();
     }
     var depths = getFriendsDepths(friends);
-    this.friends = friends.filter(filter.condition)
+    this.friends = friends.filter(function (friend) {
+        return depths[friend.name] <= Infinity &&
+            filter.condition(friend);
+    })
         .sort(defaultSort(depths));
     this.filter = filter;
 }
