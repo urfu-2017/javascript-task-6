@@ -1,82 +1,84 @@
 'use strict';
 
+function __extends(subClass, superClass) {
+    Object.setPrototypeOf(subClass, superClass);
+
+    function ProtoChain() {
+        this.constructor = subClass;
+    }
+
+    ProtoChain.prototype = superClass.prototype;
+
+    subClass.prototype = new ProtoChain();
+}
+
 /**
  * Итератор по друзьям
  * @constructor
  * @param {Object[]} friends
  * @param {Filter} filter
  */
-function Iterator(friends, filter) {
-    if (!(filter instanceof Filter)) {
-        throw new TypeError();
-    }
-
-    this._currentPosition = -1;
-    this._currentFriends = friends.filter(friend => friend.best);
-    this._nextFriends = [];
-    this._workedFriends = [];
-
-    this._iterationCondition = function () {
-        return this._currentPosition + 1 < this._currentFriends.length;
-    };
-
-    this._setNextFriends = function (currentFriend) {
-        this._nextFriends = this._nextFriends.concat(
-            friends.filter(friend =>
-                currentFriend.friends.indexOf(friend.name) !== -1 &&
-                this._workedFriends.indexOf(friend) === -1 &&
-                this._currentFriends.indexOf(friend) === -1
-            )
-        );
-    };
-
-    this._onEndCurrentFriends = function () {
-        return null;
-    };
-
-    this._getNext = function () {
-        while (this._iterationCondition()) {
-            this._currentPosition++;
-
-            const currentFriend = this._currentFriends[this._currentPosition];
-            this._workedFriends.push(currentFriend);
-            this._setNextFriends(currentFriend);
-
-            const isLastFriend = this._currentPosition === this._currentFriends.length - 1;
-            const isEmptyNextFriends = this._nextFriends.length === 0;
-            if (isLastFriend && !isEmptyNextFriends) {
-                this._currentFriends = this._nextFriends
-                    .sort((a, b) => b.name > a.name ? -1 : 1)
-                    .sort((a, b) => (b.best || 0) - (a.best || 0));
-
-                this._currentPosition = -1;
-                this._nextFriends = [];
-
-                this._onEndCurrentFriends();
-            }
-
-            if (filter.isValid(currentFriend)) {
-                return currentFriend;
-            }
+const IteratorClass = (function () {
+    function Iterator(friends, filter) {
+        if (!(filter instanceof Filter)) {
+            throw new TypeError();
         }
 
-        return null;
+        this._currentPosition = 0;
+        this._friendsMap = {};
+        this._iterableArray = [];
+
+        this._friendsRaw = friends;
+        this._filter = filter;
+
+        this._init();
+    }
+
+    Iterator.prototype._init = function () {
+        this._friendsMap = this._friendsRaw.reduce((obj, friend) => {
+            obj[friend.name] = friend;
+
+            return obj;
+        }, {});
+
+        const bestFriendsNames = this._friendsRaw
+            .filter(friend => friend.best)
+            .map(friend => friend.name);
+
+        this._iterableArray = this._getArrayForIterator(bestFriendsNames, bestFriendsNames)
+            .filter(friendName => this._filter.isValid(this._friendsMap[friendName]));
+    };
+    Iterator.prototype._getFriendsOf = function (currentFriendsNames) {
+        return currentFriendsNames
+            .reduce(
+                (nextFriends, friendName) =>
+                    nextFriends.concat(this._friendsMap[friendName].friends),
+                []
+            );
+    };
+    Iterator.prototype._getArrayForIterator = function (friendsArray, workedFriendsNames) {
+        friendsArray.sort();
+
+        const nextFriendsNames = this._getFriendsOf(friendsArray)
+            .filter(friendName => workedFriendsNames.indexOf(friendName) === -1);
+
+        if (nextFriendsNames.length === 0) {
+            return friendsArray;
+        }
+
+        return friendsArray.concat(
+            this._getArrayForIterator(nextFriendsNames, workedFriendsNames.concat(nextFriendsNames))
+        );
+    };
+    Iterator.prototype.next = function () {
+        return this._friendsMap[this._iterableArray[this._currentPosition++]];
+    };
+    Iterator.prototype.done = function () {
+        return this._currentPosition >= this._iterableArray.length;
     };
 
-    this.next = function () {
-        const result = this._currentValue;
-
-        this._currentValue = this._getNext();
-
-        return result;
-    };
-
-    this.done = function () {
-        return this._currentValue === null;
-    };
-
-    this._currentValue = this._getNext();
-}
+    return Iterator;
+}());
 
 /**
  * Итератор по друзям с ограничением по кругу
@@ -86,29 +88,40 @@ function Iterator(friends, filter) {
  * @param {Filter} filter
  * @param {Number} maxLevel – максимальный круг друзей
  */
-function LimitedIterator(friends, filter, maxLevel) {
-    Iterator.call(this, friends, filter);
+const LimitedIteratorClass = (function () {
+    __extends(LimitedIterator, IteratorClass);
 
-    this._currentLevel = 1;
+    function LimitedIterator(friends, filter, maxLevel) {
+        this._maxLevel = maxLevel;
 
-    this._iterationCondition = function () {
-        return this._currentPosition + 1 < this._currentFriends.length &&
-               this._currentLevel <= maxLevel;
+        return IteratorClass.call(this, friends, filter);
+    }
+
+    LimitedIterator.prototype._getArrayForIterator = function (
+        friendsArray,
+        workedFriendsNames,
+        currentLevel = 1
+    ) {
+        friendsArray.sort();
+
+        const nextFriendsNames = this._getFriendsOf(friendsArray)
+            .filter(friendName => workedFriendsNames.indexOf(friendName) === -1);
+
+        if (nextFriendsNames.length === 0 || currentLevel >= this._maxLevel) {
+            return friendsArray;
+        }
+
+        return friendsArray.concat(
+            this._getArrayForIterator(
+                nextFriendsNames,
+                workedFriendsNames.concat(nextFriendsNames),
+                currentLevel + 1
+            )
+        );
     };
 
-    this._onEndCurrentFriends = function () {
-        this._currentLevel++;
-    };
-
-    this.done = function () {
-        const isLastCurrentFriend = this._currentPosition >= this._currentFriends.length - 1;
-        const isLastLevel = this._currentLevel === maxLevel;
-
-        return (this._currentValue === null) || (isLastLevel && isLastCurrentFriend);
-    };
-}
-
-LimitedIterator.prototype = Object.create(Iterator);
+    return LimitedIterator;
+}());
 
 /**
  * Фильтр друзей
@@ -146,8 +159,8 @@ function FemaleFilter() {
 
 FemaleFilter.prototype = Object.create(Filter.prototype);
 
-exports.Iterator = Iterator;
-exports.LimitedIterator = LimitedIterator;
+exports.Iterator = IteratorClass;
+exports.LimitedIterator = LimitedIteratorClass;
 
 exports.Filter = Filter;
 exports.MaleFilter = MaleFilter;
