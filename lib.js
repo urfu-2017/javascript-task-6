@@ -31,20 +31,19 @@ function findFriends(friends, filter, maxLevel = Infinity) {
     checkFilter(filter);
     let resultFriends = [];
     let currentLevelFriend = friends.filter(friend => friend.best).sort(compare);
-    resultFriends = resultFriends.concat(currentLevelFriend);
-    while (maxLevel > 1 && currentLevelFriend.length > 0) {
+    while (maxLevel > 0 && currentLevelFriend.length > 0) {
+        resultFriends = resultFriends.concat(currentLevelFriend);
         let nextLevelFriends = [];
         nextLevelFriends = currentLevelFriend.reduce((acc, friend) =>
             acc.concat(friend.friends), []);
         nextLevelFriends = deleteRepeats(nextLevelFriends
             .map(friendName => findFriendObj(friendName, friends)), resultFriends)
             .sort(compare);
-        resultFriends = resultFriends.concat(nextLevelFriends);
         currentLevelFriend = nextLevelFriends;
         maxLevel--;
     }
 
-    return resultFriends.filter(friend => filter.filtrate(friend));
+    return resultFriends.filter(filter.filtrate);
 }
 
 /**
