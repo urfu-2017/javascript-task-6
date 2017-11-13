@@ -129,7 +129,7 @@ const LimitedIteratorClass = (function () {
  */
 function Filter() {
     this.isValid = function () {
-        throw new Error('Not implement method!');
+        return true;
     };
 }
 
