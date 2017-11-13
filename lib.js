@@ -36,7 +36,7 @@ function getFriendsDepths(allFriends) {
 
 function findByName(currentName) {
     return function (friend) {
-        friend.name === currentName;
+        return friend.name === currentName;
     };
 }
 
