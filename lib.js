@@ -34,8 +34,10 @@ function getFriendsDepths(allFriends) {
     return depths;
 }
 
-function findByName(friend) {
-    return friend.name === currentName;
+function findByName(currentName) {
+    return function (friend) {
+        friend.name === currentName;
+    };
 }
 
 function processFriendsLevels(nextLevel, depths, allFriends) {
@@ -49,10 +51,11 @@ function processFriendsLevels(nextLevel, depths, allFriends) {
             var currentName = currentLevel.shift();
             depths[currentName] = currentDepth;
             visitedNames.push(currentName);
-            var currentFriends = allFriends.find(findByName)
+            var currentFriends = allFriends
+                .find(findByName(currentName))
                 .friends.filter(function (friendName) {
-                return !visitedNames.includes(friendName);
-            });
+                    return !visitedNames.includes(friendName);
+                });
             nextLevel = nextLevel.concat(currentFriends);
         }
     }
