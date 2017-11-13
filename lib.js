@@ -2,19 +2,16 @@
 
 function defaultSort(depths) {
     return function (a, b) {
-        if (depths[a.name] < depths[b.name])
-        {
+        if (depths[a.name] < depths[b.name]) {
             return -1;
         }
-        else if (depths[a.name] > depths[b.name]){
+        else if (depths[a.name] > depths[b.name]) {
             return 1;
         }
-        if (a.name < b.name)
-        {
+        if (a.name < b.name) {
             return -1;
         }
-        else if (a.name > b.name)
-        {
+        else if (a.name > b.name) {
             return 1;
         } else {
             return 0;
@@ -28,18 +25,23 @@ function getFriendsDepths(allFriends) {
     allFriends.forEach(function (friend) {
         depths[friend.name] = allFriends.length + 1;
     });
-    var currentDepth = 0;
     var best = allFriends.filter(function (friend) {
         return friend.best;
     }).map(function (friend) {
         return friend.name;
     });
-    var visitedNames = [];
     var nextLevel = [];
-    var currentLevel = [];
     nextLevel = nextLevel.concat(best);
+    processFriendsLevels(nextLevel, depths, allFriends);
+
+    return depths;
+}
+
+function processFriendsLevels(nextLevel, depths, allFriends) {
+    var visitedNames = [];
+    var currentDepth = 0;
     while (nextLevel.length) {
-        currentLevel = nextLevel;
+        var currentLevel = nextLevel;
         currentDepth += 1;
         nextLevel = [];
         while (currentLevel.length) {
@@ -54,8 +56,6 @@ function getFriendsDepths(allFriends) {
             nextLevel = nextLevel.concat(currentFriends);
         }
     }
-
-    return depths;
 }
 
 /**
@@ -66,8 +66,7 @@ function getFriendsDepths(allFriends) {
  */
 function Iterator(friends, filter) {
     console.info(friends, filter);
-    if (!(filter instanceof Filter))
-    {
+    if (!(filter instanceof Filter)) {
         throw new TypeError();
     }
     var depths = getFriendsDepths(friends);
@@ -79,8 +78,7 @@ Iterator.prototype.currentIndex = 0;
 Iterator.prototype.bestWereIterated = false;
 Iterator.prototype.next = function () {
     this.currentIndex += 1;
-    if (this.currentIndex > this.friends.length)
-    {
+    if (this.currentIndex > this.friends.length) {
         return null;
     }
 
