@@ -85,6 +85,10 @@ function getFilteredFriends(friends, filter, maxLevel = Infinity) {
 }
 
 function compareName(friend, otherFriend) {
+    if (friend.name === otherFriend.name) {
+        return 0;
+    }
+
     return friend.name > otherFriend.name ? 1 : -1;
 }
 
