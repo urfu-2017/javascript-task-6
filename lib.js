@@ -8,7 +8,7 @@
  */
 function Iterator(friends, filter) {
     if (!(filter instanceof Filter)) {
-        throw new TypeError('Объект фильтра не является инстансом функции-конструктора');
+        throw new TypeError();
     }
     this.filteredFriends = getFilteredFriends(friends, filter);
     this.done = function () {
