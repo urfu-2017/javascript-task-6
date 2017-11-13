@@ -109,7 +109,7 @@ const LimitedIteratorClass = (function () {
         workedFriendsNames,
         currentLevel = 1
     ) {
-        if (this._maxLevel === 0) {
+        if (this._maxLevel <= 0) {
             return [];
         }
 
