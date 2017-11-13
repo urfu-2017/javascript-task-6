@@ -114,6 +114,9 @@ LimitedIterator.prototype.constructor = Iterator;
  */
 function LimitedIterator(friends, filter, maxLevel) {
     console.info(friends, filter, maxLevel);
+    if (!(filter instanceof Filter)) {
+        throw new TypeError();
+    }
     var depths = getFriendsDepths(friends);
     this.friends = friends.filter(function (friend) {
         return depths[friend.name] <= maxLevel &&
