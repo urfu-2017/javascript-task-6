@@ -28,31 +28,38 @@ const IteratorClass = (function () {
         this._friendsMap = {};
         this._iterableArray = [];
 
-        this._friendsRaw = friends;
-        this._filter = filter;
-
-        this._init();
+        this._init(friends, filter);
     }
 
-    Iterator.prototype._init = function () {
-        this._friendsMap = this._friendsRaw.reduce((obj, friend) => {
+    Iterator.prototype._init = function (friends, filter) {
+        this._friendsMap = friends.reduce((obj, friend) => {
             obj[friend.name] = friend;
 
             return obj;
         }, {});
 
-        const bestFriendsNames = this._friendsRaw
+        const bestFriendsNames = friends
             .filter(friend => friend.best)
             .map(friend => friend.name);
 
         this._iterableArray = this._getArrayForIterator(bestFriendsNames, bestFriendsNames)
-            .filter(friendName => this._filter.isValid(this._friendsMap[friendName]));
+            .filter(friendName => filter.isValid(this._friendsMap[friendName]));
     };
     Iterator.prototype._getFriendsOf = function (currentFriendsNames) {
         return currentFriendsNames
             .reduce(
                 (nextFriends, friendName) =>
                     nextFriends.concat(this._friendsMap[friendName].friends),
+                []
+            )
+            .reduce(
+                (uniqueNames, friendName) => {
+                    if (uniqueNames.indexOf(friendName) === -1) {
+                        uniqueNames.push(friendName);
+                    }
+
+                    return uniqueNames;
+                },
                 []
             );
     };
