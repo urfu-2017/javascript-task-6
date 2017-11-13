@@ -21,7 +21,7 @@ Object.assign(Iterator.prototype, {
     },
     next() {
         if (!this.prepared) {
-            this.prepare(this.friends);
+            this.prepare();
             this.prepared = true;
         }
         if (this.current < this.filtredInvited.length) {
@@ -68,7 +68,7 @@ Object.assign(Iterator.prototype, {
         if (nextLevelFriends.length === 0) {
             return false;
         }
-        nextLevelFriends.sort((a, b) => a.name > b.name);
+        nextLevelFriends.sort(sortFunction);
         this.invited = this.invited.concat(nextLevelFriends);
 
         return true;
@@ -87,6 +87,17 @@ Object.assign(Iterator.prototype, {
             .some(invitedFriend => invitedFriend.friends.includes(friend.name));
     }
 });
+
+function sortFunction(a, b) {
+    if (a === b) {
+        return 0;
+    }
+    if (a < b) {
+        return -1;
+    }
+
+    return 1;
+}
 
 /**
  * Итератор по друзям с ограничением по кругу
