@@ -1,5 +1,12 @@
 'use strict';
 
+function Inviter(friends) {
+    this.invitedFriends = new Set(friends
+        .filter(friend => friend.best)
+        .sort(sorter));
+    this.currentLevel = [...this.invitedFriends];
+}
+
 /**
  * Итератор по друзьям
  * @constructor
@@ -12,17 +19,12 @@ function Iterator(friends, filter) {
     }
     this._resultStack = [];
     let previousSize = -1;
-    let invitedFriends = new Set(friends
-        .filter(friend => friend.best)
-        .sort(this._sorter));
-    let currentLevel = [...invitedFriends];
-    while (previousSize !== invitedFriends.size) {
-        previousSize = invitedFriends.size;
-        const newProps = this._fillLevel(friends, invitedFriends, currentLevel);
-        invitedFriends = newProps[0];
-        currentLevel = newProps[1];
+    let inviter = new Inviter(friends);
+    while (previousSize !== inviter.invitedFriends.size) {
+        previousSize = inviter.invitedFriends.size;
+        this._fillLevel(friends, inviter);
     }
-    this._resultStack = filter.filter([...invitedFriends]);
+    this._resultStack = filter.filter([...inviter.invitedFriends]);
 }
 
 /**
@@ -39,16 +41,11 @@ function LimitedIterator(friends, filter, maxLevel) {
     }
     this._resultStack = [];
     if (maxLevel > 0) {
-        let invitedFriends = new Set(friends
-            .filter(friend => friend.best)
-            .sort(this._sorter));
-        let currentLevel = [...invitedFriends];
+        let inviter = new Inviter(friends);
         for (let i = 1; i < maxLevel; i++) {
-            const newProps = this._fillLevel(friends, invitedFriends, currentLevel);
-            invitedFriends = newProps[0];
-            currentLevel = newProps[1];
+            this._fillLevel(friends, inviter);
         }
-        this._resultStack = filter.filter([...invitedFriends]);
+        this._resultStack = filter.filter([...inviter.invitedFriends]);
     }
 }
 
@@ -57,9 +54,7 @@ function LimitedIterator(friends, filter, maxLevel) {
  * @constructor
  */
 function Filter() {
-    this.filter = function (friends) {
-        return friends;
-    };
+    this.filter = friends => friends;
 }
 
 /**
@@ -68,9 +63,7 @@ function Filter() {
  * @constructor
  */
 function MaleFilter() {
-    this.filter = function (friends) {
-        return this.mainFilter(friends, 'gender', 'male');
-    };
+    this.filter = friends => this.mainFilter(friends, 'gender', 'male');
 }
 
 /**
@@ -79,10 +72,9 @@ function MaleFilter() {
  * @constructor
  */
 function FemaleFilter() {
-    this.filter = function (friends) {
-        return this.mainFilter(friends, 'gender', 'female');
-    };
+    this.filter = friends => this.mainFilter(friends, 'gender', 'female');
 }
+
 
 Object.setPrototypeOf(MaleFilter.prototype, Filter.prototype);
 Object.setPrototypeOf(FemaleFilter.prototype, Filter.prototype);
@@ -101,35 +93,30 @@ Object.assign(Iterator.prototype, {
     done() {
         return !this._resultStack.length > 0;
     },
-    _sorter(a, b) {
-        if (a.hasOwnProperty('best') && b.hasOwnProperty('best')) {
-            return a.name.localeCompare(b.name);
-        }
-        if (a.hasOwnProperty('best')) {
-            return -1;
-        }
-        if (b.hasOwnProperty('best')) {
-            return 1;
-        }
-
-        return a.name.localeCompare(b.name);
-    },
-    _fillLevel(friends, invitedFriends, currentLevel) {
-        const friendsOfFriendsNames = new Set(currentLevel.reduce(
+    _fillLevel(friends, inviter) {
+        const friendsOfFriendsNames = new Set(inviter.currentLevel.reduce(
             (acc, friend) => [...acc, ...friend.friends], []));
-        currentLevel = [];
-        appendLowerLevelFriends(friendsOfFriendsNames, this._sorter);
-
-        function appendLowerLevelFriends(names, sorter) {
-            names.forEach(friendName => {
-                currentLevel.push(friends.find(friend => friend.name === friendName));
-            });
-            invitedFriends = new Set([...invitedFriends, ...currentLevel.sort(sorter)]);
-        }
-
-        return [invitedFriends, currentLevel];
+        inviter.currentLevel = [];
+        friendsOfFriendsNames.forEach(friendName =>
+            inviter.currentLevel.push(friends.find(friend => friend.name === friendName)));
+        inviter.invitedFriends = new Set(
+            [...inviter.invitedFriends, ...inviter.currentLevel.sort(sorter)]);
     }
 });
+
+function sorter(a, b) {
+    if (a.hasOwnProperty('best') && b.hasOwnProperty('best')) {
+        return a.name.localeCompare(b.name);
+    }
+    if (a.hasOwnProperty('best')) {
+        return -1;
+    }
+    if (b.hasOwnProperty('best')) {
+        return 1;
+    }
+
+    return a.name.localeCompare(b.name);
+}
 
 exports.Iterator = Iterator;
 exports.LimitedIterator = LimitedIterator;
