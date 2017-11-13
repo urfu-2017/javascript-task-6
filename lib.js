@@ -7,7 +7,16 @@
  * @param {Filter} filter
  */
 function Iterator(friends, filter) {
-    console.info(friends, filter);
+    if (!(filter instanceof Filter)) {
+        throw new TypeError('Объект фильтра не является инстансом функции-конструктора');
+    }
+    this.filteredFriends = getFilteredFriends(friends, filter);
+    this.done = function () {
+        return this.filteredFriends.length === 0;
+    };
+    this.next = function () {
+        return this.done() ? null : this.filteredFriends.shift();
+    };
 }
 
 /**
@@ -19,7 +28,10 @@ function Iterator(friends, filter) {
  * @param {Number} maxLevel – максимальный круг друзей
  */
 function LimitedIterator(friends, filter, maxLevel) {
-    console.info(friends, filter, maxLevel);
+    Iterator.call(this, friends, filter);
+    this.filteredFriends = getFilteredFriends(friends, filter, maxLevel);
+    LimitedIterator.prototype = Object.create(Iterator.prototype);
+    LimitedIterator.prototype.constructor = LimitedIterator;
 }
 
 /**
@@ -27,7 +39,7 @@ function LimitedIterator(friends, filter, maxLevel) {
  * @constructor
  */
 function Filter() {
-    console.info('Filter');
+    this.filterCheck = () => true;
 }
 
 /**
@@ -36,8 +48,10 @@ function Filter() {
  * @constructor
  */
 function MaleFilter() {
-    console.info('MaleFilter');
+    this.filterCheck = friend => friend.gender === 'male';
 }
+MaleFilter.prototype = Object.create(Filter.prototype);
+MaleFilter.prototype.constructor = MaleFilter;
 
 /**
  * Фильтр друзей-девушек
@@ -45,7 +59,37 @@ function MaleFilter() {
  * @constructor
  */
 function FemaleFilter() {
-    console.info('FemaleFilter');
+    this.filterCheck = friend => friend.gender === 'female';
+}
+FemaleFilter.prototype = Object.create(Filter.prototype);
+FemaleFilter.prototype.constructor = FemaleFilter;
+
+function getFilteredFriends(friends, filter, maxLevel = Infinity) {
+    let friendsLevel = friends
+        .filter(friend => friend.best)
+        .sort(compareName);
+
+    return friends.reduce(iteratedFriends => {
+        if (maxLevel-- > 0 && friendsLevel.length > 0) {
+            iteratedFriends = iteratedFriends.concat(friendsLevel);
+            const nextLevel = friendsLevel
+                .reduce((namesFriends, friend) =>
+                    namesFriends.concat(getUnvisited(friend.friends, namesFriends)), [])
+                .map(name => friends.find(friend => friend.name === name));
+            friendsLevel = getUnvisited(nextLevel, iteratedFriends)
+                .sort(compareName);
+        }
+
+        return iteratedFriends;
+    }, []).filter(filter.filterCheck);
+}
+
+function compareName(friend, otherFriend) {
+    return friend.name > otherFriend.name ? 1 : -1;
+}
+
+function getUnvisited(friends, visited) {
+    return friends.filter(friend => !visited.includes(friend));
 }
 
 exports.Iterator = Iterator;
