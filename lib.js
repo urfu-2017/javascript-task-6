@@ -109,6 +109,10 @@ const LimitedIteratorClass = (function () {
         workedFriendsNames,
         currentLevel = 1
     ) {
+        if (this._maxLevel === 0) {
+            return [];
+        }
+
         friendsArray.sort();
 
         const nextFriendsNames = this._getFriendsOf(friendsArray)
