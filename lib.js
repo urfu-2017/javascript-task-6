@@ -7,7 +7,21 @@
  * @param {Filter} filter
  */
 function Iterator(friends, filter) {
-    console.info(friends, filter);
+    if (!(filter instanceof Filter)) {
+        throw new TypeError();
+    }
+    this._resultStack = [];
+    let previousSize = -1;
+    let invitedFriends = new Set(friends.filter(
+        friend => friend.hasOwnProperty('best')).sort(this._sorter));
+    let currentLevel = [...invitedFriends];
+    while (previousSize !== invitedFriends.size) {
+        previousSize = invitedFriends.size;
+        const newProps = this._fillLevel(friends, invitedFriends, currentLevel);
+        invitedFriends = newProps[0];
+        currentLevel = newProps[1];
+    }
+    this._resultStack = filter.filter([...invitedFriends]);
 }
 
 /**
@@ -19,7 +33,21 @@ function Iterator(friends, filter) {
  * @param {Number} maxLevel – максимальный круг друзей
  */
 function LimitedIterator(friends, filter, maxLevel) {
-    console.info(friends, filter, maxLevel);
+    if (!(filter instanceof Filter)) {
+        throw new TypeError();
+    }
+    this._resultStack = [];
+    if (maxLevel > 0) {
+        let invitedFriends = new Set(friends.filter(
+            friend => friend.hasOwnProperty('best')).sort(this._sorter));
+        let currentLevel = [...invitedFriends];
+        for (let i = 1; i < maxLevel; i++) {
+            const newProps = this._fillLevel(friends, invitedFriends, currentLevel);
+            invitedFriends = newProps[0];
+            currentLevel = newProps[1];
+        }
+        this._resultStack = filter.filter([...invitedFriends]);
+    }
 }
 
 /**
@@ -27,7 +55,9 @@ function LimitedIterator(friends, filter, maxLevel) {
  * @constructor
  */
 function Filter() {
-    console.info('Filter');
+    this.filter = function (friends) {
+        return friends;
+    };
 }
 
 /**
@@ -36,7 +66,9 @@ function Filter() {
  * @constructor
  */
 function MaleFilter() {
-    console.info('MaleFilter');
+    this.filter = function (friends) {
+        return this.mainFilter(friends, 'gender', 'male');
+    };
 }
 
 /**
@@ -45,8 +77,57 @@ function MaleFilter() {
  * @constructor
  */
 function FemaleFilter() {
-    console.info('FemaleFilter');
+    this.filter = function (friends) {
+        return this.mainFilter(friends, 'gender', 'female');
+    };
 }
+
+Object.setPrototypeOf(MaleFilter.prototype, Filter.prototype);
+Object.setPrototypeOf(FemaleFilter.prototype, Filter.prototype);
+Object.setPrototypeOf(LimitedIterator.prototype, Iterator.prototype);
+
+Object.assign(Filter.prototype, {
+    mainFilter(friends, field, value) {
+        return friends.filter(friend => friend[field] === value);
+    }
+});
+
+Object.assign(Iterator.prototype, {
+    next() {
+        return this._resultStack.length > 0 ? this._resultStack.shift() : null;
+    },
+    done() {
+        return !this._resultStack.length > 0;
+    },
+    _sorter(a, b) {
+        if (a.hasOwnProperty('best') && b.hasOwnProperty('best')) {
+            return a.name > b.name;
+        }
+        if (a.hasOwnProperty('best')) {
+            return -1;
+        }
+        if (b.hasOwnProperty('best')) {
+            return 1;
+        }
+
+        return a.name > b.name;
+    },
+    _fillLevel(friends, invitedFriends, currentLevel) {
+        const friendsOfFriendsNames = new Set(currentLevel.reduce(
+            (acc, friend) => [...acc, ...friend.friends], []));
+        currentLevel = [];
+        appendLowerLevelFriends(friendsOfFriendsNames, this._sorter);
+
+        function appendLowerLevelFriends(names, sorter) {
+            names.forEach(friendName => {
+                currentLevel.push(friends.find(friend => friend.name === friendName));
+            });
+            invitedFriends = new Set([...invitedFriends, ...currentLevel.sort(sorter)]);
+        }
+
+        return [invitedFriends, currentLevel];
+    }
+});
 
 exports.Iterator = Iterator;
 exports.LimitedIterator = LimitedIterator;
