@@ -38,8 +38,9 @@ function LimitedIterator(friends, filter, maxLevel) {
     }
     this._resultStack = [];
     if (maxLevel > 0) {
-        let invitedFriends = new Set(friends.filter(
-            friend => friend.hasOwnProperty('best')).sort(this._sorter));
+        let invitedFriends = new Set(friends
+            .filter(friend => friend.best)
+            .sort(this._sorter));
         let currentLevel = [...invitedFriends];
         for (let i = 1; i < maxLevel; i++) {
             const newProps = this._fillLevel(friends, invitedFriends, currentLevel);
@@ -101,7 +102,7 @@ Object.assign(Iterator.prototype, {
     },
     _sorter(a, b) {
         if (a.hasOwnProperty('best') && b.hasOwnProperty('best')) {
-            return a.name > b.name;
+            return a.name.localeCompare(b.name);
         }
         if (a.hasOwnProperty('best')) {
             return -1;
@@ -110,7 +111,7 @@ Object.assign(Iterator.prototype, {
             return 1;
         }
 
-        return a.name > b.name;
+        return a.name.localeCompare(b.name);
     },
     _fillLevel(friends, invitedFriends, currentLevel) {
         const friendsOfFriendsNames = new Set(currentLevel.reduce(
