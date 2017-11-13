@@ -13,11 +13,10 @@ function defaultSort(depths) {
         }
         else if (a.name > b.name) {
             return 1;
-        } else {
-            return 0;
         }
+
+        return 0;
     }
-    
 }
 
 function getFriendsDepths(allFriends) {
@@ -119,7 +118,7 @@ function Filter() {
     console.info('Filter');
 }
 
-Filter.prototype.condition = function (item) {
+Filter.prototype.condition = function () {
     return true;
 };
 
