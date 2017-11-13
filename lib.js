@@ -71,7 +71,7 @@ const IteratorClass = (function () {
         );
     };
     Iterator.prototype.next = function () {
-        return this._friendsMap[this._iterableArray[this._currentPosition++]];
+        return this._friendsMap[this._iterableArray[this._currentPosition++]] || null;
     };
     Iterator.prototype.done = function () {
         return this._currentPosition >= this._iterableArray.length;
