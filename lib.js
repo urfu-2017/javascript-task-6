@@ -6,8 +6,43 @@
  * @param {Object[]} friends
  * @param {Filter} filter
  */
-function Iterator(friends, filter) {
-    console.info(friends, filter);
+
+function findGuests(friends, filter, maxLevel) {
+    let invited = friends.filter(friend => friend.best);
+    let guests = [];
+    while (maxLevel > 0 && invited.length !== 0) {
+        let count = invited.length;
+        invited
+            .sort((a, b) => a.name.localeCompare(b.name))
+            .forEach((friend) => {
+                if (guests.indexOf(friend) === -1) {
+                    guests.push(friend);
+                    friend.friends.forEach((subfriend) => {
+                        let invite = friends.find(person => person.name === subfriend);
+                        invited.push(invite);
+                    });
+                }
+            });
+        invited.splice(0, count);
+        maxLevel--;
+    }
+
+    return guests.filter((friend) => filter.filterGender(friend));
+}
+
+class Iterator {
+    constructor(friends, filter) {
+        this.friends = friends;
+        this.filter = filter;
+        this.numberСycle = 0;
+        this.guests = findGuests(friends, filter, Infinity);
+        this.done = () => {
+            return this.numberСycle === this.guests.length;
+        };
+        this.next = () => {
+            return this.done() ? null : this.guests[this.numberСycle++];
+        };
+    }
 }
 
 /**
@@ -18,16 +53,27 @@ function Iterator(friends, filter) {
  * @param {Filter} filter
  * @param {Number} maxLevel – максимальный круг друзей
  */
-function LimitedIterator(friends, filter, maxLevel) {
-    console.info(friends, filter, maxLevel);
+class LimitedIterator extends Iterator {
+    constructor(friends, filter, maxLevel) {
+        super(friends, filter, maxLevel);
+        // this.friends = friends;
+        // this.filter = filter;
+        // this.numberСycle = 0;
+        this.maxLevel = maxLevel;
+        this.guests = findGuests(friends, filter, maxLevel);
+    }
 }
 
 /**
  * Фильтр друзей
  * @constructor
  */
-function Filter() {
-    console.info('Filter');
+class Filter {
+    constructor() {
+        this.filterGender = () => {
+            return true;
+        };
+    }
 }
 
 /**
@@ -35,8 +81,13 @@ function Filter() {
  * @extends Filter
  * @constructor
  */
-function MaleFilter() {
-    console.info('MaleFilter');
+class MaleFilter extends Filter {
+    constructor() {
+        super();
+        this.filterGender = (friend) => {
+            return friend.gender === 'male';
+        };
+    }
 }
 
 /**
@@ -44,8 +95,13 @@ function MaleFilter() {
  * @extends Filter
  * @constructor
  */
-function FemaleFilter() {
-    console.info('FemaleFilter');
+class FemaleFilter extends Filter {
+    constructor() {
+        super();
+        this.filterGender = (friend) => {
+            return friend.gender === 'female';
+        };
+    }
 }
 
 exports.Iterator = Iterator;
