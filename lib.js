@@ -4,19 +4,17 @@ function defaultSort(depths) {
     return function (a, b) {
         if (depths[a.name] < depths[b.name]) {
             return -1;
-        }
-        else if (depths[a.name] > depths[b.name]) {
+        } else if (depths[a.name] > depths[b.name]) {
             return 1;
         }
         if (a.name < b.name) {
             return -1;
-        }
-        else if (a.name > b.name) {
+        } else if (a.name > b.name) {
             return 1;
         }
 
         return 0;
-    }
+    };
 }
 
 function getFriendsDepths(allFriends) {
@@ -36,6 +34,10 @@ function getFriendsDepths(allFriends) {
     return depths;
 }
 
+function findByName(friend) {
+    return friend.name === currentName;
+}
+
 function processFriendsLevels(nextLevel, depths, allFriends) {
     var visitedNames = [];
     var currentDepth = 0;
@@ -47,9 +49,8 @@ function processFriendsLevels(nextLevel, depths, allFriends) {
             var currentName = currentLevel.shift();
             depths[currentName] = currentDepth;
             visitedNames.push(currentName);
-            var currentFriends = allFriends.find(function (friend) {
-                return friend.name === currentName;
-            }).friends.filter(function (friendName) {
+            var currentFriends = allFriends.find(findByName)
+                .friends.filter(function (friendName) {
                 return !visitedNames.includes(friendName);
             });
             nextLevel = nextLevel.concat(currentFriends);
@@ -89,7 +90,7 @@ Iterator.prototype.done = function () {
     this.currentIndex = oldIndex;
 
     return done;
-}
+};
 LimitedIterator.prototype = Object.create(Iterator.prototype);
 LimitedIterator.prototype.constructor = Iterator;
 
@@ -110,6 +111,7 @@ function LimitedIterator(friends, filter, maxLevel) {
     }).sort(defaultSort(depths));
     this.filter = filter;
 }
+
 /**
  * Фильтр друзей
  * @constructor
