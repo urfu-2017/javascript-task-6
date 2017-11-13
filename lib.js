@@ -1,5 +1,24 @@
 'use strict';
+function findFriendObj(friendName, friends) {
+    for (let i = 0; i < friends.length; i++) {
+        if (friendName === friends[i].name) {
+            return friends[i];
+        }
+    }
+}
+function deleteRepeats(currentFriends, prevFriends) {
+    const names = [];
+    const resultFriends = [];
+    prevFriends.forEach(friend => names.push(friend.name));
+    currentFriends.forEach(function (friend) {
+        if (names.indexOf(friend.name) === -1) {
+            names.push(friend.name);
+            resultFriends.push(friend);
+        }
+    });
 
+    return resultFriends;
+}
 function compare(firstFriend, secondFriend) {
     return (firstFriend.name > secondFriend.name) ? 1 : -1;
 }
@@ -8,57 +27,24 @@ function checkFilter(filter) {
         throw new TypeError('filter is not instance of Filter');
     }
 }
-function findFriend(friendName, friends) {
-    for (let i = 0; i < friends.length; i++) {
-        if (friendName === friends[i].name) {
-            return friends[i];
-        }
-    }
-}
-
-function getLevelFriends(previousLevelFriend, resultFriends, friends) {
-    let levelFriend = [];
-    previousLevelFriend.forEach(friend => {
-        friend.friends.forEach(nextLevelFriendName => {
-            const nextLevelFriend = findFriend(nextLevelFriendName, friends);
-            if (levelFriend.indexOf(nextLevelFriend) === -1 &&
-                resultFriends.indexOf(nextLevelFriend) === -1) {
-                levelFriend.push(nextLevelFriend);
-            }
-        });
-    });
-
-    return levelFriend;
-}
-
 function findFriends(friends, filter, maxLevel = Infinity) {
     checkFilter(filter);
-    const bestFriends = friends.filter(friend => friend.best).sort(compare);
-    let resultFriends = [].concat(bestFriends);
-    let previousLevelFriend = bestFriends;
-    while (maxLevel > 1 && previousLevelFriend.length > 0) {
-        let levelFriend = getLevelFriends(previousLevelFriend, resultFriends, friends);
-        previousLevelFriend = [].concat(levelFriend);
-        resultFriends = resultFriends.concat(levelFriend.sort(compare));
+    let resultFriends = [];
+    let currentLevelFriend = friends.filter(friend => friend.best).sort(compare);
+    resultFriends = resultFriends.concat(currentLevelFriend);
+    while (maxLevel > 1 && currentLevelFriend.length > 0) {
+        let nextLevelFriends = [];
+        nextLevelFriends = currentLevelFriend.reduce((acc, friend) =>
+            acc.concat(friend.friends), []);
+        nextLevelFriends = deleteRepeats(nextLevelFriends
+            .map(friendName => findFriendObj(friendName, friends)), resultFriends)
+            .sort(compare);
+        resultFriends = resultFriends.concat(nextLevelFriends);
+        currentLevelFriend = nextLevelFriends;
         maxLevel--;
     }
 
     return resultFriends.filter(friend => filter.filtrate(friend));
-}
-
-function IteratorProto() {
-    this._index = 0;
-    this._friend = [];
-
-    this.done = function () {
-        return this._index >= this._friend.length;
-    };
-    this.next = function () {
-        const result = (this.done()) ? null : this._friend[this._index];
-        this._index++;
-
-        return result;
-    };
 }
 
 /**
@@ -67,12 +53,20 @@ function IteratorProto() {
  * @param {Object[]} friends
  * @param {Filter} filter
  */
-
 function Iterator(friends, filter) {
+    this._index = 0;
     this._friend = findFriends(friends, filter);
 }
-Iterator.prototype = new IteratorProto();
-Iterator.prototype.constructor = Iterator;
+Iterator.prototype.done = function () {
+    return this._index >= this._friend.length;
+};
+
+Iterator.prototype.next = function () {
+    const result = (this.done()) ? null : this._friend[this._index];
+    this._index++;
+
+    return result;
+};
 
 /**
  * Итератор по друзям с ограничением по кругу
@@ -82,7 +76,9 @@ Iterator.prototype.constructor = Iterator;
  * @param {Filter} filter
  * @param {Number} maxLevel – максимальный круг друзей
  */
+
 function LimitedIterator(friends, filter, maxLevel) {
+    this._index = 0;
     this._friend = findFriends(friends, filter, maxLevel);
 }
 Object.setPrototypeOf(LimitedIterator.prototype, Iterator.prototype);
