@@ -12,8 +12,9 @@ function Iterator(friends, filter) {
     }
     this._resultStack = [];
     let previousSize = -1;
-    let invitedFriends = new Set(friends.filter(
-        friend => friend.hasOwnProperty('best')).sort(this._sorter));
+    let invitedFriends = new Set(friends
+        .filter(friend => friend.best)
+        .sort(this._sorter));
     let currentLevel = [...invitedFriends];
     while (previousSize !== invitedFriends.size) {
         previousSize = invitedFriends.size;
