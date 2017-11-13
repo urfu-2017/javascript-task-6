@@ -104,7 +104,7 @@ function Filter() {
 function MaleFilter() {
     this.filtrate = (friend) => friend.gender === 'male';
 }
-MaleFilter.prototype = new Filter();
+Object.setPrototypeOf(MaleFilter.prototype, Filter.prototype);
 MaleFilter.prototype.constructor = MaleFilter;
 
 /**
@@ -115,7 +115,7 @@ MaleFilter.prototype.constructor = MaleFilter;
 function FemaleFilter() {
     this.filtrate = (friend) => friend.gender === 'female';
 }
-FemaleFilter.prototype = new Filter();
+Object.setPrototypeOf(FemaleFilter.prototype, Filter.prototype);
 FemaleFilter.prototype.constructor = FemaleFilter;
 
 exports.Iterator = Iterator;
