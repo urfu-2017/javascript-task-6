@@ -40,6 +40,13 @@ function findByName(currentName) {
     };
 }
 
+function filterNotVisited(visitedNames, currentLevel) {
+    return function (friendName) {
+        return !visitedNames.includes(friendName) &&
+            !currentLevel.includes(friendName);
+    };
+}
+
 function processFriendsLevels(nextLevel, depths, allFriends) {
     var visitedNames = [];
     var currentDepth = 0;
@@ -53,10 +60,9 @@ function processFriendsLevels(nextLevel, depths, allFriends) {
             visitedNames.push(currentName);
             var currentFriends = allFriends
                 .find(findByName(currentName))
-                .friends.filter(function (friendName) {
-                    return !visitedNames.includes(friendName) &&
-                        !currentLevel.includes(friendName);
-                });
+                .friends
+                .filter(filterNotVisited(visitedNames,
+                    currentLevel));
             nextLevel = nextLevel.concat(currentFriends);
         }
     }
