@@ -54,7 +54,12 @@ function processFriendsLevels(nextLevel, depths, allFriends) {
             var currentFriends = allFriends
                 .find(findByName(currentName))
                 .friends.filter(function (friendName) {
-                    return !visitedNames.includes(friendName);
+                    return !visitedNames.includes(friendName) &&
+                        !currentLevel.some(
+                            function (currentLevelFriendName) {
+                                return currentLevelFriendName === 
+                                    friendName;
+                            });
                 });
             nextLevel = nextLevel.concat(currentFriends);
         }
