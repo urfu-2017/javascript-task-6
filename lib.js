@@ -15,6 +15,7 @@ function __extends(subClass, superClass) {
 /**
  * Итератор по друзьям
  * @constructor
+ * @this {Iterator}
  * @param {Object[]} friends
  * @param {Filter} filter
  */
@@ -77,9 +78,19 @@ const IteratorClass = (function () {
             this._getArrayForIterator(nextFriendsNames, workedFriendsNames.concat(nextFriendsNames))
         );
     };
+
+    /**
+     * Возвращает следующий объект друга или null, если следующего объекта не существует
+     * @returns {Object|null}
+     */
     Iterator.prototype.next = function () {
         return this._friendsMap[this._iterableArray[this._currentPosition++]] || null;
     };
+
+    /**
+     * Возвращает true, если итератор достиг своего конца
+     * @returns {boolean}
+     */
     Iterator.prototype.done = function () {
         return this._currentPosition >= this._iterableArray.length;
     };
@@ -91,6 +102,7 @@ const IteratorClass = (function () {
  * Итератор по друзям с ограничением по кругу
  * @extends Iterator
  * @constructor
+ * @this {LimitedIterator}
  * @param {Object[]} friends
  * @param {Filter} filter
  * @param {Number} maxLevel – максимальный круг друзей
@@ -176,3 +188,4 @@ exports.LimitedIterator = LimitedIteratorClass;
 exports.Filter = Filter;
 exports.MaleFilter = MaleFilter;
 exports.FemaleFilter = FemaleFilter;
+exports.isStar = true;
