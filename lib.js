@@ -60,6 +60,10 @@ function choiceFriendsOnLevel(allFriends, maxLevel, filter) {
     var namesAllPeople = onlyConnectedFriends(allFriends);
     var argument1 = [namesAllPeople, friendsOnLevel];
     findBestFriends(argument1, allFriends, noInviteFriends);
+    if (friendsOnLevel.friends.length === 0) {
+
+        return [];
+    }
     sortFriends.push(friendsOnLevel);
     var argument2 = [noInviteFriends, sortFriends];
     findFriends(argument2, maxLevel);
