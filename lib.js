@@ -12,18 +12,14 @@ function Iterator(friends, filter) {
     }
     this.friends = friends;
     this.filter = filter;
-    this.maxLevel = Number.MAX_SAFE_INTEGER;
+    this.prepare(this.maxLevel);
 }
 
 Object.assign(Iterator.prototype, {
     done() {
-        return this.current === this.filtredInvited.length && this.prepared;
+        return this.current === this.filtredInvited.length;
     },
     next() {
-        if (!this.prepared) {
-            this.prepare();
-            this.prepared = true;
-        }
         if (this.current < this.filtredInvited.length) {
             return this.filtredInvited[this.current++];
         }
@@ -36,14 +32,18 @@ Object.assign(Iterator.prototype, {
 
     /**
      * Подготавливает массив filtredInvited для функции next и done
+     * @param {Number} maxLevel
      */
-    prepare() {
+    prepare(maxLevel) {
+        if (maxLevel === undefined) {
+            maxLevel = Number.MAX_SAFE_INTEGER;
+        }
         let currentLevel = this.friends
             .filter(friend => friend.best)
             .sort(alphabetOrder);
         let invitedFriends = [];
         let level = 1;
-        while (level <= this.maxLevel && currentLevel.length > 0) {
+        while (level <= maxLevel && currentLevel.length > 0) {
             invitedFriends = invitedFriends.concat(currentLevel);
             let nextLevel = this.getNextLevel(currentLevel, invitedFriends)
                 .sort(alphabetOrder);
@@ -88,8 +88,8 @@ function alphabetOrder(a, b) {
  * @param {Number} maxLevel – максимальный круг друзей
  */
 function LimitedIterator(friends, filter, maxLevel) {
-    Iterator.call(this, friends, filter);
     this.maxLevel = maxLevel;
+    Iterator.call(this, friends, filter);
 }
 
 Object.setPrototypeOf(LimitedIterator.prototype, Iterator.prototype);
