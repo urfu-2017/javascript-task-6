@@ -30,7 +30,6 @@ Object.assign(Iterator.prototype, {
 
         return null;
     },
-    invited: [],
     filtredInvited: [],
     prepared: false,
     current: 0,
@@ -40,57 +39,43 @@ Object.assign(Iterator.prototype, {
      * Устанавливает флаг prepared
      */
     prepare() {
-        let level = 1;
-        if (this.prepareNextLevel(friend => friend.best)) {
-            level++;
-        }
-        while (level <= this.maxLevel) {
-            let prepareResult = this.prepareNextLevel(this.friendsOfInvitedFriends);
-            if (!prepareResult) {
-                break;
-            }
+        let bestFriends = this.friends.filter(friend => friend.best);
+        bestFriends.sort(alphabetOrder);
+        let currentLevel = bestFriends;
+        let invitedFriends = bestFriends;
+        let level = 2;
+        while (level <= this.maxLevel && currentLevel.length > 0) {
+            let nextLevel = this.getNextLevel(currentLevel, invitedFriends)
+                .sort(alphabetOrder);
+            invitedFriends = invitedFriends.concat(nextLevel);
+            currentLevel = nextLevel;
             level++;
         }
         if (level <= this.maxLevel) {
-            this.prepareNextLevel(friend => !this.invited.includes(friend));
+            let lastLevel = this.friends
+                .filter(friend => !invitedFriends.includes(friend))
+                .sort(alphabetOrder);
+            invitedFriends = invitedFriends.concat(lastLevel);
         }
-        this.filtredInvited = this.filter.useFilter(this.invited);
+        this.filtredInvited = this.filter.useFilter(invitedFriends);
     },
 
-    /**
-     * Принимает функцию, которая определяет следующий круг друзей
-     * Функция должна возвращать true, если друг подходит для следующего круга
-     * Добавляет друзей следующего круга в invited.
-     * Возвращает true, если есть друзья в следующем круге
-     * @param {Function} filterCallback
-     * @returns {Boolean}
-     */
-    prepareNextLevel(filterCallback) {
-        let nextLevelFriends = this.friends.filter(filterCallback, this);
-        if (nextLevelFriends.length === 0) {
-            return false;
-        }
-        nextLevelFriends.sort(sortFunction);
-        this.invited = this.invited.concat(nextLevelFriends);
+    getNextLevel(currentLevel, invitedFriends) {
+        let invitedFriendNames = invitedFriends.map(friend => friend.name);
 
-        return true;
-    },
-
-    /**
-     * функция для filter
-     * Возвращает true, если друг относится к следующему кругу.
-     * Следующий круг - друзья уже приглашенных друзей
-     * @param {Object} friend 
-     * @returns {Boolean}
-     */
-    friendsOfInvitedFriends(friend) {
-        return !this.invited.includes(friend) && this.friends
-            .filter(friendOther => this.invited.includes(friendOther))
-            .some(invitedFriend => invitedFriend.friends.includes(friend.name));
+        return currentLevel
+            .reduce((nextFriendNames, currentFriend) =>
+                nextFriendNames.concat(
+                    currentFriend.friends
+                        .filter(nextFriendName =>
+                            !nextFriendNames.includes(nextFriendName) &&
+                            !invitedFriendNames.includes(nextFriendName))
+                ), [])
+            .map(friendName => this.friends.find(friend => friend.name === friendName));
     }
 });
 
-function sortFunction(a, b) {
+function alphabetOrder(a, b) {
     if (a.name === b.name) {
         return 0;
     }
