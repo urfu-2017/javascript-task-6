@@ -19,7 +19,7 @@ const getIdx = name => {
 
 const createParents = friends => {
     friends.forEach(element => {
-        if (!(getIdx(element.name) >= 0)) {
+        if (getIdx(element.name) === undefined) {
             parents.push({ name: element.name, parent: null });
         }
     });
@@ -92,9 +92,11 @@ function LimitedIterator(friends, filter, maxLevel) {
     if (!(filter instanceof Filter)) {
         throw new TypeError('Not instance of filter');
     }
-    createParents(friends);
-    const stack = sortByLevels(filter.smallFilter(friends), friends);
-    this.stack = stack.filter(element => getLevel(element) <= maxLevel);
+    if (maxLevel > 0) {
+        createParents(friends);
+        const stack = sortByLevels(filter.smallFilter(friends), friends);
+        this.stack = stack.filter(element => getLevel(element) <= maxLevel);
+    }
 }
 
 function Filter() {
