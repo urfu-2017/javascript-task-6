@@ -79,7 +79,7 @@ function LimitedIterator(friends, filter, maxLevel) {
 
 Object.assign(LimitedIterator.prototype, {
     done() {
-        return this._maxLevels === 0 || Iterator.prototype.done.call(this);
+        return this._maxLevels <= 0 || Iterator.prototype.done.call(this);
     },
     _moveNextLevel() {
         this._maxLevels--;
