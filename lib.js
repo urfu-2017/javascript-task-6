@@ -1,10 +1,8 @@
 'use strict';
 let parents = [];
 
-// so i need to fix sort because it iterates all friends even isolated
-
 const findFriendByName = (name, friends) => {
-    for (let i = 0; i < friends.length; i ++) {
+    for (let i = 0; i < friends.length; i++) {
         if (friends[i].name === name) {
             return friends[i];
         }
@@ -39,7 +37,7 @@ const clearParents = friends => {
 const createParents = friends => {
     friends.forEach(element => {
         if (getIdx(element.name) === undefined) {
-            parents.push({ name: element.name, parent: null });
+            parents.push({ name: element.name, parent: null, gender: element.gender });
         }
     });
     const besties = friends.filter(element => element.best);
@@ -61,7 +59,7 @@ const createParents = friends => {
             }
         });
     }
-    clearParents(friends);
+    // clearParents(friends);
 };
 
 const getParent = friend => {
@@ -78,9 +76,6 @@ const countParents = friend => {
         counter++;
         friend = findFriend(getParent(friend).name);
     }
-    // if (getParent(friend) === null && !friend.best) {
-    //     counter = Infinity;
-    // }
 
     return counter;
 };
@@ -89,17 +84,15 @@ const getLevel = friend => countParents(friend);
 
 const sortByLevels = friends => friends
     .sort((a, b) => (getLevel(a) - getLevel(b) ||
-    a.name.localeCompare(b.name)));
+        a.name.localeCompare(b.name)));
 
 function Iterator(friends, filter) {
     if (!(filter instanceof Filter)) {
         throw new TypeError('Not instance of filter');
     }
     createParents(friends);
-    // maybe we shud filter here
     this.stack = sortByLevels(filter.smallFilter(friends));
-    this.stack.filter(element => parents.includes(element));
-    console.info(parents);
+    // .map(friend => friends.find(f => f.name === friend.name));
 }
 
 function LimitedIterator(friends, filter, maxLevel) {
@@ -111,6 +104,7 @@ function LimitedIterator(friends, filter, maxLevel) {
         createParents(friends);
         this.stack = sortByLevels(filter.smallFilter(friends))
             .filter(element => getLevel(element) <= maxLevel);
+        // .map(friend => friends.find(f => f.name === friend.name));
     }
 }
 
