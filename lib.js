@@ -30,7 +30,6 @@ function findBestFriends(arg, allFriends, noInviteFriends) {
     friendsOnLevel.level = 0;
     var namesAllPeople = arg[0];
     var sortFriends = arg[1];
-    var friendsFriendsOnLevel = [];
     friendsOnLevel.friends = allFriends.filter(function (item) {
         if (item.best) {
             choiceFriend(item, friendsOnLevel.names);
