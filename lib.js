@@ -42,7 +42,7 @@ Iterator.prototype._getFriendsOf = function (currentFriendsNames) {
         )
         .reduce(
             (uniqueNames, friendName) => {
-                if (uniqueNames.indexOf(friendName) === -1) {
+                if (!uniqueNames.includes(friendName)) {
                     uniqueNames.push(friendName);
                 }
 
@@ -55,7 +55,7 @@ Iterator.prototype._getArrayForIterator = function (friendsArray, workedFriendsN
     friendsArray.sort();
 
     const nextFriendsNames = this._getFriendsOf(friendsArray)
-        .filter(friendName => workedFriendsNames.indexOf(friendName) === -1);
+        .filter(friendName => !workedFriendsNames.includes(friendName));
 
     if (nextFriendsNames.length === 0) {
         return friendsArray;
@@ -112,7 +112,7 @@ LimitedIterator.prototype._getArrayForIterator = function (
     friendsArray.sort();
 
     const nextFriendsNames = this._getFriendsOf(friendsArray)
-        .filter(friendName => workedFriendsNames.indexOf(friendName) === -1);
+        .filter(friendName => !workedFriendsNames.includes(friendName));
 
     if (nextFriendsNames.length === 0 || currentLevel >= this._maxLevel) {
         return friendsArray;
@@ -149,6 +149,7 @@ function MaleFilter() {
 }
 
 MaleFilter.prototype = Object.create(Filter.prototype);
+MaleFilter.prototype.constructor = MaleFilter;
 
 /**
  * Фильтр друзей-девушек
@@ -162,6 +163,7 @@ function FemaleFilter() {
 }
 
 FemaleFilter.prototype = Object.create(Filter.prototype);
+FemaleFilter.prototype.constructor = FemaleFilter;
 
 exports.Iterator = Iterator;
 exports.LimitedIterator = LimitedIterator;
