@@ -89,10 +89,10 @@ Object.assign(Iterator.prototype, {
 });
 
 function sortFunction(a, b) {
-    if (a === b) {
+    if (a.name === b.name) {
         return 0;
     }
-    if (a < b) {
+    if (a.name < b.name) {
         return -1;
     }
 
