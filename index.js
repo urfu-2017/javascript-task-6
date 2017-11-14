@@ -11,14 +11,9 @@ var friends = [
     },
     {
         name: 'Sally',
-        friends: ['Brad', 'Emily', 'Brad'],
+        friends: ['Brad', 'Emily'],
         gender: 'female',
         best: true
-    },
-    {
-        name: 'Brad',
-        friends: ['Sally'],
-        gender: 'male'
     },
     {
         name: 'Mat',
