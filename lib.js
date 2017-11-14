@@ -124,7 +124,7 @@ LimitedIterator.prototype._getArrayForIterator = function (
     );
 };
 
-Object.setPrototypeOf(LimitedIterator.prototype, Iterator.prototype);
+LimitedIterator.prototype = Object.create(Iterator.prototype);
 
 /**
  * Фильтр друзей
