@@ -46,7 +46,7 @@ function findBestFriends(arg, allFriends, noInviteFriends) {
 }
 
 function choiceFriendsOnLevel(allFriends, maxLevel, filter) {
-    if (maxLevel === undefined || maxLevel === 0) {
+    if (maxLevel === undefined || maxLevel < 1) {
         if (filter.type !== 'female') {
 
             return [];
@@ -105,7 +105,7 @@ function inspection(arg, iteration, choiceFriends) {
 
 function choiceFriend(item, friendsFriendsOnLevel) {
     item.friends.forEach(function (nameFriendItem) {
-        if (friendsFriendsOnLevel.indexOf(item.name) === -1) {
+        if (friendsFriendsOnLevel.indexOf(nameFriendItem) === -1) {
             friendsFriendsOnLevel.push(nameFriendItem);
         }
     });
@@ -128,6 +128,10 @@ function Iterator(friends, filter) {
 
 function filterFriendsByGender(friends, filter) {
     var friendsFilter = [];
+    friends.forEach(function(item){
+        item.friends.forEach(function (ob){
+        });
+    });
     friends.forEach(function (item) {
         item.friends.forEach(function (friend) {
             if (filter.field(friend)) {
