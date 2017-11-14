@@ -73,18 +73,16 @@ Object.assign(Iterator.prototype, {
  * @param {Number} maxLevel – максимальный круг друзей
  */
 function LimitedIterator(friends, filter, maxLevel) {
-    Object.assign(this, new Iterator(friends, filter));
-    this._maxLevel = maxLevel;
+    this._maxLevels = maxLevel;
+    Iterator.call(this, friends, filter);
 }
 
 Object.assign(LimitedIterator.prototype, {
+    done() {
+        return this._maxLevels === 0 || Iterator.prototype.done.call(this);
+    },
     _moveNextLevel() {
-        this._maxLevel--;
-        if (this._maxLevel <= 0) {
-            this._currentLevelFriends = [];
-
-            return;
-        }
+        this._maxLevels--;
         Iterator.prototype._moveNextLevel.call(this);
     }
 });
