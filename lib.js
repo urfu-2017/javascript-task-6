@@ -2,19 +2,24 @@
 
 const getArrayDiff = (arr1, arr2) => arr1.filter(x => arr2.indexOf(x) < 0);
 
+function getNextCircle(currentCircle, friends, result) {
+    const nextCircle = currentCircle
+        .reduce((acc, friend) => acc.concat(getArrayDiff(friend.friends, acc)), [])
+        .map(name => friends.find(friend => friend.name === name));
+
+    return getArrayDiff(nextCircle, result)
+        .sort((a, b) => a.name.localeCompare(b.name));
+}
+
 function getFriends(friends, filter, maxLevel) {
-    let initialCircle = friends
+    let currentCircle = friends
         .filter(friend => friend.best)
         .sort((a, b) => a.name.localeCompare(b.name));
 
     return friends.reduce(result => {
-        if (maxLevel-- > 0 && initialCircle.length > 0) {
-            result = result.concat(initialCircle);
-            const nextCircle = initialCircle
-                .reduce((acc, friend) => acc.concat(getArrayDiff(friend.friends, acc)), [])
-                .map(name => friends.find(friend => friend.name === name));
-            initialCircle = getArrayDiff(nextCircle, result)
-                .sort((a, b) => a.name.localeCompare(b.name));
+        if (maxLevel-- > 0 && currentCircle.length > 0) {
+            result = result.concat(currentCircle);
+            currentCircle = getNextCircle(currentCircle, friends, result);
         }
 
         return result;
