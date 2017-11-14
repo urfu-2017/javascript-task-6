@@ -40,8 +40,10 @@ Object.assign(Iterator.prototype, {
      * Устанавливает флаг prepared
      */
     prepare() {
-        this.prepareNextLevel(friend => friend.best);
-        let level = 2;
+        let level = 1;
+        if (this.prepareNextLevel(friend => friend.best)) {
+            level++;
+        }
         while (level <= this.maxLevel) {
             let prepareResult = this.prepareNextLevel(this.friendsOfInvitedFriends);
             if (!prepareResult) {
