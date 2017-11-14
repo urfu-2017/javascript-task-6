@@ -36,18 +36,17 @@ Object.assign(Iterator.prototype, {
 
     /**
      * Подготавливает массив filtredInvited для функции next и done
-     * Устанавливает флаг prepared
      */
     prepare() {
-        let bestFriends = this.friends.filter(friend => friend.best);
-        bestFriends.sort(alphabetOrder);
-        let currentLevel = bestFriends;
-        let invitedFriends = bestFriends;
-        let level = 2;
+        let currentLevel = this.friends
+            .filter(friend => friend.best)
+            .sort(alphabetOrder);
+        let invitedFriends = [];
+        let level = 1;
         while (level <= this.maxLevel && currentLevel.length > 0) {
+            invitedFriends = invitedFriends.concat(currentLevel);
             let nextLevel = this.getNextLevel(currentLevel, invitedFriends)
                 .sort(alphabetOrder);
-            invitedFriends = invitedFriends.concat(nextLevel);
             currentLevel = nextLevel;
             level++;
         }
