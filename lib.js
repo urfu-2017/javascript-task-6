@@ -98,6 +98,7 @@ function LimitedIterator(friends, filter, maxLevel) {
 }
 
 LimitedIterator.prototype = Object.create(Iterator.prototype);
+LimitedIterator.prototype.constructor = LimitedIterator;
 
 LimitedIterator.prototype._getArrayForIterator = function (
     friendsArray,
