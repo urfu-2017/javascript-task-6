@@ -94,11 +94,13 @@ Iterator.prototype.done = function () {
 function LimitedIterator(friends, filter, maxLevel) {
     this._maxLevel = maxLevel;
 
-    return Iterator.call(this, friends, filter);
+    this.super(friends, filter);
+    // return Iterator.call(this, friends, filter);
 }
 
 LimitedIterator.prototype = Object.create(Iterator.prototype);
 LimitedIterator.prototype.constructor = LimitedIterator;
+LimitedIterator.prototype.super = Iterator.prototype.constructor;
 
 LimitedIterator.prototype._getArrayForIterator = function (
     friendsArray,
