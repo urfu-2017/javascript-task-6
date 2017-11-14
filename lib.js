@@ -30,9 +30,10 @@ function Iterator(friends, filter) {
 function LimitedIterator(friends, filter, maxLevel) {
     Iterator.call(this, friends, filter);
     this.filteredFriends = getFilteredFriends(friends, filter, maxLevel);
-    LimitedIterator.prototype = Object.create(Iterator.prototype);
-    LimitedIterator.prototype.constructor = LimitedIterator;
 }
+
+LimitedIterator.prototype.constructor = LimitedIterator;
+LimitedIterator.prototype = Object.create(Iterator.prototype);
 
 /**
  * Фильтр друзей
