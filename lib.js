@@ -98,7 +98,7 @@ Object.assign(Iterator.prototype, {
             (acc, friend) => [...acc, ...friend.friends], []));
         inviter.currentLevel = [];
         friendsOfFriendsNames.forEach(friendName =>
-            inviter.currentLevel.push(friends.find(friend => friend.name === friendName)));
+            inviter.currentLevel.push(...friends.filter(friend => friend.name === friendName)));
         inviter.invitedFriends = new Set(
             [...inviter.invitedFriends, ...inviter.currentLevel.sort(sorter)]);
     }
