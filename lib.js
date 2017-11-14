@@ -51,12 +51,6 @@ Object.assign(Iterator.prototype, {
             currentLevel = nextLevel;
             level++;
         }
-        if (level <= this.maxLevel) {
-            let lastLevel = this.friends
-                .filter(friend => !invitedFriends.includes(friend))
-                .sort(alphabetOrder);
-            invitedFriends = invitedFriends.concat(lastLevel);
-        }
         this.filtredInvited = this.filter.useFilter(invitedFriends);
     },
 
