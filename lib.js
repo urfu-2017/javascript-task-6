@@ -25,14 +25,14 @@ const findFriend = name => {
     }
 };
 
-// const clearParents = friends => {
-//     const parentsCopy = parents.slice();
-//     parentsCopy.forEach(friend => {
-//         if (friend.parent === null && !findFriendByName(friend.name, friends).best) {
-//             parents.splice(getIdx(friend.name), 1);
-//         }
-//     });
-// };
+const clearParents = friends => {
+    const parentsCopy = parents.slice();
+    parentsCopy.forEach(friend => {
+        if (friend.parent === null && !findFriendByName(friend.name, friends).best) {
+            parents.splice(getIdx(friend.name), 1);
+        }
+    });
+};
 
 const createParents = friends => {
     friends.forEach(element => {
@@ -59,7 +59,7 @@ const createParents = friends => {
             }
         });
     }
-    // clearParents(friends);
+    clearParents(friends);
 };
 
 const getParent = friend => {
