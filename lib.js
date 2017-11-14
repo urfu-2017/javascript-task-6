@@ -73,7 +73,6 @@ const countParents = friend => {
 
 const getLevel = friend => countParents(friend);
 
-
 const sortByLevels = friends => friends
     .sort((a, b) => (getLevel(a) - getLevel(b) ||
     a.name.localeCompare(b.name))
@@ -84,18 +83,18 @@ function Iterator(friends, filter) {
         throw new TypeError('Not instance of filter');
     }
     createParents(friends);
-    const stack = sortByLevels(filter.smallFilter(friends), friends);
-    this.stack = stack;
+    this.stack = sortByLevels(filter.smallFilter(friends), friends);
 }
 
 function LimitedIterator(friends, filter, maxLevel) {
     if (!(filter instanceof Filter)) {
         throw new TypeError('Not instance of filter');
     }
+    this.stack = [];
     if (maxLevel > 0) {
         createParents(friends);
-        const stack = sortByLevels(filter.smallFilter(friends), friends);
-        this.stack = stack.filter(element => getLevel(element) <= maxLevel);
+        this.stack = sortByLevels(filter.smallFilter(friends), friends);
+        this.stack = this.stack.filter(element => getLevel(element) <= maxLevel);
     }
 }
 
