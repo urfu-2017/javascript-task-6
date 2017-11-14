@@ -57,6 +57,8 @@ var femaleIterator = new lib.Iterator(friends, femaleFilter);
 // Среди парней приглашаем только луших друзей и друзей лучших друзей
 var maleIterator = new lib.LimitedIterator(friends, maleFilter, 2);
 
+console.log(maleIterator instanceof lib.Iterator, maleIterator instanceof lib.LimitedIterator)
+
 var invitedFriends = [];
 
 // Собираем пары «парень + девушка»

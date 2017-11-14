@@ -1,17 +1,5 @@
 'use strict';
 
-function __extends(subClass, superClass) {
-    Object.setPrototypeOf(subClass, superClass);
-
-    function ProtoChain() {
-        this.constructor = subClass;
-    }
-
-    ProtoChain.prototype = superClass.prototype;
-
-    subClass.prototype = new ProtoChain();
-}
-
 /**
  * Итератор по друзьям
  * @constructor
@@ -19,84 +7,80 @@ function __extends(subClass, superClass) {
  * @param {Object[]} friends
  * @param {Filter} filter
  */
-const IteratorClass = (function () {
-    function Iterator(friends, filter) {
-        if (!(filter instanceof Filter)) {
-            throw new TypeError();
-        }
-
-        this._currentPosition = 0;
-        this._friendsMap = {};
-        this._iterableArray = [];
-
-        this._init(friends, filter);
+function Iterator(friends, filter) {
+    if (!(filter instanceof Filter)) {
+        throw new TypeError();
     }
 
-    Iterator.prototype._init = function (friends, filter) {
-        this._friendsMap = friends.reduce((obj, friend) => {
-            obj[friend.name] = friend;
+    this._currentPosition = 0;
+    this._friendsMap = {};
+    this._iterableArray = [];
 
-            return obj;
-        }, {});
+    this._init(friends, filter);
+}
 
-        const bestFriendsNames = friends
-            .filter(friend => friend.best)
-            .map(friend => friend.name);
+Iterator.prototype._init = function (friends, filter) {
+    this._friendsMap = friends.reduce((obj, friend) => {
+        obj[friend.name] = friend;
 
-        this._iterableArray = this._getArrayForIterator(bestFriendsNames, bestFriendsNames)
-            .filter(friendName => filter.isValid(this._friendsMap[friendName]));
-    };
-    Iterator.prototype._getFriendsOf = function (currentFriendsNames) {
-        return currentFriendsNames
-            .reduce(
-                (nextFriends, friendName) =>
-                    nextFriends.concat(this._friendsMap[friendName].friends),
-                []
-            )
-            .reduce(
-                (uniqueNames, friendName) => {
-                    if (uniqueNames.indexOf(friendName) === -1) {
-                        uniqueNames.push(friendName);
-                    }
+        return obj;
+    }, {});
 
-                    return uniqueNames;
-                },
-                []
-            );
-    };
-    Iterator.prototype._getArrayForIterator = function (friendsArray, workedFriendsNames) {
-        friendsArray.sort();
+    const bestFriendsNames = friends
+        .filter(friend => friend.best)
+        .map(friend => friend.name);
 
-        const nextFriendsNames = this._getFriendsOf(friendsArray)
-            .filter(friendName => workedFriendsNames.indexOf(friendName) === -1);
+    this._iterableArray = this._getArrayForIterator(bestFriendsNames, bestFriendsNames)
+        .filter(friendName => filter.isValid(this._friendsMap[friendName]));
+};
+Iterator.prototype._getFriendsOf = function (currentFriendsNames) {
+    return currentFriendsNames
+        .reduce(
+            (nextFriends, friendName) =>
+                nextFriends.concat(this._friendsMap[friendName].friends),
+            []
+        )
+        .reduce(
+            (uniqueNames, friendName) => {
+                if (uniqueNames.indexOf(friendName) === -1) {
+                    uniqueNames.push(friendName);
+                }
 
-        if (nextFriendsNames.length === 0) {
-            return friendsArray;
-        }
-
-        return friendsArray.concat(
-            this._getArrayForIterator(nextFriendsNames, workedFriendsNames.concat(nextFriendsNames))
+                return uniqueNames;
+            },
+            []
         );
-    };
+};
+Iterator.prototype._getArrayForIterator = function (friendsArray, workedFriendsNames) {
+    friendsArray.sort();
 
-    /**
-     * Возвращает следующий объект друга или null, если следующего объекта не существует
-     * @returns {Object|null}
-     */
-    Iterator.prototype.next = function () {
-        return this._friendsMap[this._iterableArray[this._currentPosition++]] || null;
-    };
+    const nextFriendsNames = this._getFriendsOf(friendsArray)
+        .filter(friendName => workedFriendsNames.indexOf(friendName) === -1);
 
-    /**
-     * Возвращает true, если итератор достиг своего конца
-     * @returns {boolean}
-     */
-    Iterator.prototype.done = function () {
-        return this._currentPosition >= this._iterableArray.length;
-    };
+    if (nextFriendsNames.length === 0) {
+        return friendsArray;
+    }
 
-    return Iterator;
-}());
+    return friendsArray.concat(
+        this._getArrayForIterator(nextFriendsNames, workedFriendsNames.concat(nextFriendsNames))
+    );
+};
+
+/**
+ * Возвращает следующий объект друга или null, если следующего объекта не существует
+ * @returns {Object|null}
+ */
+Iterator.prototype.next = function () {
+    return this._friendsMap[this._iterableArray[this._currentPosition++]] || null;
+};
+
+/**
+ * Возвращает true, если итератор достиг своего конца
+ * @returns {boolean}
+ */
+Iterator.prototype.done = function () {
+    return this._currentPosition >= this._iterableArray.length;
+};
 
 /**
  * Итератор по друзям с ограничением по кругу
@@ -107,44 +91,40 @@ const IteratorClass = (function () {
  * @param {Filter} filter
  * @param {Number} maxLevel – максимальный круг друзей
  */
-const LimitedIteratorClass = (function () {
-    __extends(LimitedIterator, IteratorClass);
+function LimitedIterator(friends, filter, maxLevel) {
+    this._maxLevel = maxLevel;
 
-    function LimitedIterator(friends, filter, maxLevel) {
-        this._maxLevel = maxLevel;
+    return Iterator.call(this, friends, filter);
+}
 
-        return IteratorClass.call(this, friends, filter);
+LimitedIterator.prototype._getArrayForIterator = function (
+    friendsArray,
+    workedFriendsNames,
+    currentLevel = 1
+) {
+    if (this._maxLevel <= 0) {
+        return [];
     }
 
-    LimitedIterator.prototype._getArrayForIterator = function (
-        friendsArray,
-        workedFriendsNames,
-        currentLevel = 1
-    ) {
-        if (this._maxLevel <= 0) {
-            return [];
-        }
+    friendsArray.sort();
 
-        friendsArray.sort();
+    const nextFriendsNames = this._getFriendsOf(friendsArray)
+        .filter(friendName => workedFriendsNames.indexOf(friendName) === -1);
 
-        const nextFriendsNames = this._getFriendsOf(friendsArray)
-            .filter(friendName => workedFriendsNames.indexOf(friendName) === -1);
+    if (nextFriendsNames.length === 0 || currentLevel >= this._maxLevel) {
+        return friendsArray;
+    }
 
-        if (nextFriendsNames.length === 0 || currentLevel >= this._maxLevel) {
-            return friendsArray;
-        }
+    return friendsArray.concat(
+        this._getArrayForIterator(
+            nextFriendsNames,
+            workedFriendsNames.concat(nextFriendsNames),
+            currentLevel + 1
+        )
+    );
+};
 
-        return friendsArray.concat(
-            this._getArrayForIterator(
-                nextFriendsNames,
-                workedFriendsNames.concat(nextFriendsNames),
-                currentLevel + 1
-            )
-        );
-    };
-
-    return LimitedIterator;
-}());
+Object.setPrototypeOf(LimitedIterator.prototype, Iterator.prototype);
 
 /**
  * Фильтр друзей
@@ -182,8 +162,8 @@ function FemaleFilter() {
 
 FemaleFilter.prototype = Object.create(Filter.prototype);
 
-exports.Iterator = IteratorClass;
-exports.LimitedIterator = LimitedIteratorClass;
+exports.Iterator = Iterator;
+exports.LimitedIterator = LimitedIterator;
 
 exports.Filter = Filter;
 exports.MaleFilter = MaleFilter;
