@@ -3,7 +3,7 @@
 var levels = {
     level: undefined,
     friends: undefined,
-    names: undefined
+    names: []
 };
 
 function functionCompareByName(friend, friendNext) {
@@ -26,12 +26,14 @@ function onlyConnectedFriends(allFriends) {
 }
 
 function findBestFriends(arg, allFriends, noInviteFriends) {
+    var friendsOnLevel = Object.create(levels);
+    friendsOnLevel.level = 0;
     var namesAllPeople = arg[0];
-    var friendsOnLevel = arg[1];
+    var sortFriends = arg[1];
     var friendsFriendsOnLevel = [];
     friendsOnLevel.friends = allFriends.filter(function (item) {
         if (item.best) {
-            choiceFriend(item, friendsFriendsOnLevel);
+            choiceFriend(item, friendsOnLevel.names);
 
             return true;
         }
@@ -42,7 +44,7 @@ function findBestFriends(arg, allFriends, noInviteFriends) {
         return false;
 
     }).sort(functionCompareByName);
-    friendsOnLevel.names = friendsFriendsOnLevel;
+    sortFriends.push(friendsOnLevel);
 }
 
 function choiceFriendsOnLevel(allFriends, maxLevel, filter) {
@@ -53,18 +55,15 @@ function choiceFriendsOnLevel(allFriends, maxLevel, filter) {
         }
         maxLevel = Infinity;
     }
-    var friendsOnLevel = Object.create(levels);
     var sortFriends = [];
     var noInviteFriends = [];
-    friendsOnLevel.level = 0;
     var namesAllPeople = onlyConnectedFriends(allFriends);
-    var argument1 = [namesAllPeople, friendsOnLevel];
+    var argument1 = [namesAllPeople, sortFriends];
     findBestFriends(argument1, allFriends, noInviteFriends);
-    if (friendsOnLevel.friends.length === 0) {
+    if (sortFriends[0].friends.length === 0) {
 
         return [];
     }
-    sortFriends.push(friendsOnLevel);
     var argument2 = [noInviteFriends, sortFriends];
     findFriends(argument2, maxLevel);
 
