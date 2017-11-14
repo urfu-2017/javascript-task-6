@@ -17,10 +17,27 @@ const getIdx = name => {
     }
 };
 
+const findFriend = name => {
+    for (let i = 0; i < parents.length; i++) {
+        if (parents[i].name === name) {
+            return parents[i];
+        }
+    }
+};
+
+const clearParents = friends => {
+    const parentsCopy = parents.slice();
+    parentsCopy.forEach(friend => {
+        if (friend.parent === null && !findFriendByName(friend.name, friends).best) {
+            parents.splice(getIdx(friend.name), 1);
+        }
+    });
+};
+
 const createParents = friends => {
     friends.forEach(element => {
         if (getIdx(element.name) === undefined) {
-            parents.push({ name: element.name, parent: null });
+            parents.push({ name: element.name, parent: null, gender: element.gender });
         }
     });
     const besties = friends.filter(element => element.best);
@@ -42,16 +59,8 @@ const createParents = friends => {
             }
         });
     }
+    clearParents(friends);
 };
-
-const findFriend = name => {
-    for (let i = 0; i < parents.length; i++) {
-        if (parents[i].name === name) {
-            return parents[i];
-        }
-    }
-};
-
 
 const getParent = friend => {
     if (friend && parents[getIdx(friend.name)]) {
@@ -75,15 +84,15 @@ const getLevel = friend => countParents(friend);
 
 const sortByLevels = friends => friends
     .sort((a, b) => (getLevel(a) - getLevel(b) ||
-    a.name.localeCompare(b.name))
-    );
+    a.name.localeCompare(b.name)));
 
 function Iterator(friends, filter) {
     if (!(filter instanceof Filter)) {
         throw new TypeError('Not instance of filter');
     }
     createParents(friends);
-    this.stack = sortByLevels(filter.smallFilter(friends), friends);
+    this.stack = sortByLevels(filter.smallFilter(parents))
+        .map(friend => friends.find(f => f.name === friend.name));
 }
 
 function LimitedIterator(friends, filter, maxLevel) {
@@ -93,27 +102,22 @@ function LimitedIterator(friends, filter, maxLevel) {
     this.stack = [];
     if (maxLevel > 0) {
         createParents(friends);
-        this.stack = sortByLevels(filter.smallFilter(friends), friends);
-        this.stack = this.stack.filter(element => getLevel(element) <= maxLevel);
+        this.stack = sortByLevels(filter.smallFilter(parents))
+            .filter(element => getLevel(element) <= maxLevel)
+            .map(friend => friends.find(f => f.name === friend.name));
     }
 }
 
 function Filter() {
-    this.smallFilter = function (friends) {
-        return friends;
-    };
+    this.smallFilter = friends => friends;
 }
 
 function MaleFilter() {
-    this.smallFilter = function (friends) {
-        return this.bigFilter(friends, 'gender', 'male');
-    };
+    this.smallFilter = friends => this.bigFilter(friends, 'gender', 'male');
 }
 
 function FemaleFilter() {
-    this.smallFilter = function (friends) {
-        return this.bigFilter(friends, 'gender', 'female');
-    };
+    this.smallFilter = friends => this.bigFilter(friends, 'gender', 'female');
 }
 
 Object.setPrototypeOf(FemaleFilter.prototype, Filter.prototype);
