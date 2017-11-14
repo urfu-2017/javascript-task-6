@@ -85,6 +85,12 @@ const createParents = friends => {
 
     while (queue.length > 0) {
         const current = queue.shift();
+        processChildren(current);
+    }
+    clearParents(friends);
+    sortByLevels(parents);
+
+    function processChildren(current) {
         current.friends.forEach(element => {
             let currentFriend = findFriendByName(element, friends);
             if (!visited.includes(currentFriend)) {
@@ -98,8 +104,6 @@ const createParents = friends => {
             }
         });
     }
-    clearParents(friends);
-    sortByLevels(parents);
 };
 
 function Iterator(friends, filter) {
