@@ -16,6 +16,16 @@ var friends = [
         best: true
     },
     {
+        name: 'Audrey',
+        friends: ['Cooper'],
+        gender: 'female'
+    },
+    {
+        name: 'Cooper',
+        friends: ['Audrey'],
+        gender: 'male'
+    },
+    {
         name: 'Mat',
         friends: ['Sam', 'Sharon'],
         gender: 'male'

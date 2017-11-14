@@ -1,6 +1,8 @@
 'use strict';
 let parents = [];
 
+// so i need to fix sort because it iterates all friends even isolated
+
 const findFriendByName = (name, friends) => {
     for (let i = 0; i < friends.length; i ++) {
         if (friends[i].name === name) {
@@ -37,7 +39,7 @@ const clearParents = friends => {
 const createParents = friends => {
     friends.forEach(element => {
         if (getIdx(element.name) === undefined) {
-            parents.push({ name: element.name, parent: null, gender: element.gender });
+            parents.push({ name: element.name, parent: null });
         }
     });
     const besties = friends.filter(element => element.best);
@@ -76,6 +78,9 @@ const countParents = friend => {
         counter++;
         friend = findFriend(getParent(friend).name);
     }
+    // if (getParent(friend) === null && !friend.best) {
+    //     counter = Infinity;
+    // }
 
     return counter;
 };
@@ -91,8 +96,10 @@ function Iterator(friends, filter) {
         throw new TypeError('Not instance of filter');
     }
     createParents(friends);
-    this.stack = sortByLevels(filter.smallFilter(parents))
-        .map(friend => friends.find(f => f.name === friend.name));
+    // maybe we shud filter here
+    this.stack = sortByLevels(filter.smallFilter(friends));
+    this.stack.filter(element => parents.includes(element));
+    console.info(parents);
 }
 
 function LimitedIterator(friends, filter, maxLevel) {
@@ -102,9 +109,8 @@ function LimitedIterator(friends, filter, maxLevel) {
     this.stack = [];
     if (maxLevel > 0) {
         createParents(friends);
-        this.stack = sortByLevels(filter.smallFilter(parents))
-            .filter(element => getLevel(element) <= maxLevel)
-            .map(friend => friends.find(f => f.name === friend.name));
+        this.stack = sortByLevels(filter.smallFilter(friends))
+            .filter(element => getLevel(element) <= maxLevel);
     }
 }
 
