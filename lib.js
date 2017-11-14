@@ -84,7 +84,7 @@ function Iterator(friends, filter) {
         throw new TypeError('Not instance of filter');
     }
     createParents(friends);
-    const stack = sortByLevels(filter.smallFilter(friends), friends).reverse();
+    const stack = sortByLevels(filter.smallFilter(friends), friends);
     this.stack = stack;
 }
 
@@ -93,8 +93,7 @@ function LimitedIterator(friends, filter, maxLevel) {
         throw new TypeError('Not instance of filter');
     }
     createParents(friends);
-    const stack = sortByLevels(filter.smallFilter(friends), friends).reverse();
-    // sam-1 brad mat-2 ethan-2
+    const stack = sortByLevels(filter.smallFilter(friends), friends);
     this.stack = stack.filter(element => getLevel(element) <= maxLevel);
 }
 
@@ -106,13 +105,13 @@ function Filter() {
 
 function MaleFilter() {
     this.smallFilter = function (friends) {
-        return Filter.smallFilter(friends, 'gender', 'male');
+        return this.bigFilter(friends, 'gender', 'male');
     };
 }
 
 function FemaleFilter() {
     this.smallFilter = function (friends) {
-        return Filter.smallFilter(friends, 'gender', 'female');
+        return this.bigFilter(friends, 'gender', 'female');
     };
 }
 
@@ -120,8 +119,8 @@ Object.setPrototypeOf(FemaleFilter.prototype, Filter.prototype);
 Object.setPrototypeOf(MaleFilter.prototype, Filter.prototype);
 Object.setPrototypeOf(LimitedIterator.prototype, Iterator.prototype);
 
-Object.assign(Filter, {
-    smallFilter(friends, param, value) {
+Object.assign(Filter.prototype, {
+    bigFilter(friends, param, value) {
         return friends.filter(friend => friend[param] === value);
     }
 });
@@ -132,7 +131,7 @@ Iterator.prototype.done = function () {
 
 Iterator.prototype.next = function () {
     if (this.stack.length > 0) {
-        return this.stack.pop();
+        return this.stack.shift();
     }
 
     return null;
