@@ -97,6 +97,8 @@ function LimitedIterator(friends, filter, maxLevel) {
     return Iterator.call(this, friends, filter);
 }
 
+LimitedIterator.prototype = Object.create(Iterator.prototype);
+
 LimitedIterator.prototype._getArrayForIterator = function (
     friendsArray,
     workedFriendsNames,
@@ -123,8 +125,6 @@ LimitedIterator.prototype._getArrayForIterator = function (
         )
     );
 };
-
-LimitedIterator.prototype = Object.create(Iterator.prototype);
 
 /**
  * Фильтр друзей
