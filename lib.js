@@ -128,10 +128,6 @@ function Iterator(friends, filter) {
 
 function filterFriendsByGender(friends, filter) {
     var friendsFilter = [];
-    friends.forEach(function(item){
-        item.friends.forEach(function (ob){
-        });
-    });
     friends.forEach(function (item) {
         item.friends.forEach(function (friend) {
             if (filter.field(friend)) {
