@@ -10,50 +10,49 @@ function Iterator(friends, filter) {
     if (!(filter instanceof Filter)) {
         throw new TypeError('Bad filter');
     }
-    this.friends = friends;
-    this.filter = filter;
-    this.prepare(this.maxLevel);
+    this._friends = friends;
+    this._filter = filter;
+    this._prepare(this._maxLevel);
 }
 
 Object.assign(Iterator.prototype, {
     done() {
-        return this.current === this.filtredInvited.length;
+        return this._current === this._filtredInvited.length;
     },
     next() {
-        if (this.current < this.filtredInvited.length) {
-            return this.filtredInvited[this.current++];
+        if (this._current < this._filtredInvited.length) {
+            return this._filtredInvited[this._current++];
         }
 
         return null;
     },
-    filtredInvited: [],
-    prepared: false,
-    current: 0,
+    _filtredInvited: [],
+    _current: 0,
 
     /**
      * Подготавливает массив filtredInvited для функции next и done
      * @param {Number} maxLevel
      */
-    prepare(maxLevel) {
+    _prepare(maxLevel) {
         if (maxLevel === undefined) {
             maxLevel = Number.MAX_SAFE_INTEGER;
         }
-        let currentLevel = this.friends
+        let currentLevel = this._friends
             .filter(friend => friend.best)
             .sort(alphabetOrder);
         let invitedFriends = [];
         let level = 1;
         while (level <= maxLevel && currentLevel.length > 0) {
             invitedFriends = invitedFriends.concat(currentLevel);
-            let nextLevel = this.getNextLevel(currentLevel, invitedFriends)
+            let nextLevel = this._getNextLevel(currentLevel, invitedFriends)
                 .sort(alphabetOrder);
             currentLevel = nextLevel;
             level++;
         }
-        this.filtredInvited = this.filter.useFilter(invitedFriends);
+        this._filtredInvited = this._filter.useFilter(invitedFriends);
     },
 
-    getNextLevel(currentLevel, invitedFriends) {
+    _getNextLevel(currentLevel, invitedFriends) {
         let invitedFriendNames = invitedFriends.map(friend => friend.name);
 
         return currentLevel
@@ -64,7 +63,7 @@ Object.assign(Iterator.prototype, {
                             !nextFriendNames.includes(nextFriendName) &&
                             !invitedFriendNames.includes(nextFriendName))
                 ), [])
-            .map(friendName => this.friends.find(friend => friend.name === friendName));
+            .map(friendName => this._friends.find(friend => friend.name === friendName));
     }
 });
 
@@ -88,7 +87,7 @@ function alphabetOrder(a, b) {
  * @param {Number} maxLevel – максимальный круг друзей
  */
 function LimitedIterator(friends, filter, maxLevel) {
-    this.maxLevel = maxLevel;
+    this._maxLevel = maxLevel;
     Iterator.call(this, friends, filter);
 }
 
