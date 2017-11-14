@@ -91,8 +91,8 @@ function Iterator(friends, filter) {
         throw new TypeError('Not instance of filter');
     }
     createParents(friends);
-    this.stack = sortByLevels(filter.smallFilter(friends));
-    // .map(friend => friends.find(f => f.name === friend.name));
+    this.stack = sortByLevels(filter.smallFilter(parents)
+        .map(friend => friends.find(f => f.name === friend.name)));
 }
 
 function LimitedIterator(friends, filter, maxLevel) {
@@ -102,9 +102,9 @@ function LimitedIterator(friends, filter, maxLevel) {
     this.stack = [];
     if (maxLevel > 0) {
         createParents(friends);
-        this.stack = sortByLevels(filter.smallFilter(friends))
+        this.stack = sortByLevels(filter.smallFilter(parents)
+            .map(friend => friends.find(f => f.name === friend.name)))
             .filter(element => getLevel(element) <= maxLevel);
-        // .map(friend => friends.find(f => f.name === friend.name));
     }
 }
 
