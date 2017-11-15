@@ -11,20 +11,17 @@ function Iterator(friends, filter) {
         throw new TypeError('Фильтр не является инстансом функции-конструктора Filter');
     }
 
-    this.orderedFriendsByLevel = orderFriends(friends);
-    this.filteredFriends = this.orderedFriendsByLevel.map(level => filter.filter(level));
+    this.orderedFriendsByLevel = orderFriends(friends)
+        .reduce((allFriends, level) => allFriends.concat(level), []);
+    this.filteredFriends = filter.filter(this.orderedFriendsByLevel);
 
-    this.done = () => this.filteredFriends.every(level => level.length === 0);
+    this.done = () => this.filteredFriends.length === 0;
     this.next = () => {
         if (this.done()) {
             return null;
         }
-        let i = 0;
-        while (this.filteredFriends[i].length === 0) {
-            i++;
-        }
 
-        return this.filteredFriends[i].shift();
+        return this.filteredFriends.shift();
     };
 }
 
@@ -94,14 +91,16 @@ function sortByName(a, b) {
  * @param {Number} maxLevel – максимальный круг друзей
  */
 function LimitedIterator(friends, filter, maxLevel) {
-
     if (maxLevel < 0) {
         this.filteredFriends = [];
 
         return;
     }
     Iterator.call(this, friends, filter);
-    this.filteredFriends = this.filteredFriends.slice(0, maxLevel);
+    this.orderedFriendsByLevel = orderFriends(friends)
+        .slice(0, maxLevel)
+        .reduce((allFriends, level) => allFriends.concat(level), []);
+    this.filteredFriends = filter.filter(this.orderedFriendsByLevel);
 }
 LimitedIterator.prototype = Object.create(Iterator.prototype);
 LimitedIterator.prototype.constructor = LimitedIterator;
