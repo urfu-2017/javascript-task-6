@@ -64,25 +64,22 @@ function Iterator(friends, filter) {
     if (!(filter instanceof Filter)) {
         throw new TypeError('Second argument is not a Filter object');
     }
-    this._friendsQueue = getFriendsQueue(friends, filter);
+    this._friendsQueue = getFriendsQueue(friends, filter)
+        .reduce((result, circle) => result.concat(circle), []);
     this._circleCounter = 0;
     console.info(this._friendsQueue);
 }
 
 Iterator.prototype.done = function () {
-    return this._friendsQueue.every(circle => circle.length === 0);
+    return this._friendsQueue.length === 0;
 };
 
 Iterator.prototype.next = function () {
     if (this.done()) {
         return null;
     }
-    const result = this._friendsQueue[this._circleCounter].shift();
-    if (!this._friendsQueue[this._circleCounter].length) {
-        this._circleCounter++;
-    }
 
-    return result;
+    return this._friendsQueue.shift();
 };
 
 /**
@@ -96,14 +93,17 @@ Iterator.prototype.next = function () {
 function LimitedIterator(friends, filter, maxLevel) {
     Iterator.call(this, friends, filter);
     this._maxLevel = maxLevel;
+    this._friendsQueue = getFriendsQueue(friends, filter)
+        .slice(0, maxLevel)
+        .reduce((result, circle) => result.concat(circle), []);
 }
 
 LimitedIterator.prototype = Object.create(Iterator.prototype);
 LimitedIterator.prototype.constructor = LimitedIterator;
-LimitedIterator.prototype.done = function () {
-    return this._friendsQueue
-        .every(circle => circle.length === 0) || this._circleCounter >= this._maxLevel;
-};
+// LimitedIterator.prototype.done = function () {
+//     return this._friendsQueue
+//         .every(circle => circle.length === 0) || this._circleCounter >= this._maxLevel;
+// };
 
 /**
  * Фильтр друзей
