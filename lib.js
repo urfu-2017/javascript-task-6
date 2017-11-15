@@ -3,7 +3,7 @@
 var levels = {
     level: undefined,
     friends: undefined,
-    names: []
+    names: undefined
 };
 
 function functionCompareByName(friend, friendNext) {
@@ -26,13 +26,12 @@ function onlyConnectedFriends(allFriends) {
 }
 
 function findBestFriends(arg, allFriends, noInviteFriends) {
-    var friendsOnLevel = Object.create(levels);
-    friendsOnLevel.level = 0;
     var namesAllPeople = arg[0];
-    var sortFriends = arg[1];
+    var friendsOnLevel = arg[1];
+    var friendsFriendsOnLevel = [];
     friendsOnLevel.friends = allFriends.filter(function (item) {
         if (item.best) {
-            choiceFriend(item, friendsOnLevel.names);
+            choiceFriend(item, friendsFriendsOnLevel);
 
             return true;
         }
@@ -43,26 +42,25 @@ function findBestFriends(arg, allFriends, noInviteFriends) {
         return false;
 
     }).sort(functionCompareByName);
-    sortFriends.push(friendsOnLevel);
+    friendsOnLevel.names = friendsFriendsOnLevel;
 }
 
 function choiceFriendsOnLevel(allFriends, maxLevel, filter) {
-    if (maxLevel === undefined || maxLevel < 1) {
-        if (filter.type !== 'female') {
-
-            return [];
-        }
+    if (filter.type !== 'male') {
         maxLevel = Infinity;
     }
-    var sortFriends = [];
-    var noInviteFriends = [];
-    var namesAllPeople = onlyConnectedFriends(allFriends);
-    var argument1 = [namesAllPeople, sortFriends];
-    findBestFriends(argument1, allFriends, noInviteFriends);
-    if (sortFriends[0].friends.length === 0) {
+    if (maxLevel === undefined || maxLevel <= 0) {
 
         return [];
     }
+    var friendsOnLevel = Object.create(levels);
+    var sortFriends = [];
+    var noInviteFriends = [];
+    friendsOnLevel.level = 0;
+    var namesAllPeople = onlyConnectedFriends(allFriends);
+    var argument1 = [namesAllPeople, friendsOnLevel];
+    findBestFriends(argument1, allFriends, noInviteFriends);
+    sortFriends.push(friendsOnLevel);
     var argument2 = [noInviteFriends, sortFriends];
     findFriends(argument2, maxLevel);
 
@@ -107,7 +105,7 @@ function inspection(arg, iteration, choiceFriends) {
 
 function choiceFriend(item, friendsFriendsOnLevel) {
     item.friends.forEach(function (nameFriendItem) {
-        if (friendsFriendsOnLevel.indexOf(nameFriendItem) === -1) {
+        if (friendsFriendsOnLevel.indexOf(item.name) === -1) {
             friendsFriendsOnLevel.push(nameFriendItem);
         }
     });
