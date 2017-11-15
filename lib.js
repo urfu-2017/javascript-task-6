@@ -1,16 +1,12 @@
 'use strict';
 function getFriends(friends, filter, level) {
     if (level === undefined) {
-        level = Infinity;// +10 на всякий случай
+        level = Infinity;
     }
     var resultFriends = [];
-    var best = [];
-    friends.forEach(function (friend) {
-        if (friend.best === true) {
-            best.push(friend);
-        }
-    });
-    if(best.length === 0) {
+    var best = getBest(friends);
+
+    if (best.length === 0) {
         return [];
     }
     best = best.sort(sortByName);
@@ -28,6 +24,17 @@ function getFriends(friends, filter, level) {
     }
 
     return resultFriends.filter(filter.checkGender);
+}
+
+function getBest(friends) {
+    var best = [];
+    friends.forEach(function (friend) {
+        if (friend.best === true) {
+            best.push(friend);
+        }
+    });
+
+    return best;
 }
 
 function sortByName(a, b) {
