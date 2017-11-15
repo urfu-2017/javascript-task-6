@@ -87,9 +87,11 @@ function getGuestList(friends, filter, maxLevel = Infinity) {
 
 function getNewCircle(currentCircle, friends, guestList) {
     return currentCircle
-        .reduce((circle, friend) => [...circle, ...friend.friends], [])
+        .reduce((newCircle, friend) => [...newCircle, ...friend.friends], [])
         .map(name => friends.find(friend => friend.name === name))
-        .filter(friend => !guestList.includes(friend))
+        .filter((friend, friendIndex, newCircle) => {
+            return !guestList.includes(friend) && newCircle.indexOf(friend) === friendIndex;
+        })
         .sort(compareByName);
 }
 
