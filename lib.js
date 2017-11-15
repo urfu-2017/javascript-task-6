@@ -27,7 +27,7 @@ function shouldBeVisited(friend, visited, queue) {
 
 function getFriendsQueue(friends, filterObject) {
     const [queue, visited] = [[], []];
-    let [counter, circleNumber]=[0,0];
+    let [counter, circleNumber] = [0, 0];
     // const queue = [];
     // const visited = [];
     // const friendsCopy = friends.slice();
