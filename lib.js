@@ -2,7 +2,7 @@
 function getFriends(friends, filter, level) {
 
     if (level === undefined) {
-        level = Infinity;
+        level = friends.length + 5;
     }
     var resultFriends = [];
     var best = getBest(friends);
