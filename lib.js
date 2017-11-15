@@ -5,7 +5,7 @@ function compareNames(friend1, friend2) {
         return 0;
     }
 
-    return friend1.name > friend2.name ? 1 : -1;
+    return friend1.name > friend2.name ? -1 : 1;
 }
 
 function personIsFriendForCompany(person, company) {
