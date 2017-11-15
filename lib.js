@@ -27,7 +27,7 @@ function Iterator(friends, filter) {
 }
 
 Iterator.prototype._init = function () {
-    if (!this._maxLevel) {
+    if (this._maxLevel === undefined) {
         this._maxLevel = Number.MAX_SAFE_INTEGER;
     }
     this._activeLvl = this._friends
