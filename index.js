@@ -5,23 +5,19 @@ var lib = require('./lib');
 var friends = [
     {
         name: 'Sam',
-        friends: ['Sharon'],
+        friends: ['Mat', 'Sharon'],
         gender: 'male',
         best: true
     },
     {
-        name: 'Audrey',
-        friends: ['Cooper'],
-        gender: 'female'
-    },
-    {
-        name: 'Cooper',
-        friends: ['Audrey'],
-        gender: 'male'
+        name: 'Sally',
+        friends: ['Brad', 'Emily'],
+        gender: 'female',
+        best: true
     },
     {
         name: 'Mat',
-        friends: ['Sharon'],
+        friends: ['Sam', 'Sharon'],
         gender: 'male'
     },
     {
@@ -45,12 +41,6 @@ var friends = [
         gender: 'male'
     },
     {
-        name: 'Sally',
-        friends: ['Brad', 'Emily'],
-        gender: 'female',
-        best: true
-    },
-    {
         name: 'Julia',
         friends: ['Brad', 'Itan'],
         gender: 'female'
@@ -65,7 +55,7 @@ var femaleFilter = new lib.FemaleFilter();
 var femaleIterator = new lib.Iterator(friends, femaleFilter);
 
 // Среди парней приглашаем только луших друзей и друзей лучших друзей
-var maleIterator = new lib.LimitedIterator(friends, maleFilter, 10);
+var maleIterator = new lib.LimitedIterator(friends, maleFilter, 2);
 
 var invitedFriends = [];
 
@@ -83,10 +73,7 @@ while (!femaleIterator.done()) {
 }
 
 console.info(invitedFriends);
-console.info(friends);
 // Sam, Sally
 // Brad, Emily
 // Mat, Sharon
 // Julia
-
-// sam,sharon -> mat,julia -> itan,emily -> brad,sally
