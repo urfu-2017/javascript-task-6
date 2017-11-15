@@ -68,7 +68,7 @@ Iterator.prototype._filterFriends = function () {
 };
 
 Iterator.prototype.next = function () {
-    return this._invitedFriends.shift();
+    return this._invitedFriends.shift() || null;
 };
 
 Iterator.prototype.done = function () {
