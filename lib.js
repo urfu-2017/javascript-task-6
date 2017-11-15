@@ -93,7 +93,7 @@ function sortByName(a, b) {
  */
 function LimitedIterator(friends, filter, maxLevel) {
 
-    if (maxLevel <= 0) {
+    if (maxLevel < 0) {
         this.filteredFriends = [];
 
         return;
