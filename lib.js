@@ -114,7 +114,7 @@ function Iterator(friends, filter) {
         throw new TypeError('Filter не является прототипом filter');
     }
     var workWithFriends = choiceFriendsOnLevel(friends, filter);
-    var maxLevel = arguments[2] || Infinity;
+    var maxLevel = arguments[2] >= 0 ? arguments[2] : Infinity;
     this.inviteFriends = filterFriendsByGender(workWithFriends, filter, maxLevel);
     this.indexFriend = 0;
 }
@@ -158,6 +158,9 @@ Iterator.prototype.next = function () {
  * @param {Number} maxLevel – максимальный круг друзей
  */
 function LimitedIterator(friends, filter, maxLevel) {
+    if (typeof(maxLevel) !== 'number' || maxLevel < 1) {
+        maxLevel = 0;
+    }
     Iterator.call(this, friends, filter, maxLevel);
 }
 
