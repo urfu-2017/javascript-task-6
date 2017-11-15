@@ -5,7 +5,7 @@ var lib = require('./lib');
 var friends = [
     {
         name: 'Sam',
-        friends: ['Mat', 'Sharon'],
+        friends: ['Sharon'],
         gender: 'male',
         best: true
     },
@@ -21,7 +21,7 @@ var friends = [
     },
     {
         name: 'Mat',
-        friends: ['Sam', 'Sharon'],
+        friends: ['Sharon'],
         gender: 'male'
     },
     {
@@ -83,6 +83,7 @@ while (!femaleIterator.done()) {
 }
 
 console.info(invitedFriends);
+console.info(friends);
 // Sam, Sally
 // Brad, Emily
 // Mat, Sharon
