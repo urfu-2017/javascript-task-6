@@ -78,7 +78,7 @@ function getGuestList(friends, filter, maxLevel = Infinity) {
         .filter(friend => friend.best)
         .sort(compareByName);
 
-    while (circleOfFriends.length && maxLevel--) {
+    while (circleOfFriends.length && maxLevel-- > 0) {
         guestList = guestList.concat(circleOfFriends);
         circleOfFriends = getNewCircle(circleOfFriends, friends, guestList);
     }
