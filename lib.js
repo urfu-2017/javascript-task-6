@@ -15,16 +15,14 @@ function inviteBestFriends(friends) {
 function inviteFriendsOfFriends(friends, dictFriends, start) {
     return friends.slice(start)
         .reduce(function (friendsOfFriends, friend) {
-            if (!friend.hasOwnProperty('friends')) {
-                return friendsOfFriends;
-            }
 
             return friend.friends
                 .map(function (name) {
                     return dictFriends[name];
                 })
                 .filter(function (friendOfFriend) {
-                    return (friends.indexOf(friendOfFriend) === -1);
+                    return (friends.indexOf(friendOfFriend) === -1) &&
+                        (friendsOfFriends.indexOf(friendOfFriend) === -1);
                 })
                 .concat(friendsOfFriends);
         }, [])
@@ -59,9 +57,6 @@ function inviteFriends(friends, maxLevel) {
 function BaseIterator(friends, filter, maxLevel) {
     if (!(filter instanceof Filter)) {
         throw new TypeError('filter not instanceof Filter');
-    }
-    if (maxLevel < 1) {
-        return [];
     }
 
     this.invitedFriends = inviteFriends(friends, maxLevel).filter(filter.filter);
