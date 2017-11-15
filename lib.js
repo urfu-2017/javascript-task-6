@@ -30,6 +30,11 @@ function pushFriend(nextLevel, friend) {
     if (friend === undefined) {
         return nextLevel;
     }
+    for (let person of nextLevel) {
+        if (person.name === friend.name) {
+            return nextLevel;
+        }
+    }
     nextLevel.push(friend);
 
     return nextLevel;
