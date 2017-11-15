@@ -4,23 +4,6 @@
  * Находим друга в исходном массиве по имени
  * @param {Object[]} friends
  * @param {String} friendName
- * @param {Object} currentFriend
- * @returns {Object}
- */
-function getFriendByName1(friends, friendName, currentFriend) {
-    for (let friend of friends) {
-        if (friend.name === friendName && friend.friends.indexOf(currentFriend.name) !== -1) {
-            return friend;
-        }
-    }
-
-    return undefined;
-}
-
-/**
- * Находим друга в исходном массиве по имени
- * @param {Object[]} friends
- * @param {String} friendName
  * @returns {Object}
  */
 function getFriendByName(friends, friendName) {
@@ -54,7 +37,7 @@ function getNextLevel(friends, friendsOnCurrentLevel, invitedFriends) {
     let nextLevel = [];
     for (let currentFriend of friendsOnCurrentLevel) {
         for (let friendName of currentFriend.friends) {
-            nextLevel.push(getFriendByName1(friends, friendName, currentFriend));
+            nextLevel.push(getFriendByName(friends, friendName));
         }
     }
     nextLevel = nextLevel.filter(friend =>
@@ -91,6 +74,8 @@ function divideOnCircles(friends, filter, maxLevel) {
     let invitedFriends = bestFriends;
     let friendsOnCurrentLevel = bestFriends;
     if (invitedFriends.length === friends.length) {
+        invitedFriends = filter.genderFilter(invitedFriends);
+
         return invitedFriends;
     }
     invitedFriends = getInvitedFriends(maxLevel, friendsOnCurrentLevel, friends, invitedFriends);
