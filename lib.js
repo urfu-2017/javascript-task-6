@@ -35,7 +35,7 @@ function findUnvisitedFriends(friendsToFind, invitedFriends) {
  * @param {Number} maxLevel - Максимальный круг друзей
  * @returns {Object}
  */
-function getFriends(friends, filter, maxLevel = 10000) {
+function getFriends(friends, filter, maxLevel = Infinity) {
     let invitedFriends = [];
     let currentLevelFriends = friends
         .filter(friend => friend.best)
