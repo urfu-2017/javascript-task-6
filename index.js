@@ -26,6 +26,7 @@ function getFriendByName(friends, name) {
         }
     }
 }
+
 function getFriendsUpToLvl(friends, lvl) { // eslint-disable-line max-statements
     var bestFriends = friends.filter(function (friend) {
         return friend.best === true;
