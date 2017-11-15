@@ -5,16 +5,18 @@ function compareFriends(friend1, friend2) {
 }
 
 function removeRepetitions(array) {
-    var result = [];
+    let obj = {};
 
     for (let i = 0; i < array.length; i++) {
-        let currentItem = array[i];
-        if (result.indexOf(currentItem) === -1) {
-            result.push(currentItem);
-        }
+        let str = array[i];
+        obj[str] = true;
     }
 
-    return result;
+    return Object.keys(obj);
+}
+
+function newFriendsFilter(resultFriends) {
+    return (friend) => (!resultFriends.includes(friend));
 }
 
 function filterFriends(friends, filter, maxLevel = Infinity) {
@@ -28,14 +30,15 @@ function filterFriends(friends, filter, maxLevel = Infinity) {
             .reduce((result, friend) => (result.concat(friend.friends)), []));
         let friendsOfFriends = friendsOfFriendsNames
             .map((friendName) => (friends.find((friend) => (friend.name === friendName))))
+            .filter(newFriendsFilter(resultFriends))
             .sort(compareFriends);
-        resultFriends = removeRepetitions(resultFriends.concat(friendsOfFriends));
-        if (friendsOfFriends.length === friends.length) {
+        resultFriends = resultFriends.concat(friendsOfFriends);
+        if (friendsOfFriends.length === 0) {
             break;
         }
     }
 
-    return removeRepetitions(resultFriends.filter(filter.filter));
+    return resultFriends.filter(filter.filter);
 }
 
 /**
@@ -75,8 +78,8 @@ Iterator.prototype.next = function () {
  * @param {Number} maxLevel – максимальный круг друзей
  */
 function LimitedIterator(friends, filter, maxLevel) {
+    Iterator.call(this, friends, filter);
     this.filteredFriends = filterFriends(friends, filter, maxLevel);
-    this.pointer = 0;
 }
 
 LimitedIterator.prototype = Object.create(Iterator.prototype);
