@@ -1,0 +1,13 @@
+{
+  "private": true,
+  "main": "lib.js",
+  "scripts": {
+    "lint": "eslint .",
+    "test": "eslint . && mocha *.spec.js"
+  },
+  "dependencies": {
+    "eslint": "4.8.0",
+    "eslint-config-hrundel": "1.2.0",
+    "mocha": "4.0.1"
+  }
+}
