@@ -8,17 +8,8 @@ function sortFriendsByName(first, second) {
     return first.name < second.name ? -1 : 1;
 }
 
-// function getBestFriends(friends) {
-//     return friends.filter(friend => friend.best === true);
-//     // .reduce((result, current) => {
-//     //     result.push(current);
-//     //
-//     //     return result;
-//     // }, []);
-// }
-
 function shouldBeVisited(friend, visited, queue) {
-    return visited.indexOf(friend) === -1 && queue.every(circle => circle.indexOf(friend) === -1);
+    return !visited.includes(friend) && queue.every(circle => !circle.includes(friend));
 }
 
 function getUnvisited(friends, visited) {
@@ -26,20 +17,18 @@ function getUnvisited(friends, visited) {
 }
 
 function getNewCircle(friends, curCircle, visited, queue) {
-    let names = curCircle.reduce((result, person) => result.concat(person.friends), []);
-    let newCircle = Array.from(new Set(names))
+    const names = curCircle.reduce((result, person) => result.concat(person.friends), []);
+
+    return Array.from(new Set(names))
         .map(name => friends.find(friend => friend.name === name))
         .filter(friend => shouldBeVisited(friend, visited, queue))
         .sort(sortFriendsByName);
-
-    return newCircle;
 }
 
 function getFriendsQueue(friends, filterObject) {
     const queue = [];
     let visited = [];
     let circleCount = 0;
-    // const itemCount = 0;
     queue.push(friends.filter(friend => friend.best).sort(sortFriendsByName));
     while (getUnvisited(friends, visited).length !== 0) {
         const newCircle = getNewCircle(friends, queue[circleCount], visited, queue);
@@ -66,7 +55,6 @@ function Iterator(friends, filter) {
     }
     this._friendsQueue = getFriendsQueue(friends, filter)
         .reduce((result, circle) => result.concat(circle), []);
-    this._circleCounter = 0;
     console.info(this._friendsQueue);
 }
 
@@ -102,10 +90,6 @@ function LimitedIterator(friends, filter, maxLevel) {
 
 LimitedIterator.prototype = Object.create(Iterator.prototype);
 LimitedIterator.prototype.constructor = LimitedIterator;
-// LimitedIterator.prototype.done = function () {
-//     return this._friendsQueue
-//         .every(circle => circle.length === 0) || this._circleCounter >= this._maxLevel;
-// };
 
 /**
  * Фильтр друзей
