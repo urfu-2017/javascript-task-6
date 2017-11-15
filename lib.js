@@ -3,7 +3,7 @@
 var levels = {
     level: undefined,
     friends: undefined,
-    names: undefined
+    names: []
 };
 
 function functionCompareByName(friend, friendNext) {
@@ -26,12 +26,13 @@ function onlyConnectedFriends(allFriends) {
 }
 
 function findBestFriends(arg, allFriends, noInviteFriends) {
+    var friendsOnLevel = Object.create(levels);
+    friendsOnLevel.level = 0;
     var namesAllPeople = arg[0];
-    var friendsOnLevel = arg[1];
-    var friendsFriendsOnLevel = [];
+    var sortFriends = arg[1];
     friendsOnLevel.friends = allFriends.filter(function (item) {
         if (item.best) {
-            choiceFriend(item, friendsFriendsOnLevel);
+            choiceFriend(item, friendsOnLevel.names);
 
             return true;
         }
@@ -42,39 +43,30 @@ function findBestFriends(arg, allFriends, noInviteFriends) {
         return false;
 
     }).sort(functionCompareByName);
-    friendsOnLevel.names = friendsFriendsOnLevel;
+    sortFriends.push(friendsOnLevel);
 }
 
-function choiceFriendsOnLevel(allFriends, maxLevel, filter) {
-    if (filter.type !== 'male') {
-        maxLevel = Infinity;
-    }
-    if (maxLevel === undefined || maxLevel <= 0) {
+function choiceFriendsOnLevel(allFriends, filter) {
+    var sortFriends = [];
+    var noInviteFriends = [];
+    var namesAllPeople = onlyConnectedFriends(allFriends);
+    var argument1 = [namesAllPeople, sortFriends];
+    findBestFriends(argument1, allFriends, noInviteFriends);
+    if (sortFriends[0].friends.length === 0) {
 
         return [];
     }
-    var friendsOnLevel = Object.create(levels);
-    var sortFriends = [];
-    var noInviteFriends = [];
-    friendsOnLevel.level = 0;
-    var namesAllPeople = onlyConnectedFriends(allFriends);
-    var argument1 = [namesAllPeople, friendsOnLevel];
-    findBestFriends(argument1, allFriends, noInviteFriends);
-    sortFriends.push(friendsOnLevel);
     var argument2 = [noInviteFriends, sortFriends];
-    findFriends(argument2, maxLevel);
+    findFriends(argument2);
 
     return sortFriends;
 }
 
-function findFriends(arg, maxLevel) {
+function findFriends(arg) {
     var noInviteFriends = arg[0];
     var sortFriends = arg[1];
     var iteration = 1;
     while (noInviteFriends.length !== 0) {
-        if (iteration === maxLevel) {
-            break;
-        }
         var friendsLevel = Object.create(levels);
         friendsLevel.level = iteration;
         var choiceFriends = [];
@@ -105,7 +97,7 @@ function inspection(arg, iteration, choiceFriends) {
 
 function choiceFriend(item, friendsFriendsOnLevel) {
     item.friends.forEach(function (nameFriendItem) {
-        if (friendsFriendsOnLevel.indexOf(item.name) === -1) {
+        if (friendsFriendsOnLevel.indexOf(nameFriendItem) === -1) {
             friendsFriendsOnLevel.push(nameFriendItem);
         }
     });
@@ -121,19 +113,22 @@ function Iterator(friends, filter) {
     if (!(filter instanceof Filter)) {
         throw new TypeError('Filter не является прототипом filter');
     }
-    var workWithFriends = choiceFriendsOnLevel(friends, arguments[2], filter);
-    this.inviteFriends = filterFriendsByGender(workWithFriends, filter);
+    var workWithFriends = choiceFriendsOnLevel(friends, filter);
+    var maxLevel = filter.type === 'male' ? arguments[2] : Infinity;
+    this.inviteFriends = filterFriendsByGender(workWithFriends, filter, maxLevel);
     this.indexFriend = 0;
 }
 
-function filterFriendsByGender(friends, filter) {
+function filterFriendsByGender(friends, filter, maxLevel) {
     var friendsFilter = [];
     friends.forEach(function (item) {
-        item.friends.forEach(function (friend) {
-            if (filter.field(friend)) {
-                friendsFilter.push(friend);
-            }
-        });
+        if (item.level < maxLevel) {
+            item.friends.forEach(function (friend) {
+                if (filter.field(friend)) {
+                    friendsFilter.push(friend);
+                }
+            });
+        }
     });
 
     return friendsFilter;
