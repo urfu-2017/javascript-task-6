@@ -11,56 +11,51 @@ function sortFriendsByName(first, second) {
     return 0;
 }
 
-function getBestFriends(friends) {
-    return friends.filter(friend => friend.best === true);
-    // .reduce((result, current) => {
-    //     result.push(current);
-    //
-    //     return result;
-    // }, []);
-}
+// function getBestFriends(friends) {
+//     return friends.filter(friend => friend.best === true);
+//     // .reduce((result, current) => {
+//     //     result.push(current);
+//     //
+//     //     return result;
+//     // }, []);
+// }
 
 function shouldBeVisited(friend, visited, queue) {
     return !visited.includes(friend) && queue
         .every(circle => !circle.includes(friend));
 }
 
-function getFriendsQueue(friends, filterObject) {
-    const [queue, visited] = [[], []];
-    let [counter, circleNumber] = [0, 0];
-    // const queue = [];
-    // const visited = [];
-    // const friendsCopy = friends.slice();
-    // let counter = 0;
-    // let circleNumber = 0;
+function getUnvisited(friends, visited) {
+    return friends.filter(friend => !visited.includes(friend));
+}
 
-    queue[circleNumber] = getBestFriends(friends);
-    while (visited.length !== friends.length) {
-        if (circleNumber === 0 || !queue[circleNumber - 1] || !queue[circleNumber - 1][counter]) {
-            circleNumber++;
-            queue[circleNumber] = [];
-            counter = 0;
-        }
-        const curFriend = queue[circleNumber - 1][counter];
-        if (!curFriend) {
+function getNewCircle(friends, curCircle, visited, queue) {
+    let names = curCircle.reduce((result, person) => result.concat(person.friends), []);
+    let newCircle = Array.from(new Set(names))
+        .map(name => friends.find(friend => friend.name === name))
+        .filter(friend => shouldBeVisited(friend, visited, queue))
+        .sort(sortFriendsByName);
+
+    return newCircle;
+}
+
+function getFriendsQueue(friends, filterObject) {
+    const queue = [];
+    let visited = [];
+    let circleCount = 0;
+    // const itemCount = 0;
+    queue.push(friends.filter(friend => friend.best).sort(sortFriendsByName));
+    while (getUnvisited(friends, visited).length !== 0) {
+        const newCircle = getNewCircle(friends, queue[circleCount], visited, queue);
+        if (!newCircle.length) {
             break;
         }
-        visited.push(curFriend);
-        // friendsCopy.splice(0, 1);
-        queue[circleNumber] = queue[circleNumber]
-            .concat(curFriend.friends
-                .map(name => friends.find(obj => obj.name === name))
-                .filter(friend => shouldBeVisited(friend, visited, queue))
-                .reduce((result, current) => {
-                    result.push(current);
-
-                    return result;
-                }, []));
-        counter++;
+        queue.push(newCircle);
+        visited = visited.concat(queue[circleCount]);
+        circleCount++;
     }
 
-    return queue.map(circle => circle.filter(filterObject.filter).sort(sortFriendsByName));
-    // return queue;
+    return queue.map(circle => circle.filter(filterObject.filter));
 }
 
 /**
@@ -81,6 +76,7 @@ function Iterator(friends, filter) {
 Iterator.prototype.done = function () {
     return this._friendsQueue.every(circle => circle.length === 0);
 };
+
 Iterator.prototype.next = function () {
     if (this.done()) {
         return null;
