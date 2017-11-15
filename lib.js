@@ -7,40 +7,37 @@ function compareNameOfFriends(friend1, friend2) {
 function inviteBestFriends(friends) {
     return friends
         .filter(function (friend) {
-            return friend.hasOwnProperty('best') && friend.best;
+            return friend.best;
         })
         .sort(compareNameOfFriends);
 }
 
-function inviteFriendsOfFriends(invitedFriends, friends, start) {
-    return invitedFriends.slice(start)
-        .reduce(function (friendsOfFriends, invitedFriend) {
-
-            return invitedFriend.friends
-                .map(function (name) {
-                    return friends.find(function (friend) {
-                        return friend.name === name;
-                    });
-                })
-                .filter(function (friendOfFriend) {
-                    return (invitedFriends.indexOf(friendOfFriend) === -1) &&
-                        (friendsOfFriends.indexOf(friendOfFriend) === -1);
-                })
-                .concat(friendsOfFriends);
+function inviteFriendsOfFriends(friends, invitedFriends, newInvitedFriends) {
+    return newInvitedFriends
+        .reduce(function (friendsOfFriends, friend) {
+            return friendsOfFriends
+                .concat(friend.friends.filter(function (name) {
+                    return friendsOfFriends.indexOf(name) === -1;
+                }));
         }, [])
+        .map(function (name) {
+            return friends.find(function (friend) {
+                return friend.name === name;
+            });
+        })
+        .filter(function (friend) {
+            return invitedFriends.indexOf(friend) === -1;
+        })
         .sort(compareNameOfFriends);
 }
 
 function inviteFriends(friends, maxLevel) {
-    let invitedFriends = inviteBestFriends(friends);
-    let start = 0;
-    let count = 1;
-    while ((count < maxLevel) && (start !== invitedFriends.length)) {
-        const newStart = invitedFriends.length;
-        const newInvitedFriends = inviteFriendsOfFriends(invitedFriends, friends, start);
+    let invitedFriends = [];
+    let newInvitedFriends = inviteBestFriends(friends);
+    let count = 0;
+    while ((count++ < maxLevel) && (newInvitedFriends.length > 0)) {
         invitedFriends = invitedFriends.concat(newInvitedFriends);
-        start = newStart;
-        count++;
+        newInvitedFriends = inviteFriendsOfFriends(friends, invitedFriends, newInvitedFriends);
     }
 
     return invitedFriends;
@@ -50,7 +47,6 @@ function BaseIterator(friends, filter, maxLevel) {
     if (!(filter instanceof Filter)) {
         throw new TypeError('filter not instanceof Filter');
     }
-
     this.invitedFriends = inviteFriends(friends, maxLevel).filter(filter.filter);
     this.currentIndex = 0;
 }
