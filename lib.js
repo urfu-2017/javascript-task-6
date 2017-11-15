@@ -7,21 +7,23 @@ function compareNameOfFriends(friend1, friend2) {
 function inviteBestFriends(friends) {
     return friends
         .filter(function (friend) {
-            return friend.best;
+            return friend.hasOwnProperty('best') && friend.best;
         })
         .sort(compareNameOfFriends);
 }
 
-function inviteFriendsOfFriends(friends, dictFriends, start) {
-    return friends.slice(start)
-        .reduce(function (friendsOfFriends, friend) {
+function inviteFriendsOfFriends(invitedFriends, friends, start) {
+    return invitedFriends.slice(start)
+        .reduce(function (friendsOfFriends, invitedFriend) {
 
-            return friend.friends
+            return invitedFriend.friends
                 .map(function (name) {
-                    return dictFriends[name];
+                    return friends.find(function (friend) {
+                        return friend.name === name;
+                    });
                 })
                 .filter(function (friendOfFriend) {
-                    return (friends.indexOf(friendOfFriend) === -1) &&
+                    return (invitedFriends.indexOf(friendOfFriend) === -1) &&
                         (friendsOfFriends.indexOf(friendOfFriend) === -1);
                 })
                 .concat(friendsOfFriends);
@@ -29,23 +31,13 @@ function inviteFriendsOfFriends(friends, dictFriends, start) {
         .sort(compareNameOfFriends);
 }
 
-function getDictFriends(friends) {
-    let dictionary = {};
-    friends.forEach(function (friend) {
-        dictionary[friend.name] = friend;
-    });
-
-    return dictionary;
-}
-
 function inviteFriends(friends, maxLevel) {
     let invitedFriends = inviteBestFriends(friends);
-    const dictFriends = getDictFriends(friends);
     let start = 0;
     let count = 1;
     while ((count < maxLevel) && (start !== invitedFriends.length)) {
         const newStart = invitedFriends.length;
-        const newInvitedFriends = inviteFriendsOfFriends(invitedFriends, dictFriends, start);
+        const newInvitedFriends = inviteFriendsOfFriends(invitedFriends, friends, start);
         invitedFriends = invitedFriends.concat(newInvitedFriends);
         start = newStart;
         count++;
