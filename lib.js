@@ -41,10 +41,24 @@ const countParents = friend => {
 
 const getLevel = friend => countParents(friend);
 
-const sortByLevels = friends =>
-    friends.sort((a, b) => getLevel(a) - getLevel(b) ||
-    a.name.localeCompare(b.name));
+const sortByLevels = friends => {
+    const friendsCopy = [...friends];
+    friendsCopy.sort((a, b) => {
+        if (getLevel(a) === getLevel(b)) {
+            return a.name.localeCompare(b.name);
+        }
+        if (getLevel(a) === 1) {
+            return -1;
+        }
+        if (getLevel(b) === 1) {
+            return 1;
+        }
 
+        return getLevel(a) - getLevel(b);
+    });
+
+    return friendsCopy;
+};
 
 const createNotWelcomeFriends = () => {
     parents.forEach(friend => {
