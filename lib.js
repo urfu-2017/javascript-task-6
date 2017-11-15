@@ -2,16 +2,6 @@
 
 const findFriendByName = (name, friends) => friends.find(friend => friend.name === name);
 
-const findSmallArrayIdx = (friend, bigArray) => {
-    for (let i = 0; i < bigArray.length; i++) {
-        if (bigArray[i].includes(friend)) {
-            return i;
-        }
-    }
-};
-
-const getLevel = (friend, bigArray) => findSmallArrayIdx(friend, bigArray);
-
 const sortByLevels = friends => friends.sort((a, b) => a.name.localeCompare(b.name));
 
 const bfs = friends => {
@@ -40,15 +30,21 @@ const bfs = friends => {
     return friendsInLevels;
 };
 
-const unpack = arrays =>
-    arrays.reduce((acc, array) => [...acc, ...sortByLevels(array)]);
+const unpack = (arrays, maxLevel) => {
+    let arr = [];
+    for (let i = 0; i < maxLevel; i++) {
+        arr = arr.concat(sortByLevels(arrays[i]));
+    }
 
+    return arr;
+};
 
 function Iterator(friends, filter) {
     if (!(filter instanceof Filter)) {
         throw new TypeError('Not instance of filter');
     }
-    this.stack = filter.smallFilter(unpack(bfs(friends)));
+    const levelsArray = bfs(friends);
+    this.stack = filter.smallFilter(unpack(levelsArray, levelsArray.length));
 }
 
 function LimitedIterator(friends, filter, maxLevel) {
@@ -57,9 +53,7 @@ function LimitedIterator(friends, filter, maxLevel) {
     }
     this.stack = [];
     if (maxLevel > 0) {
-        let arrrr = bfs(friends);
-        this.stack = unpack(bfs(friends))
-            .filter(element => getLevel(element, arrrr) < maxLevel);
+        this.stack = unpack(bfs(friends), maxLevel);
         this.stack = filter.smallFilter(this.stack);
     }
 }
