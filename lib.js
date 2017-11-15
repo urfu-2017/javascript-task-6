@@ -83,7 +83,7 @@ function getGuestList(friends, filter, maxLevel = Infinity) {
         circleOfFriends = getNewCircle(circleOfFriends, friends, guestList);
     }
 
-    return guestList.filter(friend => filter.filter(friend));
+    return guestList.filter(filter.filter);
 }
 
 function getNewCircle(currentCircle, friends, guestList) {
