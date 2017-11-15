@@ -108,16 +108,6 @@ Object.assign(Iterator.prototype, {
 });
 
 function sorter(a, b) {
-    if (a.best && b.best) {
-        return a.name.localeCompare(b.name);
-    }
-    if (a.best) {
-        return -1;
-    }
-    if (b.best) {
-        return 1;
-    }
-
     return a.name.localeCompare(b.name);
 }
 
