@@ -29,7 +29,7 @@ function Iterator(friends, filter, maxLevel) {
 
     this._init();
     this._addLvls();
-    this._filterFriends();
+    this._invitedFriends = this._filter.filterFriends(this._invitedFriends);
 }
 
 Iterator.prototype._init = function () {
@@ -63,7 +63,7 @@ Iterator.prototype._addLvls = function () {
 
 Iterator.prototype._filterFriends = function () {
     this._invitedFriends = this._invitedFriends
-        .filter(friend => this._filter._check(friend.gender));
+        .filter(friend => this._filter.check(friend.gender));
 };
 
 Iterator.prototype.next = function () {
@@ -91,15 +91,15 @@ function LimitedIterator(friends, filter, maxLevel) {
  * @constructor
  */
 function Filter() {
-    // nothing
+    this.fltr = 'everyone';
 }
 
-Filter.prototype._check = function (gender) {
-    if (!this.fltr || this.fltr === gender) {
-        return true;
+Filter.prototype.filterFriends = function (friends) {
+    if (this.fltr === 'everyone') {
+        return friends;
     }
 
-    return false;
+    return friends.filter(friend => friend.gender === this.fltr);
 };
 
 /**
