@@ -20,7 +20,7 @@ function Iterator(friends, filter) {
     this._invitedFriends = [];
     this._friendsNames = new Set();
     this._activeLvl = [];
-    this._level = 1;
+
     this._init();
     this._addLvls();
     this._invitedFriends = this._filter.filterFriends(this._invitedFriends);
@@ -39,9 +39,9 @@ Iterator.prototype._init = function () {
 };
 
 Iterator.prototype._addLvls = function () {
-    while ((this._level <= this._maxLevel) && (this._activeLvl.length !== 0)) {
+    while (this._maxLevel > 0 && this._activeLvl.length !== 0) {
         this._invitedFriends = this._invitedFriends.concat(this._activeLvl);
-        this._level++;
+        this._maxLevel--;
         this._activeLvl = this._activeLvl
             .reduce((newLvlNames, friend) =>
                 newLvlNames.concat(
