@@ -20,17 +20,17 @@ function collectAllFrineds(storage, friend) {
 }
 
 function getFriendByName(friends, name) {
-    for(var fr = 0; fr < friends.length; fr++) {
+    for (var fr = 0; fr < friends.length; fr++) {
         if (friends[fr].name === name) {
             return friends[fr];
         }
     }
 }
-function getFriendsUpToLvl(friends, lvl) {
-    var bestFriends  = friends.filter(function(friend) {
-            return friend.best === true;
+function getFriendsUpToLvl(friends, lvl) { // eslint-disable-line max-statements
+    var bestFriends = friends.filter(function(friend) {
+        return friend.best === true;
     });
-    bestFriends.sort(function(a, b) {
+    bestFriends.sort(function (a, b) {
         return a.name > b.name;
     });
     if (lvl === 1) {
@@ -42,24 +42,26 @@ function getFriendsUpToLvl(friends, lvl) {
         toInspectNextIteration = collectAllFrineds(toInspectNextIteration, bestFriends[bFriend]);
     }
     lvl -= 1;
-    var addedToInspect = toInspectNextIteration.length;  // исключительно костыльный код
-    while (lvl > 0 && addedToInspect > 0){
+    var addedToInspect = toInspectNextIteration.length; // исключительно костыльный код
+    while (lvl > 0 && addedToInspect > 0) {
         var currentToInspect = toInspectNextIteration.length;
-        toInspectNextIteration.sort(function(a, b) {
-                return a > b;
-            });
-        toInspectNextIteration.map(function (friend) {
+        toInspectNextIteration.sort(function (a, b) {
+            return a > b;
+        });
+        toInspectNextIteration.map(function (friend) { // eslint-disable-line array-callback-return, no-loop-func
             friend = getFriendByName(friends, friend);
             if (!friendsUpToLvl.includes(friend)) {
                 friendsUpToLvl.push(friend);
                 toInspectNextIteration = collectAllFrineds(toInspectNextIteration, friend);
             }
         });
-    addedToInspect = toInspectNextIteration.length - currentToInspect;
-    lvl -= 1;
+        addedToInspect = toInspectNextIteration.length - currentToInspect;
+        lvl -= 1;
     }
+
     return friendsUpToLvl;
 }
+
 /**
  * Итератор по друзьям
  * @constructor
@@ -70,9 +72,8 @@ function Iterator(friends, filter) {
     if (!(filter instanceof Filter)) {
         throw new TypeError('not a filter!');
     }
-    var allFriendsPossible= getFriendsUpToLvl(friends, Infinity);
+    var allFriendsPossible = getFriendsUpToLvl(friends, Infinity);
     this.friendsToInvite = getFriends(allFriendsPossible, filter);
-    //console.log(this.friendsToInvite);
     this.count = 0;
 }
 
@@ -81,7 +82,8 @@ Iterator.prototype.next = function () {
     if (!this.done()) {
         nextFriend = this.friendsToInvite[this.count];
         this.count ++;
-        return nextFriend
+
+        return nextFriend;
     }
 
     return nextFriend;
@@ -107,7 +109,6 @@ function LimitedIterator(friends, filter, maxLevel) {
     this.count = 0;
     var allFriendsUpToLvl = getFriendsUpToLvl(friends, maxLevel);
     this.friendsToInvite = getFriends(allFriendsUpToLvl, filter);
-    //console.log(this.friendsToInvite);
 }
 
 LimitedIterator.prototype = Object.create(Iterator.prototype);
