@@ -35,8 +35,6 @@ function getListFriends(friends) {
             lessBestFriend = halfResult[1];
         }
         if (leng === lessBestFriend.length) {
-            result = result.push(lessBestFriend);
-
             return result;
         }
         bestFriend = newBestFriend;
