@@ -46,7 +46,7 @@ function findBestFriends(arg, allFriends, noInviteFriends) {
     sortFriends.push(friendsOnLevel);
 }
 
-function choiceFriendsOnLevel(allFriends, filter) {
+function choiceFriendsOnLevel(allFriends) {
     var sortFriends = [];
     var noInviteFriends = [];
     var namesAllPeople = onlyConnectedFriends(allFriends);
