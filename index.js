@@ -1,79 +1,157 @@
 'use strict';
 
-var lib = require('./lib');
 
-var friends = [
-    {
-        name: 'Sam',
-        friends: ['Mat', 'Sharon'],
-        gender: 'male',
-        best: true
-    },
-    {
-        name: 'Sally',
-        friends: ['Brad', 'Emily'],
-        gender: 'female',
-        best: true
-    },
-    {
-        name: 'Mat',
-        friends: ['Sam', 'Sharon'],
-        gender: 'male'
-    },
-    {
-        name: 'Sharon',
-        friends: ['Sam', 'Itan', 'Mat'],
-        gender: 'female'
-    },
-    {
-        name: 'Brad',
-        friends: ['Sally', 'Emily', 'Julia'],
-        gender: 'male'
-    },
-    {
-        name: 'Emily',
-        friends: ['Sally', 'Brad'],
-        gender: 'female'
-    },
-    {
-        name: 'Itan',
-        friends: ['Sharon', 'Julia'],
-        gender: 'male'
-    },
-    {
-        name: 'Julia',
-        friends: ['Brad', 'Itan'],
-        gender: 'female'
+function getFriends(friends, filter) {
+    var friendsToInvite;
+    friendsToInvite = friends.filter(filter.filterF);
+
+    return friendsToInvite;
+}
+
+function collectAllFrineds(storage, friend) {
+    var friendsToAdd = friend.friends;
+    for (var q = 0; q < friendsToAdd.length; q ++) {
+        if (!storage.includes(friendsToAdd[q])) {
+            storage.push(friendsToAdd[q]);
+        }
     }
-];
 
-// Создаем фильтры парней и девушек
-var maleFilter = new lib.MaleFilter();
-var femaleFilter = new lib.FemaleFilter();
-
-// Создаем итераторы
-var femaleIterator = new lib.Iterator(friends, femaleFilter);
-
-// Среди парней приглашаем только луших друзей и друзей лучших друзей
-var maleIterator = new lib.LimitedIterator(friends, maleFilter, 2);
-
-var invitedFriends = [];
-
-// Собираем пары «парень + девушка»
-while (!maleIterator.done() && !femaleIterator.done()) {
-    invitedFriends.push([
-        maleIterator.next(),
-        femaleIterator.next()
-    ]);
+    return storage;
 }
 
-// Если остались девушки, то приглашаем остальных
-while (!femaleIterator.done()) {
-    invitedFriends.push(femaleIterator.next());
+function getFriendByName(friends, name) {
+    for(var fr = 0; fr < friends.length; fr++) {
+        if (friends[fr].name === name) {
+            return friends[fr];
+        }
+    }
+}
+function getFriendsUpToLvl(friends, lvl) {
+    var bestFriends  = friends.filter(function(friend) {
+            return friend.best === true;
+    });
+    bestFriends.sort(function(a, b) {
+        return a.name > b.name;
+    });
+    if (lvl === 1) {
+        return bestFriends;
+    }
+    var friendsUpToLvl = bestFriends;
+    var toInspectNextIteration = [];
+    for (var bFriend = 0; bFriend < bestFriends.length; bFriend++) {
+        toInspectNextIteration = collectAllFrineds(toInspectNextIteration, bestFriends[bFriend]);
+    }
+    lvl -= 1;
+    var addedToInspect = toInspectNextIteration.length;  // исключительно костыльный код
+    while (lvl > 0 && addedToInspect > 0){
+        var currentToInspect = toInspectNextIteration.length;
+        toInspectNextIteration.sort(function(a, b) {
+                return a > b;
+            });
+        toInspectNextIteration.map(function (friend) {
+            friend = getFriendByName(friends, friend);
+            if (!friendsUpToLvl.includes(friend)) {
+                friendsUpToLvl.push(friend);
+                toInspectNextIteration = collectAllFrineds(toInspectNextIteration, friend);
+            }
+        });
+    addedToInspect = toInspectNextIteration.length - currentToInspect;
+    lvl -= 1;
+    }
+    return friendsUpToLvl;
+}
+/**
+ * Итератор по друзьям
+ * @constructor
+ * @param {Object[]} friends
+ * @param {Filter} filter
+ */
+function Iterator(friends, filter) {
+    if (!(filter instanceof Filter)) {
+        throw new TypeError('not a filter!');
+    }
+    var allFriendsPossible= getFriendsUpToLvl(friends, Infinity);
+    this.friendsToInvite = getFriends(allFriendsPossible, filter);
+    //console.log(this.friendsToInvite);
+    this.count = 0;
 }
 
-console.info(invitedFriends);
-// Sam, Sally
-// Brad, Emily
-// Mat, Sharon
-// Julia
+Iterator.prototype.next = function () {
+    var nextFriend = null;
+    if (!this.done()) {
+        nextFriend = this.friendsToInvite[this.count];
+        this.count ++;
+        return nextFriend
+    }
+
+    return nextFriend;
+};
+
+Iterator.prototype.done = function () {
+    return this.count >= this.friendsToInvite.length;
+
+};
+
+/**
+ * Итератор по друзям с ограничением по кругу
+ * @extends Iterator
+ * @constructor
+ * @param {Object[]} friends
+ * @param {Filter} filter
+ * @param {Number} maxLevel – максимальный круг друзей
+ */
+function LimitedIterator(friends, filter, maxLevel) {
+    if (!(filter instanceof Filter)) {
+        throw new TypeError('not a filter!');
+    }
+    this.count = 0;
+    var allFriendsUpToLvl = getFriendsUpToLvl(friends, maxLevel);
+    this.friendsToInvite = getFriends(allFriendsUpToLvl, filter);
+    //console.log(this.friendsToInvite);
+}
+
+LimitedIterator.prototype = Object.create(Iterator.prototype);
+
+/**
+ * Фильтр друзей
+ * @constructor
+ */
+function Filter() {
+    this.filterF = function () {
+        return true;
+    };
+
+}
+
+/**
+ * Фильтр друзей
+ * @extends Filter
+ * @constructor
+ */
+function MaleFilter() {
+    this.filterF = function (friend) {
+        return friend.gender === 'male';
+    };
+}
+
+MaleFilter.prototype = Object.create(Filter.prototype);
+
+/**
+ * Фильтр друзей-девушек
+ * @extends Filter
+ * @constructor
+ */
+function FemaleFilter() {
+    this.filterF = function (friend) {
+        return friend.gender === 'female';
+    };
+}
+
+FemaleFilter.prototype = Object.create(Filter.prototype);
+
+exports.Iterator = Iterator;
+exports.LimitedIterator = LimitedIterator;
+
+exports.Filter = Filter;
+exports.MaleFilter = MaleFilter;
+exports.FemaleFilter = FemaleFilter;
