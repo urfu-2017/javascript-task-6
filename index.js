@@ -27,7 +27,7 @@ function getFriendByName(friends, name) {
     }
 }
 function getFriendsUpToLvl(friends, lvl) { // eslint-disable-line max-statements
-    var bestFriends = friends.filter(function(friend) {
+    var bestFriends = friends.filter(function (friend) {
         return friend.best === true;
     });
     bestFriends.sort(function (a, b) {
@@ -37,25 +37,25 @@ function getFriendsUpToLvl(friends, lvl) { // eslint-disable-line max-statements
         return bestFriends;
     }
     var friendsUpToLvl = bestFriends;
-    var toInspectNextIteration = [];
+    var nextIter = [];
     for (var bFriend = 0; bFriend < bestFriends.length; bFriend++) {
-        toInspectNextIteration = collectAllFrineds(toInspectNextIteration, bestFriends[bFriend]);
+        nextIter = collectAllFrineds(nextIter, bestFriends[bFriend]);
     }
     lvl -= 1;
-    var addedToInspect = toInspectNextIteration.length; // исключительно костыльный код
+    var addedToInspect = nextIter.length; // исключительно костыльный код
     while (lvl > 0 && addedToInspect > 0) {
-        var currentToInspect = toInspectNextIteration.length;
-        toInspectNextIteration.sort(function (a, b) {
+        var currentToInspect = nextIter.length;
+        nextIter.sort(function (a, b) {
             return a > b;
         });
-        toInspectNextIteration.map(function (friend) { // eslint-disable-line array-callback-return, no-loop-func
+        nextIter.map(function (friend) { // eslint-disable-line array-callback-return, no-loop-func
             friend = getFriendByName(friends, friend);
             if (!friendsUpToLvl.includes(friend)) {
                 friendsUpToLvl.push(friend);
-                toInspectNextIteration = collectAllFrineds(toInspectNextIteration, friend);
+                nextIter = collectAllFrineds(nextIter, friend);
             }
         });
-        addedToInspect = toInspectNextIteration.length - currentToInspect;
+        addedToInspect = nextIter.length - currentToInspect;
         lvl -= 1;
     }
 
