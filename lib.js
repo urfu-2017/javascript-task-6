@@ -32,10 +32,13 @@ const countParents = friend => {
 
 const getLevel = friend => countParents(friend);
 
-const sortByLevels = friends =>
-    friends.sort((a, b) => getLevel(a) - getLevel(b) ||
-    a.name.localeCompare(b.name));
+const sortByLevels = friends => {
+    const friendsCopy = [...friends];
+    friendsCopy.sort((a, b) => getLevel(a) - getLevel(b) ||
+        a.name.localeCompare(b.name));
 
+    return friendsCopy;
+};
 
 const createNotWelcomeFriends = () => {
     parents.forEach(friend => {
@@ -50,13 +53,12 @@ const createParents = friends => {
     friends.forEach(element => {
         if (getIdx(element.name) === undefined) {
             parents.push({ name: element.name, parent: null,
-                best: element.best });
+                gender: element.gender, best: element.best });
         }
     });
-
     const besties = friends.filter(element => element.best);
-    let queue = [...besties];
-    let visited = [...besties];
+    let queue = besties.slice();
+    let visited = besties.slice();
     let currentFriend;
 
     while (queue.length > 0) {
@@ -86,8 +88,8 @@ function Iterator(friends, filter) {
         throw new TypeError('Not instance of filter');
     }
     createParents(friends);
-    this.stack = [...friends].filter(friend => !notFriends.includes(friend.name));
-    this.stack = sortByLevels(filter.smallFilter(friends));
+    this.stack = sortByLevels(filter.smallFilter(friends)
+        .filter(friend => !notFriends.includes(friend.name)));
 }
 
 function LimitedIterator(friends, filter, maxLevel) {
@@ -97,7 +99,7 @@ function LimitedIterator(friends, filter, maxLevel) {
     this.stack = [];
     if (maxLevel > 0) {
         createParents(friends);
-        this.stack = [...friends]
+        this.stack = friends
             .filter(element => getLevel(element) <= maxLevel)
             .filter(friend => !notFriends.includes(friend.name));
         this.stack = sortByLevels(filter.smallFilter(this.stack));
