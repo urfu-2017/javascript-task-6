@@ -1,11 +1,7 @@
 'use strict';
 
 function sortByAlphabet(first, second) {
-    if (first.name === second.name) {
-        return 0;
-    }
-
-    return first.name > second.name ? 1 : -1;
+    return first.name.localeCompare(second.name);
 }
 
 /**
@@ -37,7 +33,6 @@ Iterator.prototype._init = function () {
     this._activeLvl = this._friends
         .filter(friend => friend.best)
         .sort(sortByAlphabet);
-
     this._activeLvl.forEach(friend => {
         this._friendsNames.push(friend.name);
     });
