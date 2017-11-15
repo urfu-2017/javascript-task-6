@@ -5,17 +5,7 @@
  * @param {Object[]} friends
  * @param {String} friendName
  * @param {Object} currentFriend
- * @returns {Object}
- */
-function getFriendByName(friends, friendName, currentFriend) {
-    for (let friend of friends) {
-        if (friend.name === friendName && currentFriend.friends.indexOf(friendName) !== -1) {
-            return friend;
-        }
-    }
-
-    return undefined;
-}
+ * @returns {Object}'use strict';
 
 /**
  * Находим друга в исходном массиве по имени
@@ -23,7 +13,7 @@ function getFriendByName(friends, friendName, currentFriend) {
  * @param {String} friendName
  * @returns {Object}
  */
-function getFriendByName1(friends, friendName) {
+function getFriendByName(friends, friendName) {
     for (let friend of friends) {
         if (friend.name === friendName) {
             return friend;
@@ -32,7 +22,6 @@ function getFriendByName1(friends, friendName) {
 
     return undefined;
 }
-
 
 /**
  * Сравниваем друзей по именам
@@ -55,11 +44,11 @@ function getNextLevel(friends, friendsOnCurrentLevel, invitedFriends) {
     let nextLevel = [];
     for (let currentFriend of friendsOnCurrentLevel) {
         for (let friendName of currentFriend.friends) {
-            nextLevel.push(getFriendByName(friends, friendName, currentFriend));
+            nextLevel.push(getFriendByName(friends, friendName));
         }
     }
     nextLevel = nextLevel.filter(friend =>
-        getFriendByName1(invitedFriends, friend.name) === undefined);
+        getFriendByName(invitedFriends, friend.name) === undefined);
 
     return nextLevel;
 }
@@ -81,7 +70,8 @@ function divideOnCircles(friends, filter, maxLevel) {
     let invitedFriends = bestFriends;
     let friendsOnCurrentLevel = bestFriends;
     while (level < maxLevel && friendsOnCurrentLevel.length !== 0) {
-        let nextLevelFriends = getNextLevel(friends, friendsOnCurrentLevel, invitedFriends);
+        let nextLevelFriends = getNextLevel(friends, friendsOnCurrentLevel, invitedFriends)
+            .sort(compareNames);
         level++;
         invitedFriends = invitedFriends.concat(nextLevelFriends);
         friendsOnCurrentLevel = nextLevelFriends;
