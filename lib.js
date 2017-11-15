@@ -56,7 +56,8 @@ function createNewLevel(queue, visited, friends) {
         const nextFriendsNames = currentEl.friends.filter(farFriend => {
             farFriend = getFriendObj(farFriend, friends);
 
-            return !(visited.includes(farFriend)) && (!queue.includes(farFriend));
+            return !(visited.includes(farFriend)) && !queue.includes(farFriend) &&
+                !(farFriend === currentEl);
         });
         nextLevel = nextLevel.concat(nextFriendsNames.map(name => getFriendObj(name, friends)));
         visited.push(currentEl);
