@@ -21,25 +21,30 @@ function getBestFriends(friends) {
 }
 
 function shouldBeVisited(friend, visited, queue) {
-    return !visited.includes(friend) && !queue
-        .some(circle => circle.includes(friend));
+    return !visited.includes(friend) && queue
+        .every(circle => !circle.includes(friend));
 }
 
 function getFriendsQueue(friends, filterObject) {
-    const queue = [];
-    const visited = [];
+    const [queue, visited] = [[], []];
+    let [counter, circleNumber]=[0,0];
+    // const queue = [];
+    // const visited = [];
     // const friendsCopy = friends.slice();
-    let counter = 0;
-    let circleNumber = 1;
+    // let counter = 0;
+    // let circleNumber = 0;
 
     queue[circleNumber] = getBestFriends(friends);
     while (visited.length !== friends.length) {
-        if (circleNumber === 1 || !queue[circleNumber - 1] || !queue[circleNumber - 1][counter]) {
+        if (circleNumber === 0 || !queue[circleNumber - 1] || !queue[circleNumber - 1][counter]) {
             circleNumber++;
             queue[circleNumber] = [];
             counter = 0;
         }
         const curFriend = queue[circleNumber - 1][counter];
+        if (!curFriend) {
+            break;
+        }
         visited.push(curFriend);
         // friendsCopy.splice(0, 1);
         queue[circleNumber] = queue[circleNumber]
@@ -69,7 +74,8 @@ function Iterator(friends, filter) {
         throw new TypeError('Second argument is not a Filter object');
     }
     this._friendsQueue = getFriendsQueue(friends, filter);
-    this._circleCounter = 1;
+    this._circleCounter = 0;
+    console.info(this._friendsQueue);
 }
 
 Iterator.prototype.done = function () {
@@ -104,7 +110,7 @@ LimitedIterator.prototype = Object.create(Iterator.prototype);
 LimitedIterator.prototype.constructor = LimitedIterator;
 LimitedIterator.prototype.done = function () {
     return this._friendsQueue
-        .every(circle => circle.length === 0) || this._circleCounter > this._maxLevel;
+        .every(circle => circle.length === 0) || this._circleCounter >= this._maxLevel;
 };
 
 /**
