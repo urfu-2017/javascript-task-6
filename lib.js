@@ -37,7 +37,7 @@ function findNextCircle(friends, previousCircles) {
 }
 
 function findCirclesOfGuests(friends, maxCircle) {
-    if (maxCircle === 0) {
+    if (maxCircle < 1) {
         return [];
     }
 
