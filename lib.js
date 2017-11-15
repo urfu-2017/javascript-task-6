@@ -63,6 +63,19 @@ function getNextLevel(friends, friendsOnCurrentLevel, invitedFriends) {
     return nextLevel;
 }
 
+function getInvitedFriends(maxLevel, friendsOnCurrentLevel, friends, invitedFriends) {
+    let level = 1;
+    while (level < maxLevel && friendsOnCurrentLevel.length !== 0) {
+        let nextLevelFriends = getNextLevel(friends, friendsOnCurrentLevel, invitedFriends);
+        nextLevelFriends = nextLevelFriends.sort(compareNames);
+        level++;
+        invitedFriends = invitedFriends.concat(nextLevelFriends);
+        friendsOnCurrentLevel = nextLevelFriends;
+    }
+
+    return invitedFriends;
+}
+
 /**
  * Делим друзей на уровни
  * @param {Object[]} friends
@@ -74,18 +87,13 @@ function divideOnCircles(friends, filter, maxLevel) {
     if (!friends || !maxLevel || maxLevel < 1) {
         return [];
     }
-    let level = 0;
     let bestFriends = friends.filter(friend => friend.best).sort(compareNames);
-    level++;
     let invitedFriends = bestFriends;
     let friendsOnCurrentLevel = bestFriends;
-    while (level < maxLevel && friendsOnCurrentLevel.length !== 0) {
-        let nextLevelFriends = getNextLevel(friends, friendsOnCurrentLevel, invitedFriends);
-        nextLevelFriends = nextLevelFriends.sort(compareNames);
-        level++;
-        invitedFriends = invitedFriends.concat(nextLevelFriends);
-        friendsOnCurrentLevel = nextLevelFriends;
+    if (invitedFriends.length === friends.length) {
+        return invitedFriends;
     }
+    invitedFriends = getInvitedFriends(maxLevel, friendsOnCurrentLevel, friends, invitedFriends);
     invitedFriends = filter.genderFilter(invitedFriends);
 
     return invitedFriends;
