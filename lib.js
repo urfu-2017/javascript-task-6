@@ -92,7 +92,9 @@ Iterator.prototype.next = function () {
  */
 function LimitedIterator(friends, filter, maxLevel) {
     Iterator.call(this, friends, filter);
-    this._maxLevel = maxLevel;
+    if (maxLevel < 0) {
+        maxLevel = 0;
+    }
     this._friendsQueue = getFriendsQueue(friends, filter)
         .slice(0, maxLevel)
         .reduce((result, circle) => result.concat(circle), []);
