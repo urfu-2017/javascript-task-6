@@ -2,17 +2,6 @@
 
 /* eslint-disable max-statements*/
 function compareFriends(friend1, friend2) {
-    if (friend1.best) {
-        if (friend2.best) {
-            return (friend1.name > friend2.name);
-        }
-
-        return 1;
-    }
-    if (friend2.best) {
-        return -1;
-    }
-
     return (friend1.name > friend2.name);
 }
 
@@ -46,6 +35,8 @@ function getListFriends(friends) {
             lessBestFriend = halfResult[1];
         }
         if (leng === lessBestFriend.length) {
+            result = result.push(lessBestFriend);
+
             return result;
         }
         bestFriend = newBestFriend;
