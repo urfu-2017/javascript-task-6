@@ -89,6 +89,7 @@ function LimitedIterator(friends, filter, maxLevel) {
         .filter(guest => filter.condition(guest));
 }
 
+LimitedIterator.prototype.constructor = LimitedIterator;
 LimitedIterator.prototype = Object.create(Iterator.prototype);
 
 /**
