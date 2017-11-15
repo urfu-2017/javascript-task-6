@@ -1,7 +1,7 @@
 'use strict';
 function getFriends(friends, filter, level) {
     if (level === undefined) {
-        level = friends.length + 10;// +10 на всякий случай
+        level = Infinity;// +10 на всякий случай
     }
     var resultFriends = [];
     var best = [];
@@ -10,7 +10,11 @@ function getFriends(friends, filter, level) {
             best.push(friend);
         }
     });
+    if(best.length === 0) {
+        return [];
+    }
     best = best.sort(sortByName);
+
 
     resultFriends = resultFriends.concat(best);
 
