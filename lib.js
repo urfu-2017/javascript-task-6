@@ -1,5 +1,9 @@
 'use strict';
 
+function alphaSort(a, b) {
+    return a.name.localeCompare(b.name);
+}
+
 function getInvitedFriends(friends, level = Infinity) {
     let invitedFriends = [];
     let stack = friends
@@ -13,6 +17,7 @@ function getInvitedFriends(friends, level = Infinity) {
                 .filter(friend => !arr.includes(friend) &&
                  friend.friends.includes(invitedFriend.name)));
         stack = stack.reduce((acc, members) => acc.concat(members), []);
+        stack = stack.sort(alphaSort);
     }
 
     return invitedFriends;
