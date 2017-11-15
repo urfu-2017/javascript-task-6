@@ -87,6 +87,9 @@ function LimitedIterator(friends, filter, maxLevel) {
 
     friends = getListFriends(friends);
     let result = [];
+    if (maxLevel > friends.length) {
+        maxLevel = friends.length;
+    }
     for (let i = 0; i < maxLevel; i++) {
         let halfResult = friends[i].filter(filter.filter).sort(compareFriends);
         result = result.concat(halfResult);
