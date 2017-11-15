@@ -114,7 +114,7 @@ function Iterator(friends, filter) {
         throw new TypeError('Filter не является прототипом filter');
     }
     var workWithFriends = choiceFriendsOnLevel(friends, filter);
-    var maxLevel = filter.type === 'male' ? arguments[2] : Infinity;
+    var maxLevel = arguments[2] || Infinity;
     this.inviteFriends = filterFriendsByGender(workWithFriends, filter, maxLevel);
     this.indexFriend = 0;
 }
