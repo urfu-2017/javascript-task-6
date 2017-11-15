@@ -1,5 +1,74 @@
 'use strict';
 
+function compareNameOfFriends(friend1, friend2) {
+    return friend1.name.localeCompare(friend2.name);
+}
+
+function inviteBestFriends(friends) {
+    return friends
+        .filter(function (friend) {
+            return friend.hasOwnProperty('best') && friend.best;
+        })
+        .sort(compareNameOfFriends);
+}
+
+function inviteFriendsOfFriends(friends, dictFriends, start) {
+    return friends.slice(start)
+        .reduce(function (friendsOfFriends, friend) {
+            if (!friend.hasOwnProperty('friends')) {
+                return friendsOfFriends;
+            }
+
+            return friend.friends
+                .map(function (nameFriend) {
+                    return dictFriends[nameFriend];
+                })
+                .filter(function (friendOfFriend) {
+                    return (friends.indexOf(friendOfFriend) === -1) &&
+                        (friendsOfFriends.indexOf(friendOfFriend) === -1);
+                })
+                .concat(friendsOfFriends);
+        }, [])
+        .sort(compareNameOfFriends);
+}
+
+function getDictFriends(friends) {
+    let dictionary = {};
+    friends.forEach(function (friend) {
+        dictionary[friend.name] = friend;
+    });
+
+    return dictionary;
+}
+
+function inviteFriends(friends, maxLevel) {
+    let invitedFriends = inviteBestFriends(friends);
+    const dictFriends = getDictFriends(friends);
+    let start = 0;
+    let count = 1;
+    while ((count < maxLevel) && (start !== invitedFriends.length)) {
+        const newStart = invitedFriends.length;
+        const newInvitedFriends = inviteFriendsOfFriends(invitedFriends, dictFriends, start);
+        invitedFriends = invitedFriends.concat(newInvitedFriends);
+        start = newStart;
+        count++;
+    }
+
+    return invitedFriends;
+}
+
+function BaseIterator(friends, filter, maxLevel) {
+    if (!(filter instanceof Filter)) {
+        throw TypeError;
+    }
+    if (maxLevel < 1) {
+        return [];
+    }
+
+    this.invitedFriends = inviteFriends(friends, maxLevel).filter(filter.filter);
+    this.currentIndex = 0;
+}
+
 /**
  * Итератор по друзьям
  * @constructor
@@ -7,8 +76,21 @@
  * @param {Filter} filter
  */
 function Iterator(friends, filter) {
-    console.info(friends, filter);
+    BaseIterator.call(this, friends, filter, Infinity);
 }
+
+Iterator.prototype.done = function () {
+    return this.currentIndex === this.invitedFriends.length;
+};
+
+Iterator.prototype.next = function () {
+    if (this.done()) {
+        return null;
+    }
+
+    return this.invitedFriends[this.currentIndex++];
+};
+
 
 /**
  * Итератор по друзям с ограничением по кругу
@@ -19,15 +101,20 @@ function Iterator(friends, filter) {
  * @param {Number} maxLevel – максимальный круг друзей
  */
 function LimitedIterator(friends, filter, maxLevel) {
-    console.info(friends, filter, maxLevel);
+    BaseIterator.call(this, friends, filter, maxLevel);
 }
+
+LimitedIterator.prototype = Object.create(Iterator.prototype);
+LimitedIterator.prototype.constructor = LimitedIterator;
 
 /**
  * Фильтр друзей
  * @constructor
  */
 function Filter() {
-    console.info('Filter');
+    this.filter = function () {
+        return true;
+    };
 }
 
 /**
@@ -36,8 +123,13 @@ function Filter() {
  * @constructor
  */
 function MaleFilter() {
-    console.info('MaleFilter');
+    this.filter = function (friend) {
+        return friend.gender === 'male';
+    };
 }
+
+MaleFilter.prototype = Object.create(Filter.prototype);
+MaleFilter.prototype.constructor = MaleFilter;
 
 /**
  * Фильтр друзей-девушек
@@ -45,8 +137,13 @@ function MaleFilter() {
  * @constructor
  */
 function FemaleFilter() {
-    console.info('FemaleFilter');
+    this.filter = function (friend) {
+        return friend.gender === 'female';
+    };
 }
+
+FemaleFilter.prototype = Object.create(Filter.prototype);
+FemaleFilter.prototype.constructor = FemaleFilter;
 
 exports.Iterator = Iterator;
 exports.LimitedIterator = LimitedIterator;
