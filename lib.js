@@ -7,7 +7,7 @@ function compareNameOfFriends(friend1, friend2) {
 function inviteBestFriends(friends) {
     return friends
         .filter(function (friend) {
-            return friend.hasOwnProperty('best') && friend.best;
+            return friend.best;
         })
         .sort(compareNameOfFriends);
 }
