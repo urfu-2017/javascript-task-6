@@ -1,5 +1,13 @@
 'use strict';
 
+function compareNames(friend1, friend2) {
+    if (friend1.name === friend2.name) {
+        return 0;
+    }
+
+    return friend1.name > friend2.name ? 1 : -1;
+}
+
 function personIsFriendForCompany(person, company) {
     var isFriend = false;
     var isMember = false;
@@ -19,12 +27,12 @@ function findNextCircle(friends, previousCircles) {
     if (previousCircles === undefined) {
         return friends
             .filter(friend => friend.best)
-            .sort((a, b) => Number(b.name > a.name) - 0.5);
+            .sort(compareNames);
     }
 
     return friends
         .filter(person => personIsFriendForCompany(person, previousCircles))
-        .sort((a, b) => Number(b.name > a.name) - 0.5)
+        .sort(compareNames)
         .concat(previousCircles);
 }
 
@@ -89,7 +97,6 @@ function LimitedIterator(friends, filter, maxLevel) {
         .filter(guest => filter.condition(guest));
 }
 
-LimitedIterator.prototype.constructor = LimitedIterator;
 LimitedIterator.prototype = Object.create(Iterator.prototype);
 
 /**
@@ -120,6 +127,7 @@ function FemaleFilter() {
     this.condition = friend => friend.gender === 'female';
 }
 
+LimitedIterator.prototype.constructor = LimitedIterator;
 FemaleFilter.prototype = Object.create(Filter.prototype);
 
 exports.Iterator = Iterator;
