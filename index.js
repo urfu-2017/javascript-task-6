@@ -10,12 +10,6 @@ var friends = [
         best: true
     },
     {
-        name: 'Sally',
-        friends: ['Brad', 'Emily'],
-        gender: 'female',
-        best: true
-    },
-    {
         name: 'Audrey',
         friends: ['Cooper'],
         gender: 'female'
@@ -49,6 +43,12 @@ var friends = [
         name: 'Itan',
         friends: ['Sharon', 'Julia'],
         gender: 'male'
+    },
+    {
+        name: 'Sally',
+        friends: ['Brad', 'Emily'],
+        gender: 'female',
+        best: true
     },
     {
         name: 'Julia',
@@ -87,3 +87,5 @@ console.info(invitedFriends);
 // Brad, Emily
 // Mat, Sharon
 // Julia
+
+// sam,sharon -> mat,julia -> itan,emily -> brad,sally

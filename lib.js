@@ -1,13 +1,7 @@
 'use strict';
 let parents = [];
 
-const findFriendByName = (name, friends) => {
-    for (let i = 0; i < friends.length; i++) {
-        if (friends[i].name === name) {
-            return friends[i];
-        }
-    }
-};
+const findFriendByName = (name, friends) => friends.find(friend => friend.name === name);
 
 const getIdx = name => {
     for (let i = 0; i < parents.length; i++) {
@@ -17,21 +11,13 @@ const getIdx = name => {
     }
 };
 
-const clearParents = friends => {
+const clearParents = () => {
     const parentsCopy = parents.slice();
     parentsCopy.forEach(friend => {
-        if (friend.parent === null && !findFriendByName(friend.name, friends).best) {
+        if (friend.parent === null && !friend.best) {
             parents.splice(getIdx(friend.name), 1);
         }
     });
-};
-
-const findFriend = name => {
-    for (let i = 0; i < parents.length; i++) {
-        if (parents[i].name === name) {
-            return parents[i];
-        }
-    }
 };
 
 const getParent = friend => {
@@ -47,7 +33,7 @@ const countParents = friend => {
     let counter = 1;
     while (getParent(tempFriend) !== null) {
         counter++;
-        tempFriend = findFriend(getParent(tempFriend).name);
+        tempFriend = findFriendByName(getParent(tempFriend).name, parents);
     }
 
     return counter;
@@ -56,46 +42,36 @@ const countParents = friend => {
 const getLevel = friend => countParents(friend);
 
 const sortByLevels = friends => {
-    let friendsCopy = friends.slice();
-    friendsCopy.sort((a, b) => {
-        if (getLevel(a) === getLevel(b)) {
-            return a.name.localeCompare(b.name);
-        }
-        if (getLevel(a) === 1) {
-            return -1;
-        }
-        if (getLevel(b) === 1) {
-            return 1;
-        }
-
-        return getLevel(a) - getLevel(b);
-    });
+    const friendsCopy = friends.slice();
+    friendsCopy.sort((a, b) => getLevel(a) - getLevel(b) || a.name.localeCompare(b.name));
     parents = friendsCopy;
 };
 
 const createParents = friends => {
     friends.forEach(element => {
         if (getIdx(element.name) === undefined) {
-            parents.push({ name: element.name, parent: null, gender: element.gender });
+            parents.push({ name: element.name, parent: null,
+                gender: element.gender, best: element.best });
         }
     });
     const besties = friends.filter(element => element.best);
     let queue = besties.slice();
     let visited = besties.slice();
+    let currentFriend;
 
     while (queue.length > 0) {
         const current = queue.shift();
         processChildren(current);
     }
-    clearParents(friends);
+    clearParents();
     sortByLevels(parents);
 
     function processChildren(current) {
         current.friends.forEach(element => {
-            let currentFriend = findFriendByName(element, friends);
+            currentFriend = findFriendByName(element, friends);
             if (!visited.includes(currentFriend)) {
                 parents.forEach(child => {
-                    if (child.name === currentFriend.name) {
+                    if (child.name === element) {
                         child.parent = current;
                     }
                 });
@@ -150,17 +126,18 @@ Object.assign(Filter.prototype, {
     }
 });
 
-Iterator.prototype.done = function () {
-    return this.stack.length === 0;
-};
+Object.assign(Iterator.prototype, {
+    done() {
+        return this.stack.length === 0;
+    },
+    next() {
+        if (this.stack.length > 0) {
+            return this.stack.shift();
+        }
 
-Iterator.prototype.next = function () {
-    if (this.stack.length > 0) {
-        return this.stack.shift();
+        return null;
     }
-
-    return null;
-};
+});
 
 exports.Iterator = Iterator;
 exports.LimitedIterator = LimitedIterator;
