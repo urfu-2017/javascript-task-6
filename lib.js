@@ -15,7 +15,7 @@ function sortByAlphabet(first, second) {
  * @param {Filter} filter
  * @param {Number} maxLevel
  */
-function Iterator(friends, filter, maxLevel) {
+function Iterator(friends, filter) {
     if (!(filter instanceof Filter)) {
         throw new TypeError('Wrong Filter');
     }
@@ -24,15 +24,16 @@ function Iterator(friends, filter, maxLevel) {
     this._invitedFriends = [];
     this._friendsNames = new Set();
     this._activeLvl = [];
-    this._maxLevel = maxLevel || Number.MAX_SAFE_INTEGER;
     this._level = 1;
-
     this._init();
     this._addLvls();
     this._invitedFriends = this._filter.filterFriends(this._invitedFriends);
 }
 
 Iterator.prototype._init = function () {
+    if (!this._maxLevel) {
+        this._maxLevel = Number.MAX_SAFE_INTEGER;
+    }
     this._activeLvl = this._friends
         .filter(friend => friend.best)
         .sort(sortByAlphabet);
@@ -83,8 +84,11 @@ Iterator.prototype.done = function () {
  * @param {Number} maxLevel – максимальный круг друзей
  */
 function LimitedIterator(friends, filter, maxLevel) {
-    return new Iterator(friends, filter, maxLevel);
+    this._maxLevel = maxLevel;
+    Iterator.call(this, friends, filter);
 }
+
+Object.setPrototypeOf(LimitedIterator.prototype, Iterator.prototype);
 
 /**
  * Фильтр друзей
