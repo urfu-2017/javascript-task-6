@@ -4,13 +4,6 @@
  * Находим друга в исходном массиве по имени
  * @param {Object[]} friends
  * @param {String} friendName
- * @param {Object} currentFriend
- * @returns {Object}'use strict';
-
-/**
- * Находим друга в исходном массиве по имени
- * @param {Object[]} friends
- * @param {String} friendName
  * @returns {Object}
  */
 function getFriendByName(friends, friendName) {
@@ -70,8 +63,8 @@ function divideOnCircles(friends, filter, maxLevel) {
     let invitedFriends = bestFriends;
     let friendsOnCurrentLevel = bestFriends;
     while (level < maxLevel && friendsOnCurrentLevel.length !== 0) {
-        let nextLevelFriends = getNextLevel(friends, friendsOnCurrentLevel, invitedFriends)
-            .sort(compareNames);
+        let nextLevelFriends = getNextLevel(friends, friendsOnCurrentLevel, invitedFriends);
+        nextLevelFriends = nextLevelFriends.sort(compareNames);
         level++;
         invitedFriends = invitedFriends.concat(nextLevelFriends);
         friendsOnCurrentLevel = nextLevelFriends;
