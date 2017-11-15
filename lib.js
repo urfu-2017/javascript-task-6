@@ -22,7 +22,7 @@ function Iterator(friends, filter) {
     this._friends = friends;
     this._filter = filter;
     this._invitedFriends = [];
-    this._friendsNames = new Set();
+    this._friendsNames = [];
     this._activeLvl = [];
     this._level = 1;
     this._init();
@@ -39,7 +39,7 @@ Iterator.prototype._init = function () {
         .sort(sortByAlphabet);
 
     this._activeLvl.forEach(friend => {
-        this._friendsNames.add(friend.name);
+        this._friendsNames.push(friend.name);
     });
 };
 
@@ -51,13 +51,13 @@ Iterator.prototype._addLvls = function () {
             .reduce((newLvlNames, friend) =>
                 newLvlNames.concat(
                     friend.friends.filter(name =>
-                        !this._friendsNames.has(name) &&
+                        !this._friendsNames.includes(name) &&
                         !newLvlNames.includes(name)
                     )), [])
             .map(friendName => this._friends.find(friend => friendName === friend.name))
             .sort(sortByAlphabet);
         this._activeLvl.forEach(friend => {
-            this._friendsNames.add(friend.name);
+            this._friendsNames.push(friend.name);
         });
     }
 };
