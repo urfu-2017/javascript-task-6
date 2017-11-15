@@ -55,8 +55,8 @@ const createParents = friends => {
     });
 
     const besties = friends.filter(element => element.best);
-    const queue = besties.slice();
-    const visited = besties.slice();
+    let queue = [...besties];
+    let visited = [...besties];
     let currentFriend;
 
     while (queue.length > 0) {
@@ -86,7 +86,7 @@ function Iterator(friends, filter) {
         throw new TypeError('Not instance of filter');
     }
     createParents(friends);
-    this.stack = friends.filter(friend => !notFriends.includes(friend.name));
+    this.stack = [...friends].filter(friend => !notFriends.includes(friend.name));
     this.stack = sortByLevels(filter.smallFilter(friends));
 }
 
@@ -97,7 +97,7 @@ function LimitedIterator(friends, filter, maxLevel) {
     this.stack = [];
     if (maxLevel > 0) {
         createParents(friends);
-        this.stack = friends
+        this.stack = [...friends]
             .filter(element => getLevel(element) <= maxLevel)
             .filter(friend => !notFriends.includes(friend.name));
         this.stack = sortByLevels(filter.smallFilter(this.stack));
