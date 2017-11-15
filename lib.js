@@ -51,7 +51,7 @@ function getFriends(friends, filter, maxLevel = Infinity) {
         maxLevel--;
     }
 
-    return invitedFriends.filter(filter.filter); // так наверно нельзя писать
+    return invitedFriends.filter(filter.statement);
 }
 
 /**
@@ -104,7 +104,7 @@ Object.setPrototypeOf(LimitedIterator.prototype, Iterator.prototype);
  * @constructor
  */
 function Filter() {
-    this.filter = () => true;
+    this.statement = () => true;
 }
 
 /**
@@ -113,7 +113,7 @@ function Filter() {
  * @constructor
  */
 function MaleFilter() {
-    this.filter = friend => friend.gender === 'male';
+    this.statement = friend => friend.gender === 'male';
 }
 Object.setPrototypeOf(MaleFilter.prototype, Filter.prototype);
 
@@ -123,7 +123,7 @@ Object.setPrototypeOf(MaleFilter.prototype, Filter.prototype);
  * @constructor
  */
 function FemaleFilter() {
-    this.filter = friend => friend.gender === 'female';
+    this.statement = friend => friend.gender === 'female';
 }
 Object.setPrototypeOf(FemaleFilter.prototype, Filter.prototype);
 
