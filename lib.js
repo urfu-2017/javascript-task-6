@@ -59,7 +59,7 @@ function inviteFriends(friends, maxLevel) {
 
 function BaseIterator(friends, filter, maxLevel) {
     if (!(filter instanceof Filter)) {
-        throw TypeError;
+        throw new TypeError('filter not instanceof Filter');
     }
     if (maxLevel < 1) {
         return [];
