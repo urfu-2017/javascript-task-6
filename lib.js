@@ -1,95 +1,54 @@
 'use strict';
-let parents = [];
-let notFriends = [];
 
 const findFriendByName = (name, friends) => friends.find(friend => friend.name === name);
 
-const getIdx = name => {
-    for (let i = 0; i < parents.length; i++) {
-        if (parents[i].name === name) {
+const findSmallArrayIdx = (friend, bigArray) => {
+    for (let i = 0; i < bigArray.length; i++) {
+        if (bigArray[i].includes(friend)) {
             return i;
         }
     }
 };
 
-const getParent = friend => {
-    if (friend && parents[getIdx(friend.name)]) {
-        return parents[getIdx(friend.name)].parent;
-    }
+const getLevel = (friend, bigArray) => findSmallArrayIdx(friend, bigArray);
 
-    return null;
-};
+const sortByLevels = friends => friends.sort((a, b) => a.name.localeCompare(b.name));
 
-const countParents = friend => {
-    let counter = 1;
-    while (getParent(friend) !== null) {
-        counter++;
-        friend = findFriendByName(getParent(friend).name, parents);
-    }
-
-    return counter;
-};
-
-const getLevel = friend => countParents(friend);
-
-const sortByLevels = friends => {
-    const friendsCopy = [...friends];
-    friendsCopy.sort((a, b) => getLevel(a) - getLevel(b) ||
-        a.name.localeCompare(b.name));
-
-    return friendsCopy;
-};
-
-const createNotWelcomeFriends = () => {
-    parents.forEach(friend => {
-        if (friend.parent === null && !friend.best) {
-            notFriends.push(friend.name);
-        }
-    });
-    notFriends = [...new Set(notFriends)];
-};
-
-const createParents = friends => {
-    friends.forEach(element => {
-        if (getIdx(element.name) === undefined) {
-            parents.push({ name: element.name, parent: null,
-                gender: element.gender, best: element.best });
-        }
-    });
+const bfs = friends => {
+    const friendsInLevels = [];
     const besties = friends.filter(element => element.best);
+    friendsInLevels.push(besties);
     let queue = besties.slice();
-    let visited = besties.slice();
-    let currentFriend;
+    let visited = besties
+        .map(friend => friend.name);
+    let nextLevel = [];
+
+    const lint = arr => arr.filter(friend => !visited.includes(friend));
 
     while (queue.length > 0) {
-        const current = queue.shift();
-        processChildren(current);
+        let namesArray = queue.reduce((acc, friend) => {
+            return [...acc, ...friend.friends];
+        }, []);
+        namesArray = lint(namesArray);
+        nextLevel = namesArray.map(friend => findFriendByName(friend, friends));
+        queue = nextLevel;
+        visited = visited.concat(namesArray);
+        // visited.push(...namesArray);
+        friendsInLevels.push(nextLevel);
     }
 
-    function processChildren(current) {
-        current.friends.forEach(element => {
-            currentFriend = findFriendByName(element, friends);
-            if (!visited.includes(currentFriend)) {
-                parents.forEach(child => {
-                    if (child.name === element) {
-                        child.parent = current;
-                    }
-                });
-                queue.push(currentFriend);
-                visited.push(currentFriend);
-            }
-        });
-    }
-    createNotWelcomeFriends();
+    return friendsInLevels;
 };
+
+const unpack = arrays =>
+    arrays.reduce((acc, array) => [...acc, ...sortByLevels(array)]);
+
 
 function Iterator(friends, filter) {
     if (!(filter instanceof Filter)) {
         throw new TypeError('Not instance of filter');
     }
-    createParents(friends);
-    this.stack = sortByLevels(filter.smallFilter(friends)
-        .filter(friend => !notFriends.includes(friend.name)));
+    this.stack = filter.smallFilter(unpack(bfs(friends)));
 }
 
 function LimitedIterator(friends, filter, maxLevel) {
@@ -98,11 +57,10 @@ function LimitedIterator(friends, filter, maxLevel) {
     }
     this.stack = [];
     if (maxLevel > 0) {
-        createParents(friends);
-        this.stack = friends
-            .filter(element => getLevel(element) <= maxLevel)
-            .filter(friend => !notFriends.includes(friend.name));
-        this.stack = sortByLevels(filter.smallFilter(this.stack));
+        let arrrr = bfs(friends);
+        this.stack = unpack(bfs(friends))
+            .filter(element => getLevel(element, arrrr) < maxLevel);
+        this.stack = filter.smallFilter(this.stack);
     }
 }
 
