@@ -93,6 +93,9 @@ function sortByName(a, b) {
  */
 function LimitedIterator(friends, filter, maxLevel) {
 
+    if (maxLevel <= 0) {
+        return [];
+    }
     Iterator.call(this, friends, filter);
     this.filteredFriends = this.filteredFriends.slice(0, maxLevel);
 }
