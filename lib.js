@@ -28,6 +28,7 @@ Iterator.prototype.next = function () {
  * @param {Number} maxLevel – максимальный круг друзей
  */
 function LimitedIterator(friends, filter, maxLevel) {
+    Iterator.call(this, friends, filter);
     this.guestList = getGuestList(friends, filter, maxLevel);
 }
 LimitedIterator.prototype = Object.create(Iterator.prototype);
