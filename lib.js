@@ -1,7 +1,7 @@
 'use strict';
 function getFriends(friends, filter, level) {
     if (level === undefined) {
-        level = 10;
+        level = friends.length + 10;// +10 на всякий случай
     }
     var resultFriends = [];
     var best = [];
@@ -81,6 +81,9 @@ function getBuddyObject(buddy, friends) {
  * @param {Filter} filter
  */
 function Iterator(friends, filter) {
+    if (!(filter instanceof Filter)) {
+        throw new TypeError('ты прислал мне какую-то дичь');
+    }
     this.friendsList = getFriends(friends, filter);
     this.i = 0;
 }
