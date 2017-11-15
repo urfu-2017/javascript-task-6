@@ -26,6 +26,7 @@ function Iterator(friends, filter) {
  * @param {Number} maxLevel – максимальный круг друзей
  */
 function LimitedIterator(friends, filter, maxLevel) {
+    Object.setPrototypeOf(this, Iterator.prototype);
     Iterator.call(this, friends, filter);
     this.weddingGuests = selectWeddingGuests(friends, filter, maxLevel);
 }
@@ -44,6 +45,7 @@ function Filter() {
  * @constructor
  */
 function MaleFilter() {
+    Object.setPrototypeOf(this, Filter.prototype);
     this.isValid = friend => friend.gender === 'male';
 }
 
@@ -53,6 +55,7 @@ function MaleFilter() {
  * @constructor
  */
 function FemaleFilter() {
+    Object.setPrototypeOf(this, Filter.prototype);
     this.isValid = friend => friend.gender === 'female';
 }
 
@@ -88,10 +91,6 @@ function compareByLevelAndName(firstFriend, secondFriend) {
         ? firstFriend.info.name > secondFriend.info.name
         : firstFriend.level - secondFriend.level;
 }
-
-Object.setPrototypeOf(LimitedIterator.prototype, Iterator.prototype);
-Object.setPrototypeOf(MaleFilter.prototype, Filter.prototype);
-Object.setPrototypeOf(FemaleFilter.prototype, Filter.prototype);
 
 exports.Iterator = Iterator;
 exports.LimitedIterator = LimitedIterator;
