@@ -1,12 +1,29 @@
 'use strict';
 
 /**
- * Находим номер друга в исходном массиве по имени
+ * Находим друга в исходном массиве по имени
+ * @param {Object[]} friends
+ * @param {String} friendName
+ * @param {Object} currentFriend
+ * @returns {Object}
+ */
+function getFriendByName(friends, friendName, currentFriend) {
+    for (let friend of friends) {
+        if (friend.name === friendName && currentFriend.friends.indexOf(friendName) !== -1) {
+            return friend;
+        }
+    }
+
+    return undefined;
+}
+
+/**
+ * Находим друга в исходном массиве по имени
  * @param {Object[]} friends
  * @param {String} friendName
  * @returns {Object}
  */
-function getFriendByName(friends, friendName) {
+function getFriendByName1(friends, friendName) {
     for (let friend of friends) {
         if (friend.name === friendName) {
             return friend;
@@ -38,11 +55,11 @@ function getNextLevel(friends, friendsOnCurrentLevel, invitedFriends) {
     let nextLevel = [];
     for (let currentFriend of friendsOnCurrentLevel) {
         for (let friendName of currentFriend.friends) {
-            nextLevel.push(getFriendByName(friends, friendName));
+            nextLevel.push(getFriendByName(friends, friendName, currentFriend));
         }
     }
     nextLevel = nextLevel.filter(friend =>
-        getFriendByName(invitedFriends, friend.name) === undefined);
+        getFriendByName1(invitedFriends, friend.name) === undefined);
 
     return nextLevel;
 }
