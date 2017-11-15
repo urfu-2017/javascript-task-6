@@ -103,7 +103,7 @@ Object.assign(Iterator.prototype, {
             (acc, friend) => [...acc, ...friend.friends], []);
         inviter.currentLevel = [];
         friendsOfFriendsNames = friendsOfFriendsNames.filter(
-            friend => !inviter.visitedFriends.includes(friend));
+            friend => inviter.visitedFriends.indexOf(friend) < 0);
         inviter.visitedFriends.push(...friendsOfFriendsNames);
         friendsOfFriendsNames.forEach(friendName =>
             inviter.currentLevel.push(friends.find(friend => friend.name === friendName)));
