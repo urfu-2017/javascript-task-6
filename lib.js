@@ -1,5 +1,6 @@
 'use strict';
 function getFriends(friends, filter, level) {
+
     if (level === undefined) {
         level = Infinity;
     }
