@@ -1,18 +1,19 @@
 'use strict';
 
-function sortString(a, b) {
+function sortFriendsByName(a, b) {
     return a.name > b.name ? 1 : -1;
 }
 
 
 function creatLevel(friends, person, visitedFriends, next) {
-    if (visitedFriends.indexOf(person.name) !== -1) {
+    if (visitedFriends.includes(person.name)) {
         return;
     }
     visitedFriends.push(person.name);
-    person.friends.filter(name => visitedFriends.indexOf(name) === -1)
+    person.friends
+        .filter(name => !(visitedFriends.includes(name)))
         .forEach(name => next.push(creatFriend(friends, name)));
-    next.sort(sortString);
+    next.sort(sortFriendsByName);
 }
 
 function creatFriend(friends, name) {
@@ -23,26 +24,26 @@ function creatFriend(friends, name) {
     }
 }
 
-function iterToFriends(friends, filter, maxLevel) {
+function listInvitedFriends(friends, filter, maxLevel) {
     if (!friends || !maxLevel || maxLevel < 1) {
         return [];
     }
-    let current = friends.sort(sortString)
+    let current = friends.sort(sortFriendsByName)
         .filter(person => person.best);
     let next = [];
     let visited = [];
     let currentFunc = person => {
         creatLevel(friends, person, visited, next);
     };
-    while (current.length !== 0 && maxLevel !== 0) {
-        current
-            .forEach(currentFunc);
+    while (current.length && maxLevel) {
+        current.forEach(currentFunc);
         current = next;
         next = [];
         maxLevel--;
     }
+    let invitedFriends = visited.map(name => creatFriend(friends, name));
 
-    return filter.filterFrends(visited.map(name => creatFriend(friends, name)));
+    return filter.filterFrends(invitedFriends);
 }
 
 /**
@@ -55,7 +56,7 @@ function Iterator(friends, filter) {
     if (!(filter instanceof Filter)) {
         throw new TypeError('filter is not Filter');
     }
-    this.friends = iterToFriends(friends, filter, Infinity);
+    this.friends = listInvitedFriends(friends, filter, Infinity);
     this.current = 0;
 }
 
@@ -82,7 +83,7 @@ Iterator.prototype.next = function () {
 function LimitedIterator(friends, filter, maxLevel) {
     Object.setPrototypeOf(this, Iterator.prototype);
     Iterator.call(this, friends, filter);
-    this.friends = iterToFriends(friends, filter, maxLevel);
+    this.friends = listInvitedFriends(friends, filter, maxLevel);
 }
 
 /**
@@ -95,8 +96,8 @@ function Filter() {
 
 Filter.prototype.filterFrends = function (friends) {
     return friends.filter(
-        (friend) =>
-            friend.gender === this.filterProperty || this.filterProperty === 'every', this);
+        friend => friend.gender === this.filterProperty || this.filterProperty === 'every',
+        this);
 };
 
 /**
