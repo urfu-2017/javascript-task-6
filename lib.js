@@ -1,9 +1,9 @@
 'use strict';
 
 function Inviter(friends) {
-    this.invitedFriends = new Set(friends
+    this.invitedFriends = friends
         .filter(friend => friend.best)
-        .sort(sorter));
+        .sort(sorter);
     this.currentLevel = [...this.invitedFriends];
 }
 
@@ -97,8 +97,8 @@ Object.assign(Iterator.prototype, {
         return this._resultStack.length <= this._pointer;
     },
     _fillLevel(friends, inviter) {
-        const friendsOfFriendsNames = new Set(inviter.currentLevel.reduce(
-            (acc, friend) => [...acc, ...friend.friends], []));
+        const friendsOfFriendsNames = inviter.currentLevel.reduce(
+            (acc, friend) => [...acc, ...friend.friends], []);
         inviter.currentLevel = [];
         friendsOfFriendsNames.forEach(friendName =>
             inviter.currentLevel.push(friends.find(friend => friend.name === friendName)));
