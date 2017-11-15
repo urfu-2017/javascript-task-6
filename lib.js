@@ -1,14 +1,11 @@
 'use strict';
 
 function sortFriendsByName(first, second) {
-    if (first.name < second.name) {
-        return -1;
-    }
-    if (first.name > second.name) {
-        return 1;
+    if (first.name === second.name) {
+        return 0;
     }
 
-    return 0;
+    return first.name < second.name ? -1 : 1;
 }
 
 // function getBestFriends(friends) {
@@ -21,8 +18,7 @@ function sortFriendsByName(first, second) {
 // }
 
 function shouldBeVisited(friend, visited, queue) {
-    return !visited.includes(friend) && queue
-        .every(circle => !circle.includes(friend));
+    return visited.indexOf(friend) === -1 && queue.every(circle => circle.indexOf(friend) === -1);
 }
 
 function getUnvisited(friends, visited) {
