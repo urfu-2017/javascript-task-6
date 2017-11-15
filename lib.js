@@ -4,16 +4,16 @@
  * Находим номер друга в исходном массиве по имени
  * @param {Object[]} friends
  * @param {String} friendName
- * @returns {Number}
+ * @returns {Object}
  */
-function getIndexByName(friends, friendName) {
-    for (let i = 0; i < friends.length; i++) {
-        if (friends[i].name === friendName) {
-            return i;
+function getFriendByName(friends, friendName) {
+    for (let friend of friends) {
+        if (friend.name === friendName) {
+            return friend;
         }
     }
 
-    return -1;
+    return undefined;
 }
 
 
@@ -38,11 +38,11 @@ function getNextLevel(friends, friendsOnCurrentLevel, invitedFriends) {
     let nextLevel = [];
     for (let currentFriend of friendsOnCurrentLevel) {
         for (let friendName of currentFriend.friends) {
-            let index = getIndexByName(friends, friendName);
-            nextLevel.push(friends[index]);
+            nextLevel.push(getFriendByName(friends, friendName));
         }
     }
-    nextLevel = nextLevel.filter(friend => getIndexByName(invitedFriends, friend.name) === -1);
+    nextLevel = nextLevel.filter(friend =>
+        getFriendByName(invitedFriends, friend.name) === undefined);
 
     return nextLevel;
 }
@@ -63,7 +63,7 @@ function divideOnCircles(friends, filter, maxLevel) {
     level++;
     let invitedFriends = bestFriends;
     let friendsOnCurrentLevel = bestFriends;
-    while (level < maxLevel && invitedFriends.length < friends.length) {
+    while (level < maxLevel && friendsOnCurrentLevel.length !== 0) {
         let nextLevelFriends = getNextLevel(friends, friendsOnCurrentLevel, invitedFriends);
         level++;
         invitedFriends = invitedFriends.concat(nextLevelFriends);
@@ -159,3 +159,4 @@ exports.LimitedIterator = LimitedIterator;
 exports.Filter = Filter;
 exports.MaleFilter = MaleFilter;
 exports.FemaleFilter = FemaleFilter;
+exports.isStar = true;
