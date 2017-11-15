@@ -43,7 +43,8 @@ function getFriends(friends, filter, maxLevel = Infinity) {
     while (currentLevelFriends.length > 0 && maxLevel > 0) {
         invitedFriends = invitedFriends.concat(currentLevelFriends);
         currentLevelFriends = currentLevelFriends
-            .reduce((accum, friend) => accum.concat(friend.friends), [])
+            .reduce((accum, friend) => accum
+                .concat(findUnvisitedFriends(friend.friends, accum)), [])
             .map(name => friends.find(friend => friend.name === name));
         currentLevelFriends = findUnvisitedFriends(currentLevelFriends, invitedFriends)
             .sort(friendsSort);
