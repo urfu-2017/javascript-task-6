@@ -95,6 +95,7 @@ function LimitedIterator(friends, filter, maxLevel) {
 
     if (maxLevel <= 0) {
         this.filteredFriends = [];
+
         return;
     }
     Iterator.call(this, friends, filter);
