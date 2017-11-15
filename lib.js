@@ -20,12 +20,11 @@ function inviteFriendsOfFriends(friends, dictFriends, start) {
             }
 
             return friend.friends
-                .map(function (nameFriend) {
-                    return dictFriends[nameFriend];
+                .map(function (name) {
+                    return dictFriends[name];
                 })
                 .filter(function (friendOfFriend) {
-                    return (friends.indexOf(friendOfFriend) === -1) &&
-                        (friendsOfFriends.indexOf(friendOfFriend) === -1);
+                    return (friends.indexOf(friendOfFriend) === -1);
                 })
                 .concat(friendsOfFriends);
         }, [])
