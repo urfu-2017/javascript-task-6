@@ -10,14 +10,18 @@ function compareNames(friend1, friend2) {
     return friend1.name > friend2.name ? 1 : -1;
 }
 
+/**
+ * Пушим френда
+ * @param {Object[]} nextLevel
+ * @param {Object} friend
+ * @returns {Object[]}
+ */
 function pushFriend(nextLevel, friend) {
     if (friend === undefined) {
         return nextLevel;
     }
-    for (let person of nextLevel) {
-        if (person.name === friend.name) {
-            return nextLevel;
-        }
+    if (nextLevel.findIndex(person => person.name === friend.name) !== -1) {
+        return nextLevel;
     }
     nextLevel.push(friend);
 
@@ -44,6 +48,14 @@ function getNextLevel(friends, friendsOnCurrentLevel, invitedFriends) {
     return nextLevel;
 }
 
+/**
+ * Возвращаем приглашенных друзей
+ * @param {Number} maxLevel
+ * @param {Object[]} friendsOnCurrentLevel
+ * @param {Object[]} friends
+ * @param {Object[]} invitedFriends
+ * @returns {Object[]}
+ */
 function getInvitedFriends(maxLevel, friendsOnCurrentLevel, friends, invitedFriends) {
     let level = 1;
     while (level < maxLevel && friendsOnCurrentLevel.length !== 0) {
