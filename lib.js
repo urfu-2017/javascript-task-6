@@ -59,7 +59,7 @@ class Iterator {
         this.friendList = friends.sort(sortByNames);
         this.filter = filter;
         this.unchecked = friends.filter(friend => !friend.best);
-        this.forFilter = this.getWaves();
+        this.inviteList = this.getInviteList();
     }
     isChecked(friend) {
         return this.unchecked.indexOf(friend) === -1;
@@ -70,28 +70,28 @@ class Iterator {
     findFriend(name) {
         return this.friendList.find(friend => friend.name === name);
     }
-    getWaves() {
-        let waves = this.friendList.filter(friend => friend.best);
+    getInviteList() {
+        let toInvite = this.friendList.filter(friend => friend.best);
         let i = 0;
-        while (waves[i]) {
-            waves[i].friends.forEach(function (name) {
+        while (toInvite[i]) {
+            toInvite[i].friends.sort().forEach(function (name) {
                 let friend = this.findFriend(name);
                 let checked = this.isChecked(friend);
                 if (!checked) {
                     this.check(friend);
-                    waves.push(friend);
+                    toInvite.push(friend);
                 }
             }.bind(this));
             i++;
         }
 
-        return waves.filter(this.filter.check);
+        return toInvite.filter(this.filter.check);
     }
     done() {
-        return !this.forFilter.length;
+        return !this.inviteList.length;
     }
     next() {
-        return this.forFilter.length ? this.forFilter.shift() : null;
+        return this.inviteList.length ? this.inviteList.shift() : null;
     }
 }
 
@@ -108,16 +108,16 @@ class LimitedIterator extends Iterator {
     constructor(friends, filter, maxLevel) {
         super(friends, filter);
         this.unchecked = [...friends];
-        this.forFilter = this.getWaves(maxLevel);
+        this.inviteList = this.getInviteList(maxLevel);
     }
 
-    getWaves(maxLevel) {
+    getInviteList(maxLevel) {
         let nextWave = [];
-        let wave = this.friendList.filter(friend => friend.best);
-        let waves = [...wave];
+        let currentWave = this.friendList.filter(friend => friend.best);
+        let toInvite = [...currentWave];
         let i = 0;
         while (i < maxLevel - 1) {
-            wave.forEach(person => person.friends.forEach(function (name) {
+            currentWave.forEach(person => person.friends.sort().forEach(function (name) {
                 let friend = this.findFriend(name);
                 let checked = this.isChecked(friend);
                 if (!checked) {
@@ -125,13 +125,13 @@ class LimitedIterator extends Iterator {
                     nextWave.push(friend);
                 }
             }.bind(this)));
-            waves.push(...nextWave);
-            wave = [...nextWave];
+            toInvite.push(...nextWave);
+            currentWave = [...nextWave];
             nextWave = [];
             i++;
         }
 
-        return waves.filter(this.filter.check);
+        return toInvite.filter(this.filter.check);
     }
 }
 
