@@ -8,11 +8,11 @@ function getFriends(friends, filter) {
     return friendsToInvite;
 }
 
-function collectAllFrineds(storage, friend) {
+function collectAllFrineds(storage, friend, friends) {
     var friendsToAdd = friend.friends;
     for (var q = 0; q < friendsToAdd.length; q ++) {
         if (!storage.includes(friendsToAdd[q])) {
-            storage.push(friendsToAdd[q]);
+            storage.push(getFriendByName(friends,friendsToAdd[q]));
         }
     }
 
@@ -25,38 +25,32 @@ function getFriendByName(friends, name) {
             return friends[fr];
         }
     }
+
+    return null;
 }
 
 function getFriendsUpToLvl(friends, lvl) { // eslint-disable-line max-statements
-    var bestFriends = friends.filter(function (friend) {
+    var box1 = []; // мне правда проще с цифрами
+    var friendsUpToLvl = [];
+    box1 = friends.filter(function (friend) {
         return friend.best === true;
     });
-    bestFriends.sort(function (a, b) {
+    box1.sort(function (a, b) {
         return a.name > b.name;
     });
-    if (lvl === 1) {
-        return bestFriends;
-    }
-    var friendsUpToLvl = bestFriends;
-    var nextIter = [];
-    for (var bFriend = 0; bFriend < bestFriends.length; bFriend++) {
-        nextIter = collectAllFrineds(nextIter, bestFriends[bFriend]);
-    }
-    lvl -= 1;
-    var addedToInspect = nextIter.length; // исключительно костыльный код
-    while (lvl > 0 && addedToInspect > 0) {
-        var currentToInspect = nextIter.length;
-        nextIter.sort(function (a, b) {
+    while (lvl > 0 && box1.length > 0) {
+        var box2 = [];
+        box1.sort(function (a, b) {
             return a > b;
         });
-        nextIter.map(function (friend) { // eslint-disable-line array-callback-return, no-loop-func
-            friend = getFriendByName(friends, friend);
+        box1.map(function (friend) { // eslint-disable-line array-callback-return, no-loop-func
+           // friend = getFriendByName(friends, friend);
             if (!friendsUpToLvl.includes(friend)) {
                 friendsUpToLvl.push(friend);
-                nextIter = collectAllFrineds(nextIter, friend);
+                box2 = collectAllFrineds(box2, friend, friends);
             }
         });
-        addedToInspect = nextIter.length - currentToInspect;
+        box1 = box2;
         lvl -= 1;
     }
 
