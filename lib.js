@@ -56,7 +56,7 @@ class LimitedIterator extends Iterator {
 
 class Filter {
     isCorrectObject() {
-        throw Error('method must be defined in child');
+        return true;
     }
 }
 
