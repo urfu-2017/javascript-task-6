@@ -32,6 +32,9 @@ Iterator.prototype = {
     },
 
     next: function () {
+        if (this.done()) {
+            return null;
+        }
         let result = this._currentLevelFriends[this._currentIndex];
         while (this._next()) {
             if (this.done()) {
