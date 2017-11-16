@@ -59,8 +59,8 @@ class Iterator {
         Object.keys(values).forEach(function (element) {
             this[element] = values[element];
         }, this);
-
-        friends.sort(function (first, second) {
+        this.friends = friends;
+        this.friends.sort(function (first, second) {
             if (first.name > second.name) {
                 return 1;
             } else if (first.name < second.name) {
@@ -71,7 +71,7 @@ class Iterator {
         });
 
         this.calculateCount = function () {
-            for (var friend of friends) {
+            for (var friend of this.friends) {
                 if (filter.gender(friend)) {
                     this.count += 1;
                 }
@@ -87,28 +87,28 @@ class Iterator {
         };
 
         this.foundFriend = function () {
-            if (this.circle === 1 && friends[this.current].best) {
-                this.checkedFriends.push(friends[this.current].name);
-                this._subfriends = this._subfriends.concat(friends[this.current].friends);
-                if (filter.gender(friends[this.current])) {
+            if (this.circle === 1 && this.friends[this.current].best) {
+                this.checkedFriends.push(this.friends[this.current].name);
+                this._subfriends = this._subfriends.concat(this.friends[this.current].friends);
+                if (filter.gender(this.friends[this.current])) {
                     this.changeValues();
 
                     return friends[this.current - 1];
                 }
-            } else if (this.friendOfFriends.indexOf(friends[this.current].name) !== -1 &&
-                this.checkedFriends.indexOf(friends[this.current].name) === -1) {
-                this.checkedFriends.push(friends[this.current].name);
-                this._subfriends = this._subfriends.concat(friends[this.current].friends);
-                if (filter.gender(friends[this.current])) {
+            } else if (this.friendOfFriends.indexOf(this.friends[this.current].name) !== -1 &&
+                this.checkedFriends.indexOf(this.friends[this.current].name) === -1) {
+                this.checkedFriends.push(this.friends[this.current].name);
+                this._subfriends = this._subfriends.concat(this.friends[this.current].friends);
+                if (filter.gender(this.friends[this.current])) {
                     this.changeValues();
 
-                    return friends[this.current - 1];
+                    return this.friends[this.current - 1];
                 }
             }
         };
 
         this.foundNext = function () {
-            for (this.current; this.current < friends.length; this.current++) {
+            for (this.current; this.current < this.friends.length; this.current++) {
                 let result = this.foundFriend();
                 if (result !== undefined) {
                     return result;
@@ -148,10 +148,10 @@ class Iterator {
         };
 
         this.getFriend = function (_name) {
-            var i = friends.length;
+            var i = this.friends.length;
             while (i--) {
-                if (friends[i].name === _name) {
-                    return friends[i];
+                if (this.friends[i].name === _name) {
+                    return this.friends[i];
                 }
             }
         };
@@ -194,7 +194,7 @@ class LimitedIterator extends Iterator {
         this.calculateDeep = function (deep) {
             let checked = [];
             let value = 1;
-            for (var friend of friends) {
+            for (var friend of this.friends) {
                 if (friend.best) {
                     deep[friend.name] = value;
                     checked.push(friend.name);
@@ -216,7 +216,7 @@ class LimitedIterator extends Iterator {
 
         this.calculateCount = function () {
             let count = 0;
-            for (var _friend of friends) {
+            for (var _friend of this.friends) {
                 if (filter.gender(_friend) && this.deep[_friend.name] <= maxLevel) {
                     count += 1;
                 }
