@@ -18,7 +18,6 @@ class FemaleFilter extends Filter {
     }
 }
 
-
 class Iterator {
     constructor(friends, filter, maxLevel = Infinity) {
         if (!(filter instanceof Filter)) {
@@ -44,8 +43,7 @@ class Iterator {
         friends.forEach(friend => {
             friendsMap[friend.name] = friend;
         });
-        let prevFriends = friends.filter(f => f.best)
-            .sort((a, b) => a.name > b.name ? 1 : -1);
+        let prevFriends = friends.filter(f => f.best).sort(sortByName);
         let invitedFriends = [].concat(prevFriends);
         maxLevel--;
         let currentFriends = [];
@@ -68,11 +66,17 @@ class Iterator {
                 }
             });
         });
-        currentFriends.sort((a, b) => a.name > b.name ? 1 : -1);
+        currentFriends.sort(sortByName);
         invitedFriends.push(...currentFriends);
+    }
+}
 
+function sortByName(a, b) {
+    if (a.name === b.name) {
+        return 0;
     }
 
+    return a.name > b.name ? 1 : -1;
 }
 
 class LimitedIterator extends Iterator {
