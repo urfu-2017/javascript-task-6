@@ -1,7 +1,14 @@
 'use strict';
 
 function alphaSort(a, b) {
-    return a.localeCompare(b);
+    return a.name.localeCompare(b.name);
+}
+function getFullFriendsObjects(name, friends) {
+    return friends.find(friend => friend.name === name);
+}
+
+function getDiff(a, b) {
+    return a.filter(x => b.indexOf(x) === -1);
 }
 
 /** 
@@ -11,21 +18,19 @@ function alphaSort(a, b) {
  * @returns {Array} список приглашенных
  */
 function getInvitedFriends(friends, level = Infinity) {
-    friends.forEach(friend => friend.friends.sort(alphaSort));
     let invitedFriends = [];
-    let stack = friends
+    let toInvite = friends
         .filter(friend => friend.best)
         .sort((a, b) => a.name.localeCompare(b.name));
-    while (level-- > 0 && stack.length > 0) {
-        invitedFriends = invitedFriends.concat(stack);
-        stack = [];
-        stack = invitedFriends
-            .map((invitedFriend, i, arr) => friends
-                .filter(friend => !arr.includes(friend) &&
-                 friend.friends.includes(invitedFriend.name)));
-        stack = stack.reduce((acc, members) => acc.concat(members), []);
-        console.info(stack);
-        console.info('-------------------------');
+    while (level-- > 0 && toInvite.length > 0) {
+        invitedFriends = invitedFriends.concat(toInvite);
+        toInvite = [];
+        toInvite = invitedFriends
+            .reduce((acc, invitedFriend) => acc.concat(invitedFriend.friends), []);
+        toInvite = toInvite
+            .reduce((acc, friend) => acc.concat(getFullFriendsObjects(friend, friends)), [])
+            .sort(alphaSort);
+        toInvite = getDiff(toInvite, invitedFriends);
     }
 
     return invitedFriends;
