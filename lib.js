@@ -26,9 +26,13 @@ Iterator.prototype._getNextCircle = function () {
     if (this._done) {
         return undefined;
     }
-
-    return next.value
+    const filtered = next.value
         .filter(f => this._filter.satisfiesCondition(f));
+    if (!filtered.length) {
+        return this._getNextCircle();
+    }
+
+    return filtered;
 };
 
 Iterator.prototype.done = function () {
@@ -63,6 +67,7 @@ function LimitedIterator(friends, filter, maxLevel) {
 }
 
 LimitedIterator.prototype = Object.create(Iterator.prototype);
+LimitedIterator.prototype.constructor = LimitedIterator;
 LimitedIterator.prototype.done = function () {
     return this._done || this._currentCircleNum > this._maxLevel;
 };
@@ -114,12 +119,13 @@ function* _getCircles(friends) {
             .forEach(f => visited.add(f.name));
         yield circle;
         circle = circle
+            .filter(f => f.friends)
             .reduce((acc, curr) => acc.concat(curr.friends), [])
             .map(fName => friendsByName.get(fName))
             .filter(f => !visited.has(f.name));
     }
     const notVisited = friends.filter(f => !visited.has(f.name));
     if (notVisited.length) {
-        yield *_getCircles(notVisited);
+        yield* _getCircles(notVisited);
     }
 }
