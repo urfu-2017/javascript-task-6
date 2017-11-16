@@ -32,6 +32,8 @@ function getInvitedFriends(friends, level = Infinity) {
             .sort(alphaSort);
         toInvite = getDiff(toInvite, invitedFriends);
     }
+    invitedFriends = invitedFriends.concat(friends
+        .filter(friend => friend.friends.length === 0).sort(alphaSort));
 
     return invitedFriends;
 }
