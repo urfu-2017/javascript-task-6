@@ -1,5 +1,4 @@
 'use strict';
-exports.isStar = true;
 function getFriends(friends, filter, level) {
 
     if (level === undefined) {
