@@ -19,10 +19,9 @@ function inviteFriends(invited, friends) {
     let allFriends = invited.reduce(function (acc, friend) {
 
         return friend.friends.filter(a => !(acc.includes(a)) &&
-            !(invited.some(b => b.name === a)))
-            .sort(compareName)
-            .concat(acc);
-    }, []);
+            !(invited.some(b => b.name === a))).concat(acc);
+    }, [])
+        .sort(compareName);
 
     return allFriends.map(a => friends.filter(b => b.name === a)[0]).concat(invited);
 }
