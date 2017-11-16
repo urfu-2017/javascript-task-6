@@ -9,19 +9,20 @@
 
 function findGuests(friends, filter, maxLevel) {
     let guests = [];
-    friends.sort((a, b) => a.name.localeCompare(b.name));
     let invited = friends.filter(friend => friend.best);
     while (maxLevel > 0 && invited.length !== 0) {
         let count = invited.length;
-        invited.forEach((friend) => {
-            if (!guests.includes(friend)) {
-                guests.push(friend);
-                friend.friends.forEach((subfriend) => {
-                    let invite = friends.find(person => person.name === subfriend);
-                    invited.push(invite);
-                });
-            }
-        });
+        invited
+            .sort((a, b) => a.name.localeCompare(b.name))
+            .forEach((friend) => {
+                if (!guests.includes(friend)) {
+                    guests.push(friend);
+                    friend.friends.forEach((subfriend) => {
+                        let invite = friends.find(person => person.name === subfriend);
+                        invited.push(invite);
+                    });
+                }
+            });
         invited.splice(0, count);
         maxLevel--;
     }
