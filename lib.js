@@ -92,9 +92,7 @@ function sortByName(a, b) {
  */
 function LimitedIterator(friends, filter, maxLevel) {
     if (maxLevel < 0) {
-        this.filteredFriends = [];
-
-        return;
+        maxLevel = 0;
     }
     Iterator.call(this, friends, filter);
     this.orderedFriendsByLevel = orderFriends(friends)
