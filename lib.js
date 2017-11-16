@@ -8,21 +8,20 @@
  */
 
 function findGuests(friends, filter, maxLevel) {
-    let invited = friends.filter(friend => friend.best);
     let guests = [];
+    friends.sort((a, b) => a.name.localeCompare(b.name));
+    let invited = friends.filter(friend => friend.best);
     while (maxLevel > 0 && invited.length !== 0) {
         let count = invited.length;
-        invited
-            .sort((a, b) => a.name.localeCompare(b.name))
-            .forEach((friend) => {
-                if (guests.indexOf(friend) === -1) {
-                    guests.push(friend);
-                    friend.friends.forEach((subfriend) => {
-                        let invite = friends.find(person => person.name === subfriend);
-                        invited.push(invite);
-                    });
-                }
-            });
+        invited.forEach((friend) => {
+            if (!guests.includes(friend)) {
+                guests.push(friend);
+                friend.friends.forEach((subfriend) => {
+                    let invite = friends.find(person => person.name === subfriend);
+                    invited.push(invite);
+                });
+            }
+        });
         invited.splice(0, count);
         maxLevel--;
     }
@@ -32,8 +31,6 @@ function findGuests(friends, filter, maxLevel) {
 
 class Iterator {
     constructor(friends, filter) {
-        this.friends = friends;
-        this.filter = filter;
         this.numberСycle = 0;
         this.guests = findGuests(friends, filter, Infinity);
         this.done = () => {
@@ -56,9 +53,6 @@ class Iterator {
 class LimitedIterator extends Iterator {
     constructor(friends, filter, maxLevel) {
         super(friends, filter, maxLevel);
-        // this.friends = friends;
-        // this.filter = filter;
-        // this.numberСycle = 0;
         this.maxLevel = maxLevel;
         this.guests = findGuests(friends, filter, maxLevel);
     }
