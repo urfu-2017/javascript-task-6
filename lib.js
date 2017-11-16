@@ -20,7 +20,7 @@ function newFriendsFilter(resultFriends) {
 }
 
 function filterFriends(friends, filter, maxLevel = Infinity) {
-    if (maxLevel === 0) {
+    if (maxLevel <= 0) {
         return [];
     }
     const bestFriends = friends.filter((friend) => (friend.best)).sort(compareFriends);
