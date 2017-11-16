@@ -7,9 +7,8 @@ function getAllFriends(friends, maxLevel, layer, result = []) {
     if (maxLevel <= 0 || !layer.length)
         return result;
     result.push(...layer.sort(friendComparer));
-    let visited = new Set(result.map(x => x.name));
     let names = [].concat(...layer.map(x => x.friends));
-    names = [...new Set(names)].filter(x => !visited.has(x));
+    names = [...new Set(names)].filter(x => !result.map(y => y.name).includes(x));
     let nextLayer = names.map(x => friends.find(y => y.name === x));
     return getAllFriends(friends, --maxLevel, nextLayer, result);
 }
