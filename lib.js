@@ -6,7 +6,7 @@ const friendComparer = (x, y) => x.name.localeCompare(y.name);
 function getAllFriends(friendMap, maxLevel, layer, result = []) {
     if (maxLevel <= 0)
         return result;
-    result = result.concat(layer.sort(friendComparer));
+    result.push(...layer.sort(friendComparer));
     let visited = new Set(result.map(x => x.name));
     let names = [].concat(...layer.map(x => x.friends));
     names = [...new Set(names)].filter(x => !visited.has(x));
@@ -17,20 +17,14 @@ function getAllFriends(friendMap, maxLevel, layer, result = []) {
 class Iterator {
     constructor(friends, filter, maxLevel = Number.MAX_SAFE_INTEGER) {
         if (filter instanceof Filter) {
-            let friendMap = Object.assign(...friends.map(x => ({[x.name]: x})));
+            let friendMap = Object.assign({}, ...friends.map(x => ({[x.name]: x})));
             let layer = friends.filter(x => x.best);
             this.friends = getAllFriends(friendMap, maxLevel, layer).filter(x => filter.isValid(x));
             this.pointer = 0;
+            this.done = () => this.pointer >= this.friends.length;
+            this.next = () => this.done() ? null : this.friends[this.pointer++];
         } 
         else throw new TypeError;
-    }
-
-    done() {
-        return this.pointer >= this.friends.length;
-    }
-
-    next() {
-        return this.done() ? null : this.friends[this.pointer++];
     }
 }
 
