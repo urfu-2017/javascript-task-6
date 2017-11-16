@@ -7,14 +7,17 @@ function getFriends(friends, filter, level) {
     var resultFriends = [];
     var best = getBest(friends).sort(sortByName);
 
-
     resultFriends = resultFriends.concat(best);
 
     while (level > 1 && best.length !== 0) {
         var tempFriends = getTempFriend(best, friends, resultFriends);
+        // получаем массив друзей друзей
         tempFriends = removeDuplicates(tempFriends.sort(sortByName));
+        // сортируем и убираем оттуда дубликаты 
         resultFriends = resultFriends.concat(tempFriends);
+        // добавляем друзей друзей в результирующий массив
         best = tempFriends;
+        // обновляем массив, чтобы на след. итерации начать с них
         level --;
     }
 
