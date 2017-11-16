@@ -34,7 +34,7 @@ function getFriendList(friends, filter, level) {
         .filter(friend => friend.best)
         .sort(sortByName);
 
-    while (level-- && setOfFriends.length > 0) {
+    while (level-- > 0 && setOfFriends.length > 0) {
         guests = guests.concat(setOfFriends);
         setOfFriends = getPotentialGuests(guests, friends, setOfFriends);
     }
