@@ -1,6 +1,9 @@
 'use strict';
 
 function getFriends(friends, filter, maxLevel = Infinity) {
+    if(maxLevel <= 0) {
+        return [];
+    }
     let guestArray = [];
     let invetedFriends = friends
         .filter(f => f.best)
