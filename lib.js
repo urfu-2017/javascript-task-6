@@ -27,7 +27,7 @@ Iterator.prototype._getNextCircle = function () {
         return undefined;
     }
     const filtered = next.value
-        .filter(f => this._filter.satisfiesCondition(f));
+        .filter(this._filter.satisfiesCondition);
     if (!filtered.length) {
         return this._getNextCircle();
     }
@@ -123,9 +123,5 @@ function* _getCircles(friends) {
             .reduce((acc, curr) => acc.concat(curr.friends), [])
             .map(fName => friendsByName.get(fName))
             .filter(f => !visited.has(f.name));
-    }
-    const notVisited = friends.filter(f => !visited.has(f.name));
-    if (notVisited.length) {
-        yield* _getCircles(notVisited);
     }
 }
