@@ -3,47 +3,38 @@
 
 const friendComparer = (x, y) => x.name.localeCompare(y.name);
 
-function getAllFriends(friendMap, maxLevel, layer, result = []) {
+function getAllFriends(friends, maxLevel, layer, result = []) {
     if (maxLevel <= 0)
         return result;
     result.push(...layer.sort(friendComparer));
     let visited = new Set(result.map(x => x.name));
     let names = [].concat(...layer.map(x => x.friends));
     names = [...new Set(names)].filter(x => !visited.has(x));
-    let nextLayer = names.map(x => friendMap[x]);
-    return names.length ? getAllFriends(friendMap, maxLevel - 1, nextLayer, result) : result;
+    let nextLayer = names.map(x => friends.find(y => y.name === x));
+    return names.length ? getAllFriends(friends, --maxLevel, nextLayer, result) : result;
 }
 
-class Iterator {
-    constructor(friends, filter, maxLevel = Number.MAX_SAFE_INTEGER) {
-        if (filter instanceof Filter) {
-            let friendMap = Object.assign({}, ...friends.map(x => ({[x.name]: x})));
-            let layer = friends.filter(x => x.best);
-            this.friends = getAllFriends(friendMap, maxLevel, layer).filter(x => filter.isValid(x));
-            this.pointer = 0;
-            this.done = () => this.pointer >= this.friends.length;
-            this.next = () => this.done() ? null : this.friends[this.pointer++];
-        } 
-        else throw new TypeError;
-    }
+function child(superClass, ...injectedArgs) {
+    let child = function(...args) {
+        superClass.call(this, ...args, ...injectedArgs);
+    };
+    child.prototype = Object.assign(Object.create(superClass.prototype), { constructor: child });
+    return child;
 }
 
-class Filter {
-    isValid(friend) {
-        return true;
-    }
+function Iterator(friends, filter, maxLevel = Number.MAX_SAFE_INTEGER) {
+    if (!(filter instanceof Filter))
+        throw new TypeError;
+    let layer = friends.filter(x => x.best);
+    this.friends = getAllFriends(friends, maxLevel, layer).filter(filter.isValid);
+    this.pointer = 0;
+    this.done = () => this.pointer >= this.friends.length;
+    this.next = () => this.done() ? null : this.friends[this.pointer++];
 }
 
-class MaleFilter extends Filter {
-    isValid(friend) {
-        return friend.gender === 'male';
-    }
+function Filter(gender = null) {
+    this.isValid = friend => gender === null || friend.gender === gender;
 }
 
-class FemaleFilter extends Filter {
-    isValid(friend) {
-        return friend.gender === 'female';
-    }
-}
-
-module.exports = { Iterator, LimitedIterator: Iterator, Filter, MaleFilter, FemaleFilter, isStar: true };
+module.exports = { Iterator, LimitedIterator: child(Iterator), isStar: true, Filter, 
+    MaleFilter: child(Filter, 'male'), FemaleFilter: child(Filter, 'female') };
