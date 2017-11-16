@@ -76,24 +76,21 @@ function Iterator(friends, filter) {
     var allFriendsPossible = getFriendsUpToLvl(friends, Infinity);
     this.friendsToInvite = getFriends(allFriendsPossible, filter);
     this.count = 0;
-}
+    this.next = function () {
+        var nextFriend = null;
+        if (!this.done()) {
+            nextFriend = this.friendsToInvite[this.count];
+            this.count++;
 
-Iterator.prototype.next = function () {
-    var nextFriend = null;
-    if (!this.done()) {
-        nextFriend = this.friendsToInvite[this.count];
-        this.count ++;
+            return nextFriend;
+        }
 
         return nextFriend;
-    }
-
-    return nextFriend;
-};
-
-Iterator.prototype.done = function () {
-    return this.count >= this.friendsToInvite.length;
-
-};
+    };
+    this.done = function () {
+        return this.count >= this.friendsToInvite.length;
+    };
+}
 
 /**
  * Итератор по друзям с ограничением по кругу
@@ -107,6 +104,7 @@ function LimitedIterator(friends, filter, maxLevel) {
     if (!(filter instanceof Filter)) {
         throw new TypeError('not a filter!');
     }
+    Iterator.call(this, friends, filter);
     this.count = 0;
     var allFriendsUpToLvl = getFriendsUpToLvl(friends, maxLevel);
     this.friendsToInvite = getFriends(allFriendsUpToLvl, filter);
@@ -137,7 +135,6 @@ function MaleFilter() {
 }
 
 MaleFilter.prototype = Object.create(Filter.prototype);
-MaleFilter.prototype.constructor = MaleFilter;
 
 /**
  * Фильтр друзей-девушек
