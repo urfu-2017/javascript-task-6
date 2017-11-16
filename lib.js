@@ -91,8 +91,8 @@ function sortByName(a, b) {
  * @param {Number} maxLevel – максимальный круг друзей
  */
 function LimitedIterator(friends, filter, maxLevel) {
-    maxlevel = maxLevel < 0 ? 0 : maxLevel;
-    
+    maxLevel = maxLevel < 0 ? 0 : maxLevel;
+
     Iterator.call(this, friends, filter);
     this.orderedFriendsByLevel = orderFriends(friends)
         .slice(0, maxLevel)
