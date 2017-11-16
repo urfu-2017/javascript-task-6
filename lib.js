@@ -58,7 +58,7 @@ Iterator.prototype.next = function () {
  * @param {Number} maxLevel – максимальный круг друзей
  */
 function LimitedIterator(friends, filter, maxLevel) {
-    this._maxLevel = maxLevel;
+    this._maxLevel = maxLevel >= 0 ? maxLevel : 0;
     Iterator.call(this, friends, filter);
 }
 
@@ -117,5 +117,9 @@ function* _getCircles(friends) {
             .reduce((acc, curr) => acc.concat(curr.friends), [])
             .map(fName => friendsByName.get(fName))
             .filter(f => !visited.has(f.name));
+    }
+    const notVisited = friends.filter(f => !visited.has(f.name));
+    if (notVisited.length) {
+        yield *_getCircles(notVisited);
     }
 }
