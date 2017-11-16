@@ -15,34 +15,31 @@ function compareName(a, b) {
     }
 }
 
-function findFriendsLevel(currentFriends, friends) {
-    if (currentFriends.length === 0) {
-        return friends.filter(friend => friend.best)
-            .sort(compareName);
-    }
+function inviteFriends(invited, friends) {
+    let allFriends = invited.reduce(function (acc, friend) {
 
-    return currentFriends.reduce(function (acc, friend) {
-        var friendsOfFriend = friend.friends.reduce(function (localAcc, localFriend) {
+        return acc.concat(friend.friends.filter(a => !(acc.includes(a)) &&
+            !(invited.some(b => b.name === a))));
+    }, [])
+        .sort(compareName);
 
-            return localAcc.concat(friends.filter(value => value.name === localFriend))
-                .sort(compareName);
-        }, []);
-
-        return friendsOfFriend.concat(acc);
-    }, []).filter(friend => !(currentFriends.includes(friend)));
+    return allFriends.map(a => friends.filter(b => b.name === a)[0]).concat(invited);
 }
 
-function findGuests(invitedFriends, friends, level) {
+function findFriends(friends, level) {
     if (level < 1) {
 
-        return invitedFriends;
+        return [];
     }
-    var newLevelFriends = findFriendsLevel(invitedFriends, friends);
-    if (newLevelFriends.length === 0) {
-        return invitedFriends;
+    let invited = friends.filter(friend => friend.best);
+    let moreInvited = inviteFriends(invited, friends);
+    while (invited.length !== moreInvited.length && level > 1) {
+        invited = moreInvited;
+        moreInvited = inviteFriends(invited, friends);
+        level--;
     }
 
-    return findGuests(newLevelFriends.concat(invitedFriends), friends, level - 1);
+    return invited;
 }
 
 /**
@@ -55,7 +52,7 @@ function Iterator(friends, filter) {
     if (!(filter instanceof Filter)) {
         throw new TypeError('Not instance of Filter');
     }
-    this.invitedFriends = findGuests([], friends, 4).filter(guest => filter.filter(guest));
+    this.invitedFriends = findFriends(friends, Infinity).filter(guest => filter.filter(guest));
 }
 
 Iterator.prototype.done = function () {
@@ -82,7 +79,7 @@ Iterator.prototype.next = function () {
  */
 function LimitedIterator(friends, filter, maxLevel) {
     Iterator.call(this, friends, filter);
-    this.invitedFriends = findGuests([], friends, maxLevel).filter(guest => filter.filter(guest));
+    this.invitedFriends = findFriends(friends, maxLevel).filter(guest => filter.filter(guest));
 }
 
 LimitedIterator.prototype = Object.create(Iterator.prototype);
