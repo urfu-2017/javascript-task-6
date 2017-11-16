@@ -1,7 +1,7 @@
 'use strict';
 
 function alphaSort(a, b) {
-    return a.name.localeCompare(b.name);
+    return a.localeCompare(b);
 }
 
 /** 
@@ -11,6 +11,7 @@ function alphaSort(a, b) {
  * @returns {Array} список приглашенных
  */
 function getInvitedFriends(friends, level = Infinity) {
+    friends.forEach(friend => friend.friends.sort(alphaSort));
     let invitedFriends = [];
     let stack = friends
         .filter(friend => friend.best)
@@ -22,8 +23,9 @@ function getInvitedFriends(friends, level = Infinity) {
             .map((invitedFriend, i, arr) => friends
                 .filter(friend => !arr.includes(friend) &&
                  friend.friends.includes(invitedFriend.name)));
-        stack.forEach(item => item.sort(alphaSort));
         stack = stack.reduce((acc, members) => acc.concat(members), []);
+        console.info(stack);
+        console.info('-------------------------');
     }
 
     return invitedFriends;
