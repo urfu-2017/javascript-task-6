@@ -1,51 +1,75 @@
 'use strict';
 
-/**
- * Итератор по друзьям
- * @constructor
- * @param {Object[]} friends
- * @param {Filter} filter
- */
-function Iterator(friends, filter) {
-    console.info(friends, filter);
+class Iterator {
+    constructor(friends, filter, maxLevel = Infinity) {
+        this.currentIndex = 0;
+        this.collection = this.completeCollection(friends, filter, maxLevel);
+        console.info(this.collection);
+    }
+
+    next() {
+        return this.done() ? null : this.collection[this.currentIndex++];
+    }
+
+    done() {
+        return this.collection.length === this.currentIndex;
+    }
+
+    completeCollection(friends, filter, maxLevel) {
+        let friendsMap = {};
+        friends.forEach(friend => {
+            friendsMap[friend.name] = friend;
+        });
+        let prevFriends = friends.filter(f => f.best)
+            .sort((a, b) => a.name > b.name ? 1 : -1);
+        let invitedFriends = [].concat(prevFriends);
+        maxLevel--;
+        let currentFriends = [];
+        let isVisited = friend => invitedFriends.includes(friend) ||
+            currentFriends.includes(friend);
+        let addNewFriends = friend => {
+            friend.friends.forEach(name => {
+                if (!isVisited(friendsMap[name])) {
+                    currentFriends.push(friendsMap[name]);
+                }
+            });
+        };
+        while (prevFriends.length > 0 && maxLevel-- > 0) {
+            prevFriends.forEach(friend => {
+                addNewFriends(friend);
+            });
+            currentFriends.sort((a, b) => a.name > b.name ? 1 : -1);
+            invitedFriends.push(...currentFriends);
+            prevFriends = currentFriends;
+            currentFriends = [];
+        }
+
+        return invitedFriends.filter(filter.isCorrectObject);
+    }
 }
 
-/**
- * Итератор по друзям с ограничением по кругу
- * @extends Iterator
- * @constructor
- * @param {Object[]} friends
- * @param {Filter} filter
- * @param {Number} maxLevel – максимальный круг друзей
- */
-function LimitedIterator(friends, filter, maxLevel) {
-    console.info(friends, filter, maxLevel);
+class LimitedIterator extends Iterator {
+    constructor(friends, filter, maxLevel) {
+        super(friends, filter, maxLevel);
+    }
 }
 
-/**
- * Фильтр друзей
- * @constructor
- */
-function Filter() {
-    console.info('Filter');
+class Filter {
+    isCorrectObject() {
+        throw Error('method must be defined in child');
+    }
 }
 
-/**
- * Фильтр друзей
- * @extends Filter
- * @constructor
- */
-function MaleFilter() {
-    console.info('MaleFilter');
+class MaleFilter extends Filter {
+    isCorrectObject(obj) {
+        return obj.gender === 'male';
+    }
 }
 
-/**
- * Фильтр друзей-девушек
- * @extends Filter
- * @constructor
- */
-function FemaleFilter() {
-    console.info('FemaleFilter');
+class FemaleFilter extends Filter {
+    isCorrectObject(obj) {
+        return obj.gender === 'female';
+    }
 }
 
 exports.Iterator = Iterator;
