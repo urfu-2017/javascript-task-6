@@ -105,6 +105,7 @@ function Iterator(friends, filter) {
     if (!(filter instanceof Filter)) {
         throw new TypeError('ты прислал мне какую-то дичь');
     }
+
     this.friendsList = getFriends(friends, filter);
     this.i = 0;
 }
@@ -137,7 +138,12 @@ function LimitedIterator(friends, filter, maxLevel) {
     if (!(filter instanceof Filter)) {
         throw new TypeError('ты прислал мне какую-то дичь');
     }
-    this.friendsList = getFriends(friends, filter, maxLevel);
+    if (maxLevel >= 1) {
+        this.friendsList = getFriends(friends, filter, maxLevel);
+    } else {
+        this.friendsList = [];
+    }
+
     this.i = 0;
 }
 
