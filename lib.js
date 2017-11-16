@@ -21,8 +21,11 @@ function checkFriend(guests, friend) {
 }
 
 function sortByName(first, second) {
+    if (first.name === second.name) {
+        return 0;
+    }
 
-    return first.name > second.name;
+    return first.name > second.name ? 1 : -1;
 }
 
 function getFriendList(friends, filter, level) {
