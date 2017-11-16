@@ -48,17 +48,17 @@ function orderFriends(friends) {
 
 function createNewLevel(queue, visited, friends) {
     let nextLevel = [];
+    function filterFarFriends(farFriend) {
+        farFriend = getFriendObj(farFriend, friends);
+
+        return !(visited.includes(farFriend)) && !queue.includes(farFriend) &&
+                !(nextLevel.includes(farFriend));
+    }
     while (queue.length !== 0) {
         const currentEl = queue.shift();
-        if (currentEl.friends.length !== 0) {
-            const nextFriendsNames = currentEl.friends.filter(farFriend => {
-                farFriend = getFriendObj(farFriend, friends);
+        const nextFriendsNames = currentEl.friends.filter(filterFarFriends);
+        nextLevel = nextLevel.concat(nextFriendsNames.map(name => getFriendObj(name, friends)));
 
-                return !(visited.includes(farFriend)) && !queue.includes(farFriend) &&
-                    !(farFriend === currentEl);
-            });
-            nextLevel = nextLevel.concat(nextFriendsNames.map(name => getFriendObj(name, friends)));
-        }
         visited.push(currentEl);
     }
 
