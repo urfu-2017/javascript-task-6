@@ -8,44 +8,44 @@ var lib = require('./lib');
 var friends = [
     {
         name: 'Sam',
-        friends: ['Mat', 'Sharon'],
+        friendList: ['Mat', 'Sharon'],
         gender: 'male',
         best: true
     },
     {
         name: 'Sally',
-        friends: ['Brad', 'Emily'],
+        friendList: ['Brad', 'Emily'],
         gender: 'female',
         best: true
     },
     {
         name: 'Mat',
-        friends: ['Sam', 'Sharon'],
+        friendList: ['Sam', 'Sharon'],
         gender: 'male'
     },
     {
         name: 'Sharon',
-        friends: ['Sam', 'Itan', 'Mat'],
+        friendList: ['Sam', 'Itan', 'Mat'],
         gender: 'female'
     },
     {
         name: 'Brad',
-        friends: ['Sally', 'Emily', 'Julia'],
+        friendList: ['Sally', 'Emily', 'Julia'],
         gender: 'male'
     },
     {
         name: 'Emily',
-        friends: ['Sally', 'Brad'],
+        friendList: ['Sally', 'Brad'],
         gender: 'female'
     },
     {
         name: 'Itan',
-        friends: ['Sharon', 'Julia'],
+        friendList: ['Sharon', 'Julia'],
         gender: 'male'
     },
     {
         name: 'Julia',
-        friends: ['Brad', 'Itan'],
+        friendList: ['Brad', 'Itan'],
         gender: 'female'
     }
 ];
