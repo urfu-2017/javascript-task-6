@@ -46,7 +46,7 @@ function getFriendList(friends, filter, level) {
  */
 function Iterator(friends, filter) {
     if (!(filter instanceof Filter)) {
-        throw new TypeError('!(filter instanceof Filter)');
+        throw new TypeError();
     }
 
     this.invitedFriends = getFriendList(friends, filter, Infinity);
@@ -67,8 +67,8 @@ function LimitedIterator(friends, filter, maxLevel) {
     this.invitedFriends = getFriendList(friends, filter, maxLevel);
 }
 
-LimitedIterator.prototype = Object.create(Iterator.prototype);
 LimitedIterator.prototype.constructor = LimitedIterator;
+LimitedIterator.prototype = Object.create(Iterator.prototype);
 
 /**
  * Фильтр друзей
