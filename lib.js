@@ -74,7 +74,7 @@ class Iterator {
         let waves = this.friendList.filter(friend => friend.best);
         let i = 0;
         while (waves[i]) {
-            waves[i].friends.sort().forEach(function (name) {
+            waves[i].friends.forEach(function (name) {
                 let friend = this.findFriend(name);
                 let checked = this.isChecked(friend);
                 if (!checked) {
@@ -117,7 +117,7 @@ class LimitedIterator extends Iterator {
         let waves = [...wave];
         let i = 0;
         while (i < maxLevel - 1) {
-            wave.forEach(person => person.friends.sort().forEach(function (name) {
+            wave.forEach(person => person.friends.forEach(function (name) {
                 let friend = this.findFriend(name);
                 let checked = this.isChecked(friend);
                 if (!checked) {
