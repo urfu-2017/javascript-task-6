@@ -1,7 +1,7 @@
 'use strict';
 function Iterator(friends, filter) {
     if (!(filter instanceof Filter)) {
-        throw new TypeError('not instance of');
+        throw new TypeError('not instance of Filter');
     }
     this.friendsCollection = getFriends(friends, filter, Infinity);
     this.currentIndex = 0;
@@ -14,12 +14,9 @@ function Iterator(friends, filter) {
 }
 
 function getFriends(friends, filter, maxLevel) {
-    var guestCollection = [];
-    var guests = friends.filter(friend => friend.best).sort(sortByName);
-    var checkFriends = friend => {
-        return !guestCollection.includes(friend);
-    };
-
+    let guestCollection = [];
+    let guests = friends.filter(friend => friend.best).sort(sortByName);
+    let checkFriends = friend => !guestCollection.includes(friend);
     while (guests.length && maxLevel > 0) {
         guestCollection = guestCollection.concat(guests);
         guests = getNewFriends(guests)
@@ -33,20 +30,15 @@ function getFriends(friends, filter, maxLevel) {
 }
 
 function getNewFriends(friends) {
-    return friends.reduce((newFriends, friend) =>
-        newFriends.concat(friend.friends.filter(name =>
-            !newFriends.includes(name))), []);
+    return friends.reduce(
+        (newFriends, friend) => newFriends.concat(
+            friend.friends.filter(name =>!newFriends.includes(name))
+        ),
+        []);
 }
 
 function sortByName(a, b) {
-    if (a.name > b.name) {
-        return 1;
-    }
-    if (a.name < b.name) {
-        return -1;
-    }
-
-    return 0;
+    return a.name.localeCompare(b.name);
 }
 
 /**
