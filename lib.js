@@ -1,6 +1,17 @@
 'use strict';
 /* eslint no-loop-func:  */
 
+function sortByNames(friend1, friend2) {
+    if (friend1.name < friend2.name) {
+        return -1;
+    }
+    if (friend1.name > friend2.name) {
+        return 1;
+    }
+
+    return 0;
+}
+
 /**
  * Фильтр друзей
  * @constructor
@@ -8,6 +19,28 @@
 class Filter {
     check(filter, friend) {
         return filter(friend);
+    }
+}
+
+/**
+ * Фильтр друзей
+ * @extends Filter
+ * @constructor
+ */
+class MaleFilter extends Filter {
+    check(friend) {
+        return friend.gender === 'male';
+    }
+}
+
+/**
+ * Фильтр друзей-девушек
+ * @extends Filter
+ * @constructor
+ */
+class FemaleFilter extends Filter {
+    check(friend) {
+        return friend.gender === 'female';
     }
 }
 
@@ -23,16 +56,7 @@ class Iterator {
         if (!(filter instanceof Filter)) {
             throw new TypeError();
         }
-        this.friends = friends.sort(function (friend1, friend2) {
-            if (friend1.name < friend2.name) {
-                return -1;
-            }
-            if (friend1.name > friend2.name) {
-                return 1;
-            }
-
-            return 0;
-        });
+        this.friendList = friends.sort(sortByNames);
         this.filter = filter;
         this.unchecked = [...friends];
         this.forFilter = this.getWaves();
@@ -40,16 +64,16 @@ class Iterator {
     isChecked(friend) {
         return this.unchecked.indexOf(friend) === -1;
     }
-    uncheck(friend) {
+    check(friend) {
         this.unchecked.splice(this.unchecked.indexOf(friend), 1);
     }
     findFriend(name) {
-        return this.friends.find(friend => friend.name === name);
+        return this.friendList.find(friend => friend.name === name);
     }
     getWaves() {
-        let waves = this.friends.filter(function (friend) {
+        let waves = this.friendList.filter(function (friend) {
             if (friend.best) {
-                this.uncheck(friend);
+                this.check(friend);
             }
 
             return friend.best;
@@ -60,7 +84,7 @@ class Iterator {
                 let friend = this.findFriend(name);
                 let checked = this.isChecked(friend);
                 if (!checked) {
-                    this.uncheck(friend);
+                    this.check(friend);
                     waves.push(friend);
                 }
             }.bind(this));
@@ -95,9 +119,9 @@ class LimitedIterator extends Iterator {
 
     getWaves(maxLevel) {
         let nextWave = [];
-        let wave = this.friends.filter(function (friend) {
+        let wave = this.friendList.filter(function (friend) {
             if (friend.best) {
-                this.uncheck(friend);
+                this.check(friend);
             }
 
             return friend.best;
@@ -109,7 +133,7 @@ class LimitedIterator extends Iterator {
                 let friend = this.findFriend(name);
                 let checked = this.isChecked(friend);
                 if (!checked) {
-                    this.uncheck(friend);
+                    this.check(friend);
                     nextWave.push(friend);
                 }
             }.bind(this)));
@@ -120,28 +144,6 @@ class LimitedIterator extends Iterator {
         }
 
         return waves.filter(this.filter.check);
-    }
-}
-
-/**
- * Фильтр друзей
- * @extends Filter
- * @constructor
- */
-class MaleFilter extends Filter {
-    check(friend) {
-        return friend.gender === 'male';
-    }
-}
-
-/**
- * Фильтр друзей-девушек
- * @extends Filter
- * @constructor
- */
-class FemaleFilter extends Filter {
-    check(friend) {
-        return friend.gender === 'female';
     }
 }
 
