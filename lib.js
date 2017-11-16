@@ -134,7 +134,11 @@ class Iterator {
         };
 
         this.done = function () {
-            return this.end;
+            if (this.end === 1) {
+                return true;
+            }
+
+            return false;
         };
 
         this.checkFinish = function () {
