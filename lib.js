@@ -28,7 +28,7 @@ function findFriendsLevel(currentFriends, friends) {
                 .sort(compareName);
         }, []);
 
-        return acc.concat(friendsOfFriend);
+        return friendsOfFriend.concat(acc);
     }, []).filter(friend => !(currentFriends.includes(friend)));
 }
 
