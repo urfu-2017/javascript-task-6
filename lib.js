@@ -52,7 +52,7 @@ class Iterator {
             throw new TypeError('type of param "filter" is not Filter');
         }
 
-        var values = { 'circle': 1, 'current': 0, 'end': false,
+        var values = { 'circle': 1, 'current': 0, 'end': 0,
             '_subfriends': [], 'friendOfFriends': [], 'checkedFriends': [],
             '_true': true, 'results': 0, 'count': 0 };
 
@@ -143,7 +143,7 @@ class Iterator {
 
         this.checkFinish = function () {
             if (this.friendOfFriends.length === 0) {
-                this.end = true;
+                this.end = 1;
             }
         };
 
@@ -172,7 +172,7 @@ class LimitedIterator extends Iterator {
         this.checkFinish = function () {
             if (this.friendOfFriends.length === 0 ||
                 this.circle > maxLevel) {
-                this.end = true;
+                this.end = 1;
             }
         };
 
