@@ -17,7 +17,7 @@ function filterFriends(friends, filter, maxLevel) {
     let friendList = [];
     let haveCheck = [];
     let nextLevel = [];
-    while (levelNow.length && maxLevel) {
+    while (levelNow.length && maxLevel > 0) {
         let firstActualFriend = levelNow.pop();
         if (filter.filter(firstActualFriend) && !haveCheck.includes(firstActualFriend.name)) {
             friendList.push(firstActualFriend);
