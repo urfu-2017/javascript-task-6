@@ -41,7 +41,7 @@ function getFriendsUpToLvl(friends, lvl) { // eslint-disable-line max-statements
     while (lvl > 0 && box1.length > 0) {
         var box2 = [];
         box1.sort(function (a, b) {
-            return a > b;
+            return a.name  > b.name;
         });
         box1.map(function (friend) { // eslint-disable-line array-callback-return, no-loop-func
             if (!friendsUpToLvl.includes(friend)) {
