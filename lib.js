@@ -49,7 +49,7 @@ function getFriendsUpToLvl(friends, lvl) { // eslint-disable-line max-statements
                 box2 = collectAllFrineds(box2, friend, friends);
             }
         });
-        box1 = box2.slice();
+        box1 = box2.slice(0);
         lvl -= 1;
     }
 
