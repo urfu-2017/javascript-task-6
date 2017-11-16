@@ -27,23 +27,23 @@ function Iterator(friends, filter) {
 
 function orderFriends(friends) {
     const queue = [];
-    const result = [];
+    const allLevels = [];
     const visited = [];
     let nextLevel = friends
         .filter(friend => friend.best);
     while (getUnvisited(friends, visited).length !== 0) {
-        if (result.length !== 0) {
+        if (allLevels.length !== 0) {
             nextLevel = createNewLevel(queue, visited, friends);
         }
         if (nextLevel.length === 0) {
             break;
         }
         nextLevel.sort(sortByName);
-        result.push(nextLevel);
+        allLevels.push(nextLevel);
         nextLevel.forEach(friend => queue.push(friend));
     }
 
-    return result;
+    return allLevels;
 }
 
 function createNewLevel(queue, visited, friends) {
@@ -55,11 +55,11 @@ function createNewLevel(queue, visited, friends) {
                 !(nextLevel.includes(farFriend));
     }
     while (queue.length !== 0) {
-        const currentEl = queue.shift();
-        const nextFriendsNames = currentEl.friends.filter(filterFarFriends);
+        const currentFriend = queue.shift();
+        const nextFriendsNames = currentFriend.friends.filter(filterFarFriends);
         nextLevel = nextLevel.concat(nextFriendsNames.map(name => getFriendObj(name, friends)));
 
-        visited.push(currentEl);
+        visited.push(currentFriend);
     }
 
     return nextLevel;
@@ -91,9 +91,8 @@ function sortByName(a, b) {
  * @param {Number} maxLevel – максимальный круг друзей
  */
 function LimitedIterator(friends, filter, maxLevel) {
-    if (maxLevel < 0) {
-        maxLevel = 0;
-    }
+    maxlevel = maxLevel < 0 ? 0 : maxLevel;
+    
     Iterator.call(this, friends, filter);
     this.orderedFriendsByLevel = orderFriends(friends)
         .slice(0, maxLevel)
