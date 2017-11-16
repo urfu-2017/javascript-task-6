@@ -2,7 +2,7 @@
 function getFriends(friends, filter, level) {
 
     if (level === undefined) {
-        level = friends.length + 5;
+        level = friends.length;
     }
     var resultFriends = [];
     var best = getBest(friends);
@@ -15,13 +15,12 @@ function getFriends(friends, filter, level) {
 
     resultFriends = resultFriends.concat(best);
 
-    while (level > 1 && resultFriends.length !== friends.length) {
-        var tempFriends = getTempFriend(resultFriends, friends);
+    while (level > 1 && best.length !== 0) {
+        var tempFriends = getTempFriend(best, friends, resultFriends);
         tempFriends = tempFriends.sort(sortByName);
         resultFriends = resultFriends.concat(tempFriends);
+        best = tempFriends;
         level --;
-        tempFriends = [];
-
     }
 
     return resultFriends.filter(filter.checkGender);
@@ -49,9 +48,9 @@ function sortByName(a, b) {
     return 0;
 }
 
-function getTempFriend(resultFriends, friends) {
+function getTempFriend(best, friends, resultFriends) {
     var tempFriends = [];
-    resultFriends.forEach(function (person) {
+    best.forEach(function (person) {
         person.friends.forEach(function (buddy) {
             if (noBuddy(buddy, resultFriends)) {
                 tempFriends.push(getBuddyObject(buddy, friends));
@@ -62,10 +61,10 @@ function getTempFriend(resultFriends, friends) {
     return tempFriends;
 }
 
-function noBuddy(buddy, resultFriends) {
+function noBuddy(buddy, best) {
 
     var res = true;
-    resultFriends.forEach(function (guy) {
+    best.forEach(function (guy) {
         if (guy.name === buddy) {
             res = false;
         }
@@ -175,6 +174,7 @@ function FemaleFilter() {
 
 FemaleFilter.prototype = Object.create(Filter.prototype);
 FemaleFilter.prototype.constructor = FemaleFilter;
+
 
 exports.Iterator = Iterator;
 exports.LimitedIterator = LimitedIterator;
