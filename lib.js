@@ -2,22 +2,17 @@
 function getFriends(friends, filter, level) {
 
     if (level === undefined) {
-        level = friends.length;
+        level = Infinity;
     }
     var resultFriends = [];
-    var best = getBest(friends);
-
-    if (best.length === 0) {
-        return [];
-    }
-    best = best.sort(sortByName);
+    var best = getBest(friends).sort(sortByName);
 
 
     resultFriends = resultFriends.concat(best);
 
     while (level > 1 && best.length !== 0) {
         var tempFriends = getTempFriend(best, friends, resultFriends);
-        tempFriends = tempFriends.sort(sortByName);
+        tempFriends = removeDuplicates(tempFriends.sort(sortByName));
         resultFriends = resultFriends.concat(tempFriends);
         best = tempFriends;
         level --;
@@ -83,6 +78,21 @@ function getBuddyObject(buddy, friends) {
 
     return frnd;
 
+}
+
+function removeDuplicates(array) {
+    var result = [];
+    if (array[0] !== undefined) {
+        result.push(array[0]);
+    }
+
+    array.forEach(function (friend) {
+        if (friend.name !== result[result.length - 1].name) {
+            result.push(friend);
+        }
+    });
+
+    return result;
 }
 
 /**
