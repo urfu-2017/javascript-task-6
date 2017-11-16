@@ -137,6 +137,7 @@ function MaleFilter() {
 }
 
 MaleFilter.prototype = Object.create(Filter.prototype);
+MaleFilter.prototype.constructor = MaleFilter;
 
 /**
  * Фильтр друзей-девушек
