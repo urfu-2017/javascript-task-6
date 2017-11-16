@@ -12,7 +12,7 @@ function collectAllFrineds(storage, friend, friends) {
     var friendsToAdd = friend.friends;
     for (var q = 0; q < friendsToAdd.length; q ++) {
         if (!storage.includes(friendsToAdd[q])) {
-            storage.push(getFriendByName(friends,friendsToAdd[q]));
+            storage.push(getFriendByName(friends, friendsToAdd[q]));
         }
     }
 
@@ -44,7 +44,6 @@ function getFriendsUpToLvl(friends, lvl) { // eslint-disable-line max-statements
             return a > b;
         });
         box1.map(function (friend) { // eslint-disable-line array-callback-return, no-loop-func
-           // friend = getFriendByName(friends, friend);
             if (!friendsUpToLvl.includes(friend)) {
                 friendsUpToLvl.push(friend);
                 box2 = collectAllFrineds(box2, friend, friends);
