@@ -4,14 +4,14 @@
 const friendComparer = (x, y) => x.name.localeCompare(y.name);
 
 function getAllFriends(friends, maxLevel, layer, result = []) {
-    if (maxLevel <= 0)
+    if (maxLevel <= 0 || !layer.length)
         return result;
     result.push(...layer.sort(friendComparer));
     let visited = new Set(result.map(x => x.name));
     let names = [].concat(...layer.map(x => x.friends));
     names = [...new Set(names)].filter(x => !visited.has(x));
     let nextLayer = names.map(x => friends.find(y => y.name === x));
-    return names.length ? getAllFriends(friends, --maxLevel, nextLayer, result) : result;
+    return getAllFriends(friends, --maxLevel, nextLayer, result);
 }
 
 function child(superClass, ...injectedArgs) {
