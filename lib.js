@@ -58,7 +58,7 @@ class Iterator {
         }
         this.friendList = friends.sort(sortByNames);
         this.filter = filter;
-        this.unchecked = [...friends];
+        this.unchecked = friends.filter(friend => !friend.best);
         this.forFilter = this.getWaves();
     }
     isChecked(friend) {
@@ -71,16 +71,10 @@ class Iterator {
         return this.friendList.find(friend => friend.name === name);
     }
     getWaves() {
-        let waves = this.friendList.filter(function (friend) {
-            if (friend.best) {
-                this.check(friend);
-            }
-
-            return friend.best;
-        }.bind(this));
+        let waves = this.friendList.filter(friend => friend.best);
         let i = 0;
         while (waves[i]) {
-            waves[i].friends.forEach(function (name) {
+            waves[i].friends.sort().forEach(function (name) {
                 let friend = this.findFriend(name);
                 let checked = this.isChecked(friend);
                 if (!checked) {
@@ -119,13 +113,7 @@ class LimitedIterator extends Iterator {
 
     getWaves(maxLevel) {
         let nextWave = [];
-        let wave = this.friendList.filter(function (friend) {
-            if (friend.best) {
-                this.check(friend);
-            }
-
-            return friend.best;
-        }.bind(this));
+        let wave = this.friendList.filter(friend => friend.best);
         let waves = [...wave];
         let i = 0;
         while (i < maxLevel - 1) {
