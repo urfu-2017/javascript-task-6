@@ -1,9 +1,7 @@
 'use strict';
 function getFriends(friends, filter, level) {
 
-    if (level === undefined) {
-        level = Infinity;
-    }
+    level = level || Infinity;
     var resultFriends = [];
     var best = getBest(friends).sort(sortByName);
 
@@ -18,22 +16,30 @@ function getFriends(friends, filter, level) {
         // добавляем друзей друзей в результирующий массив
         best = tempFriends;
         // обновляем массив, чтобы на след. итерации начать с них
-        level --;
+        level--;
     }
 
     return resultFriends.filter(filter.checkGender);
 }
 
 function getBest(friends) {
-    var best = [];
-    friends.forEach(function (friend) {
-        if (friend.best === true) {
-            best.push(friend);
+    return friends.reduce(function (sum, friend) {
+        if (friend.best) {
+            sum.push(friend);
         }
-    });
+        // sum = friend.best?sum.push(friend):sum; Не могу понять почему эта конструкция не работает
 
-    return best;
+        return sum;
+    }, []);
 }
+
+/* Мне кажется фильтром проще, либо я reduce неправильно написал
+function getBest(friends) {
+    return friends.filter(function (friend) {
+        return friend.best;
+    });
+}
+*/
 
 function sortByName(a, b) {
     if (a.name > b.name) {
@@ -60,7 +66,6 @@ function getTempFriend(best, friends, resultFriends) {
 }
 
 function noBuddy(buddy, best) {
-
     var res = true;
     best.forEach(function (guy) {
         if (guy.name === buddy) {
@@ -80,7 +85,6 @@ function getBuddyObject(buddy, friends) {
     });
 
     return frnd;
-
 }
 
 function removeDuplicates(array) {
@@ -106,7 +110,7 @@ function removeDuplicates(array) {
  */
 function Iterator(friends, filter) {
     if (!(filter instanceof Filter)) {
-        throw new TypeError('ты прислал мне какую-то дичь');
+        throw new TypeError('неправильный инстанс filter');
     }
 
     this.friendsList = getFriends(friends, filter);
@@ -139,7 +143,7 @@ Iterator.prototype.next = function () {
  */
 function LimitedIterator(friends, filter, maxLevel) {
     if (!(filter instanceof Filter)) {
-        throw new TypeError('ты прислал мне какую-то дичь');
+        throw new TypeError('неправильный инстанс filter');
     }
     if (maxLevel >= 1) {
         this.friendsList = getFriends(friends, filter, maxLevel);
