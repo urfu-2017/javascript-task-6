@@ -1,22 +1,6 @@
 'use strict';
 
 /**
- * Находим друга в исходном массиве по имени
- * @param {Object[]} friends
- * @param {String} friendName
- * @returns {Object}
- */
-function getFriendByName(friends, friendName) {
-    for (let friend of friends) {
-        if (friend.name === friendName) {
-            return friend;
-        }
-    }
-
-    return undefined;
-}
-
-/**
  * Сравниваем друзей по именам
  * @param {Object} friend1
  * @param {Object} friend2
@@ -51,11 +35,11 @@ function getNextLevel(friends, friendsOnCurrentLevel, invitedFriends) {
     let nextLevel = [];
     for (let currentFriend of friendsOnCurrentLevel) {
         for (let friendName of currentFriend.friends) {
-            nextLevel = pushFriend(nextLevel, getFriendByName(friends, friendName));
+            nextLevel = pushFriend(nextLevel, friends.find(friend => friend.name === friendName));
         }
     }
     nextLevel = nextLevel.filter(friend =>
-        getFriendByName(invitedFriends, friend.name) === undefined);
+        invitedFriends.find(friend_ => friend.name === friend_.name) === undefined);
 
     return nextLevel;
 }
@@ -183,4 +167,3 @@ exports.LimitedIterator = LimitedIterator;
 exports.Filter = Filter;
 exports.MaleFilter = MaleFilter;
 exports.FemaleFilter = FemaleFilter;
-exports.isStar = true;
