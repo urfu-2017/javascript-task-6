@@ -1,10 +1,6 @@
 'use strict';
 
 function getFriends(friends, filter, maxLevel = Infinity) {
-    if (maxLevel <= 0) {
-        return [];
-    }
-
     let guestArray = [];
     let invetedFriends = friends
         .filter(f => f.best)
@@ -55,11 +51,15 @@ function Iterator(friends, filter) {
  * @param {Number} maxLevel – максимальный круг друзей
  */
 function LimitedIterator(friends, filter, maxLevel) {
+    if (!(maxLevel > 0)) {
+        this.done = () => true;
+    }
     Iterator.call(this, friends, filter);
     this.friends = getFriends(friends, filter, maxLevel);
 }
 
-Object.setPrototypeOf(LimitedIterator, Iterator);
+LimitedIterator.prototype = Object.create(Iterator.prototype);
+LimitedIterator.prototype.constructor = LimitedIterator;
 
 /**
  * Фильтр друзей
@@ -78,7 +78,8 @@ function MaleFilter() {
     this.condition = f => f.gender === 'male';
 }
 
-Object.setPrototypeOf(MaleFilter.prototype, Filter.prototype);
+MaleFilter.prototype = Object.create(Filter.prototype);
+MaleFilter.prototype.constructor = MaleFilter;
 
 /**
  * Фильтр друзей-девушек
@@ -89,8 +90,8 @@ function FemaleFilter() {
     this.condition = f => f.gender === 'female';
 }
 
-Object.setPrototypeOf(FemaleFilter.prototype, Filter.prototype);
-
+FemaleFilter.prototype = Object.create(Filter.prototype);
+FemaleFilter.prototype.constructor = FemaleFilter;
 
 exports.Iterator = Iterator;
 exports.LimitedIterator = LimitedIterator;
