@@ -115,3 +115,4 @@ exports.LimitedIterator = LimitedIterator;
 exports.Filter = Filter;
 exports.MaleFilter = MaleFilter;
 exports.FemaleFilter = FemaleFilter;
+exports.isStar = true;
