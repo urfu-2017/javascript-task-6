@@ -18,9 +18,10 @@ function compareName(a, b) {
 function inviteFriends(invited, friends) {
     let allFriends = invited.reduce(function (acc, friend) {
 
-        return acc.concat(friend.friends.filter(a => !(acc.includes(a)) &&
-            !(invited.some(b => b.name === a))))
-            .sort(compareName);
+        return friend.friends.filter(a => !(acc.includes(a)) &&
+            !(invited.some(b => b.name === a)))
+            .sort(compareName)
+            .concat(acc);
     }, []);
 
     return allFriends.map(a => friends.filter(b => b.name === a)[0]).concat(invited);
@@ -31,7 +32,7 @@ function findFriends(friends, level) {
 
         return [];
     }
-    let invited = friends.filter(friend => friend.best);
+    let invited = friends.filter(friend => friend.best).sort(compareName);
     let moreInvited = inviteFriends(invited, friends);
     while (invited.length !== moreInvited.length && level > 1) {
         invited = moreInvited;
