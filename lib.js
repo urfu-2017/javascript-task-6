@@ -36,7 +36,7 @@ class Iterator {
     }
 
     completeCollection(friends, filter, maxLevel) {
-        if (!maxLevel) {
+        if (maxLevel <= 0) {
             return [];
         }
         let friendsMap = {};
