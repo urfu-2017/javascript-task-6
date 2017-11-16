@@ -5,7 +5,7 @@ let lib = require('./lib');
 let friends = [
     {
         name: 'Sam',
-        friends: ['Mat', 'Sharon'],
+        friends: ['Mat', 'Sharon', 'Julia'],
         gender: 'male',
         best: true
     },

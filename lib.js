@@ -1,11 +1,21 @@
 'use strict';
 /* eslint no-loop-func:  */
 
-function sortByNames(friend1, friend2) {
-    if (friend1.name < friend2.name) {
+function sortNames(name1, name2) {
+    if (name1 < name2) {
         return -1;
     }
-    if (friend1.name > friend2.name) {
+    if (name1 > name2) {
+        return 1;
+    }
+
+    return 0;
+}
+function sortByNames(friend1, friend2) {
+    if (friend1.name.toLowerCase() < friend2.name.toLowerCase()) {
+        return -1;
+    }
+    if (friend1.name.toLowerCase() > friend2.name.toLowerCase()) {
         return 1;
     }
 
@@ -74,7 +84,7 @@ class Iterator {
         let toInvite = this.friendList.filter(friend => friend.best);
         let i = 0;
         while (toInvite[i]) {
-            toInvite[i].friends.sort().forEach(function (name) {
+            toInvite[i].friends.sort(sortNames).forEach(function (name) {
                 let friend = this.findFriend(name);
                 let checked = this.isChecked(friend);
                 if (!checked) {
@@ -107,7 +117,7 @@ class LimitedIterator extends Iterator {
      */
     constructor(friends, filter, maxLevel) {
         super(friends, filter);
-        this.unchecked = [...friends];
+        this.unchecked = friends.filter(friend => !friend.best);
         this.inviteList = this.getInviteList(maxLevel);
     }
 
@@ -117,7 +127,7 @@ class LimitedIterator extends Iterator {
         let toInvite = [...currentWave];
         let i = 0;
         while (i < maxLevel - 1) {
-            currentWave.forEach(person => person.friends.sort().forEach(function (name) {
+            currentWave.forEach(person => person.friends.sort(sortNames).forEach(function (name) {
                 let friend = this.findFriend(name);
                 let checked = this.isChecked(friend);
                 if (!checked) {
