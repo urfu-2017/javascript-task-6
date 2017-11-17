@@ -2,21 +2,25 @@
 
 function getFriends(friends, filter, maxLevel = Infinity) {
     let guestArray = [];
-    let invetedFriends = friends
-        .filter(f => f.best)
-        .sort((a, b) => a.name > b.name);
-    let notInvited = f => !guestArray.includes(f);
+    let invitedFriends = inviteBestFriends(friends);
+    let notInvited = friend => !guestArray.includes(friend);
 
-    while (maxLevel > 0 && invetedFriends.length) {
-        guestArray = guestArray.concat(invetedFriends);
-        invetedFriends = inviteNewFriends(invetedFriends)
-            .map(name => friends.find(f => f.name === name))
+    while (maxLevel > 0 && invitedFriends.length) {
+        guestArray = guestArray.concat(invitedFriends);
+        invitedFriends = inviteNewFriends(invitedFriends)
+            .map(name => friends.find(friend => friend.name === name))
             .filter(notInvited)
             .sort((a, b) => a.name > b.name);
         maxLevel--;
     }
 
     return guestArray.filter((f) => filter.condition(f));
+}
+
+function inviteBestFriends(friends) {
+    return friends
+        .filter(friend => friend.best)
+        .sort((a, b) => a.name > b.name);
 }
 
 function inviteNewFriends(friends) {
@@ -75,7 +79,7 @@ function Filter() {
  * @constructor
  */
 function MaleFilter() {
-    this.condition = f => f.gender === 'male';
+    this.condition = friend => friend.gender === 'male';
 }
 
 MaleFilter.prototype = Object.create(Filter.prototype);
@@ -87,7 +91,7 @@ MaleFilter.prototype.constructor = MaleFilter;
  * @constructor
  */
 function FemaleFilter() {
-    this.condition = f => f.gender === 'female';
+    this.condition = friend => friend.gender === 'female';
 }
 
 FemaleFilter.prototype = Object.create(Filter.prototype);
