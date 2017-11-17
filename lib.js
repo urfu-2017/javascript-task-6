@@ -5,7 +5,7 @@
  * @constructor
  */
 class Filter {
-    _callback() {
+    callback() {
         return true;
     }
 }
@@ -16,7 +16,7 @@ class Filter {
  * @constructor
  */
 class MaleFilter extends Filter {
-    _callback(friend) {
+    callback(friend) {
         return friend.gender === 'male';
     }
 }
@@ -27,7 +27,7 @@ class MaleFilter extends Filter {
  * @constructor
  */
 class FemaleFilter extends Filter {
-    _callback(friend) {
+    callback(friend) {
         return friend.gender === 'female';
     }
 }
@@ -39,11 +39,19 @@ class FemaleFilter extends Filter {
  * @param {Filter} filter
  */
 class Iterator {
-    constructor(friends, filter, level = Infinity) {
+    constructor(friends, filter) {
         this._checkFilter(filter);
-        this._invitedFriends = makeFriendsList(friends, filter, level);
+        this._level = Infinity;
+        this._friends = friends;
+        this._filter = filter;
+        this._isInvitedFriendsInitialized = false;
+    }
+
+    _initializeInvitedFriends() {
+        this._invitedFriends = makeInvitedFriendsList(this._friends, this._filter, this._level);
         this._iterator = this._invitedFriends[Symbol.iterator]();
         this._current = this._iterator.next();
+        this._isInvitedFriendsInitialized = true;
     }
 
     _checkFilter(filter) {
@@ -53,6 +61,10 @@ class Iterator {
     }
 
     next() {
+        if (!this._isInvitedFriendsInitialized) {
+            this._initializeInvitedFriends();
+        }
+
         let prev = this._current;
         this._current = this._iterator.next();
 
@@ -60,6 +72,10 @@ class Iterator {
     }
 
     done() {
+        if (!this._isInvitedFriendsInitialized) {
+            this._initializeInvitedFriends();
+        }
+
         return this._current.done;
     }
 }
@@ -74,32 +90,32 @@ class Iterator {
  */
 class LimitedIterator extends Iterator {
     constructor(friends, filter, level) {
-        super(friends, filter, level);
+        super(friends, filter);
+        this._level = level;
     }
 }
 
 
 let nameCompare = (a, b) => a.name < b.name ? -1 : 1;
 
-function makeFriendsList(friends, filter, level) {
+function makeInvitedFriendsList(friends, filter, level) {
     let currentLevelFriends = friends.filter(friend => friend.best).sort(nameCompare);
     let invitedFriends = [];
 
     while (level > 0 && currentLevelFriends.length !== 0) {
         invitedFriends = invitedFriends.concat(currentLevelFriends);
-        let nextLevelFriends = getNextLevel(friends, invitedFriends, currentLevelFriends);
-        currentLevelFriends = nextLevelFriends;
+        currentLevelFriends = getNextLevel(friends, invitedFriends, currentLevelFriends);
         level--;
     }
 
-    return invitedFriends.filter(filter._callback);
+    return invitedFriends.filter(filter.callback);
 }
 
 function getNextLevel(allFriends, invitedFriends, currentLevelFriends) {
     let nextLevelFriends = [];
     currentLevelFriends.forEach(friend => {
         let nextFriends = getNextFromFriend(friend, invitedFriends, allFriends);
-        nextFriends = nextFriends.filter(friend_ => !nextLevelFriends.includes(friend_));
+        nextFriends = nextFriends.filter(nextFriend => !nextLevelFriends.includes(nextFriend));
         nextLevelFriends = nextLevelFriends.concat(nextFriends);
     });
 
