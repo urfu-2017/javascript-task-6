@@ -11,7 +11,7 @@ function getFriends(friends, filter, level) {
         var tempFriends = getTempFriend(best, friends, resultFriends);
         // получаем массив друзей друзей
         tempFriends = removeDuplicates(tempFriends.sort(sortByName));
-        // сортируем и убираем оттуда дубликаты 
+        // сортируем и убираем оттуда дубликаты
         resultFriends = resultFriends.concat(tempFriends);
         // добавляем друзей друзей в результирующий массив
         best = tempFriends;
@@ -27,19 +27,10 @@ function getBest(friends) {
         if (friend.best) {
             sum.push(friend);
         }
-        // sum = friend.best?sum.push(friend):sum; Не могу понять почему эта конструкция не работает
 
         return sum;
     }, []);
 }
-
-/* Мне кажется фильтром проще, либо я reduce неправильно написал
-function getBest(friends) {
-    return friends.filter(function (friend) {
-        return friend.best;
-    });
-}
-*/
 
 function sortByName(a, b) {
     if (a.name > b.name) {
@@ -66,30 +57,25 @@ function getTempFriend(best, friends, resultFriends) {
 }
 
 function noBuddy(buddy, best) {
-    var res = true;
-    best.forEach(function (guy) {
-        if (guy.name === buddy) {
-            res = false;
-        }
+    var res = best.some(function (guy) {
+        return guy.name === buddy;
     });
 
-    return res;
+    return !res;
 }
 
 function getBuddyObject(buddy, friends) {
     var frnd = {};
-    friends.forEach(function (friend) {
-        if (friend.name === buddy) {
-            frnd = friend;
-        }
+    frnd = friends.filter(function (friend) {
+        return friend.name === buddy;
     });
 
-    return frnd;
+    return frnd[0];
 }
 
 function removeDuplicates(array) {
     var result = [];
-    if (array[0] !== undefined) {
+    if (array[0]) {
         result.push(array[0]);
     }
 
@@ -145,13 +131,12 @@ function LimitedIterator(friends, filter, maxLevel) {
     if (!(filter instanceof Filter)) {
         throw new TypeError('неправильный инстанс filter');
     }
+    Iterator.call(this, friends, filter);
     if (maxLevel >= 1) {
         this.friendsList = getFriends(friends, filter, maxLevel);
     } else {
         this.friendsList = [];
     }
-
-    this.i = 0;
 }
 
 LimitedIterator.prototype = Object.create(Iterator.prototype);
