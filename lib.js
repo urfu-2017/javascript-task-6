@@ -1,20 +1,20 @@
 'use strict';
 
-var levels = {
+const levels = {
     level: undefined,
     friends: undefined,
     names: []
 };
 
-function functionCompareByName(friend, friendNext) {
+const functionCompareByName = function (friend, friendNext) {
 
     return friend.name > friendNext.name ? 1 : -1;
 }
 
 function onlyConnectedFriends(allFriends) {
-    var allFriendsFriends = [];
+    let allFriendsFriends = [];
     allFriends.forEach(function (item) {
-        if (item.friends === undefined || item.friends.indexOf(undefined) !== -1) {
+        if (!item.friends || !item.friends.length) {
             throw new TypeError('friends of ungefined');
         }
         item.friends.forEach(function (friendItem) {
@@ -26,10 +26,10 @@ function onlyConnectedFriends(allFriends) {
 }
 
 function findBestFriends(arg, allFriends, noInviteFriends) {
-    var friendsOnLevel = Object.create(levels);
+    const friendsOnLevel = Object.create(levels);
     friendsOnLevel.level = 0;
-    var namesAllPeople = arg[0];
-    var sortFriends = arg[1];
+    let namesAllPeople = arg[0];
+    let sortFriends = arg[1];
     friendsOnLevel.friends = allFriends.filter(function (item) {
         if (item.best) {
             choiceFriend(item, friendsOnLevel.names);
@@ -47,30 +47,30 @@ function findBestFriends(arg, allFriends, noInviteFriends) {
 }
 
 function choiceFriendsOnLevel(allFriends) {
-    var sortFriends = [];
-    var noInviteFriends = [];
-    var namesAllPeople = onlyConnectedFriends(allFriends);
-    var argument1 = [namesAllPeople, sortFriends];
+    let sortFriends = [];
+    let noInviteFriends = [];
+    let namesAllPeople = onlyConnectedFriends(allFriends);
+    let argument1 = [namesAllPeople, sortFriends];
     findBestFriends(argument1, allFriends, noInviteFriends);
     if (sortFriends[0].friends.length === 0) {
 
         return [];
     }
-    var argument2 = [noInviteFriends, sortFriends];
+    let argument2 = [noInviteFriends, sortFriends];
     findFriends(argument2);
 
     return sortFriends;
 }
 
 function findFriends(arg) {
-    var noInviteFriends = arg[0];
-    var sortFriends = arg[1];
-    var iteration = 1;
+    let noInviteFriends = arg[0];
+    let sortFriends = arg[1];
+    let iteration = 1;
     while (noInviteFriends.length !== 0) {
-        var friendsLevel = Object.create(levels);
+        const friendsLevel = Object.create(levels);
         friendsLevel.level = iteration;
-        var choiceFriends = [];
-        var argument = [noInviteFriends, sortFriends, friendsLevel];
+        let choiceFriends = [];
+        let argument = [noInviteFriends, sortFriends, friendsLevel];
         inspection(argument, iteration, choiceFriends);
         friendsLevel.friends = choiceFriends.sort(functionCompareByName);
         sortFriends.push(friendsLevel);
@@ -79,12 +79,12 @@ function findFriends(arg) {
 }
 
 function inspection(arg, iteration, choiceFriends) {
-    var noInviteFriends = arg[0];
-    var sortFriends = arg[1];
-    var friendsLevel = arg[2];
-    var namesFriends = [];
-    for (var i = 0; i < noInviteFriends.length; i++) {
-        var indexNamePeople = sortFriends[iteration - 1].names.indexOf(noInviteFriends[i].name);
+    let noInviteFriends = arg[0];
+    let sortFriends = arg[1];
+    let friendsLevel = arg[2];
+    let namesFriends = [];
+    for (let i = 0; i < noInviteFriends.length; i++) {
+        let indexNamePeople = sortFriends[iteration - 1].names.indexOf(noInviteFriends[i].name);
         if (indexNamePeople !== -1) {
             choiceFriends.push(noInviteFriends[i]);
             choiceFriend(noInviteFriends[i], namesFriends);
@@ -97,7 +97,7 @@ function inspection(arg, iteration, choiceFriends) {
 
 function choiceFriend(item, friendsFriendsOnLevel) {
     item.friends.forEach(function (nameFriendItem) {
-        if (friendsFriendsOnLevel.indexOf(nameFriendItem) === -1) {
+        if (!friendsFriendsOnLevel.includes(nameFriendItem)) {
             friendsFriendsOnLevel.push(nameFriendItem);
         }
     });
@@ -113,14 +113,14 @@ function Iterator(friends, filter) {
     if (!(filter instanceof Filter)) {
         throw new TypeError('Filter не является прототипом filter');
     }
-    var workWithFriends = choiceFriendsOnLevel(friends, filter);
-    var maxLevel = arguments[2] >= 0 ? arguments[2] : Infinity;
+    let workWithFriends = choiceFriendsOnLevel(friends, filter);
+    let maxLevel = arguments[2] >= 0 ? arguments[2] : Infinity;
     this.inviteFriends = filterFriendsByGender(workWithFriends, filter, maxLevel);
     this.indexFriend = 0;
 }
 
 function filterFriendsByGender(friends, filter, maxLevel) {
-    var friendsFilter = [];
+    let friendsFilter = [];
     friends.forEach(function (item) {
         if (item.level < maxLevel) {
             item.friends.forEach(function (friend) {
@@ -165,8 +165,9 @@ function LimitedIterator(friends, filter, maxLevel) {
 }
 
 LimitedIterator.prototype = Object.create(Iterator.prototype);
+LimitedIterator.prototype.constructor = LimitedIterator;
 
-var allFilters = {
+let allFilters = {
     aFilter: function () {
 
         return true;
@@ -205,6 +206,7 @@ function MaleFilter() {
 }
 
 MaleFilter.prototype = Object.create(Filter.prototype);
+MaleFilter.prototype.constructor = MaleFilter;
 
 /**
  * Фильтр друзей-девушек
@@ -217,6 +219,7 @@ function FemaleFilter() {
 }
 
 FemaleFilter.prototype = Object.create(Filter.prototype);
+FemaleFilter.prototype.constructor = FemaleFilter;
 
 exports.Iterator = Iterator;
 exports.LimitedIterator = LimitedIterator;
