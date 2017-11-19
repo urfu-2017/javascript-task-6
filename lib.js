@@ -165,7 +165,7 @@ function LimitedIterator(friends, filter, maxLevel) {
 }
 
 LimitedIterator.prototype = Object.create(Iterator.prototype);
-LimitedIterator.prototype.constructor = LimitedIterator;
+// LimitedIterator.prototype.constructor = LimitedIterator;
 
 let allFilters = {
     aFilter: function () {
