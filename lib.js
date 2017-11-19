@@ -6,13 +6,13 @@ const levels = {
     names: []
 };
 
-const functionCompareByName = function (friend, friendNext) {
+function functionCompareByName (friend, friendNext) {
 
     return friend.name > friendNext.name ? 1 : -1;
 };
 
 function onlyConnectedFriends(allFriends) {
-    let allFriendsFriends = [];
+    const allFriendsFriends = [];
     allFriends.forEach(function (item) {
         if (!item.friends || !item.friends.length) {
             throw new TypeError('friends of ungefined');
@@ -29,7 +29,7 @@ function findBestFriends(arg, allFriends, noInviteFriends) {
     const friendsOnLevel = Object.create(levels);
     friendsOnLevel.level = 0;
     let namesAllPeople = arg[0];
-    let sortFriends = arg[1];
+    const sortFriends = arg[1];
     friendsOnLevel.friends = allFriends.filter(function (item) {
         if (item.best) {
             choiceFriend(item, friendsOnLevel.names);
@@ -47,7 +47,7 @@ function findBestFriends(arg, allFriends, noInviteFriends) {
 }
 
 function choiceFriendsOnLevel(allFriends) {
-    let sortFriends = [];
+    const sortFriends = [];
     let noInviteFriends = [];
     let namesAllPeople = onlyConnectedFriends(allFriends);
     let argument1 = [namesAllPeople, sortFriends];
@@ -64,7 +64,7 @@ function choiceFriendsOnLevel(allFriends) {
 
 function findFriends(arg) {
     let noInviteFriends = arg[0];
-    let sortFriends = arg[1];
+    const sortFriends = arg[1];
     let iteration = 1;
     while (noInviteFriends.length !== 0) {
         const friendsLevel = Object.create(levels);
@@ -80,7 +80,7 @@ function findFriends(arg) {
 
 function inspection(arg, iteration, choiceFriends) {
     let noInviteFriends = arg[0];
-    let sortFriends = arg[1];
+    const sortFriends = arg[1];
     let friendsLevel = arg[2];
     let namesFriends = [];
     for (let i = 0; i < noInviteFriends.length; i++) {
@@ -165,7 +165,7 @@ function LimitedIterator(friends, filter, maxLevel) {
 }
 
 LimitedIterator.prototype = Object.create(Iterator.prototype);
-// LimitedIterator.prototype.constructor = LimitedIterator;
+LimitedIterator.prototype.constructor = LimitedIterator;
 
 let allFilters = {
     aFilter: function () {
@@ -206,6 +206,7 @@ function MaleFilter() {
 }
 
 MaleFilter.prototype = Object.create(Filter.prototype);
+MaleFilter.prototype.constructor = MaleFilter;
 
 /**
  * Фильтр друзей-девушек
@@ -218,6 +219,7 @@ function FemaleFilter() {
 }
 
 FemaleFilter.prototype = Object.create(Filter.prototype);
+FemaleFilter.prototype.constructor = FemaleFilter;
 
 exports.Iterator = Iterator;
 exports.LimitedIterator = LimitedIterator;
