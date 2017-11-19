@@ -7,7 +7,14 @@
  * @param {Filter} filter
  */
 function Iterator(friends, filter) {
-    console.info(friends, filter);
+    if (!(filter instanceof Filter)) {
+        throw new TypeError('argument filter is not instanse of Filter');
+    }
+
+    this.weddingGuests = selectWeddingGuests(friends, filter, Infinity);
+    this.indexOfCurrentGuest = 0;
+    this.done = () => this.indexOfCurrentGuest >= this.weddingGuests.length;
+    this.next = () => this.done() ? null : this.weddingGuests[this.indexOfCurrentGuest++];
 }
 
 /**
@@ -19,7 +26,9 @@ function Iterator(friends, filter) {
  * @param {Number} maxLevel – максимальный круг друзей
  */
 function LimitedIterator(friends, filter, maxLevel) {
-    console.info(friends, filter, maxLevel);
+    Object.setPrototypeOf(this, Iterator.prototype);
+    Iterator.call(this, friends, filter);
+    this.weddingGuests = selectWeddingGuests(friends, filter, maxLevel);
 }
 
 /**
@@ -27,7 +36,7 @@ function LimitedIterator(friends, filter, maxLevel) {
  * @constructor
  */
 function Filter() {
-    console.info('Filter');
+    this.isValid = () => true;
 }
 
 /**
@@ -36,7 +45,8 @@ function Filter() {
  * @constructor
  */
 function MaleFilter() {
-    console.info('MaleFilter');
+    Object.setPrototypeOf(this, Filter.prototype);
+    this.isValid = friend => friend.gender === 'male';
 }
 
 /**
@@ -45,7 +55,44 @@ function MaleFilter() {
  * @constructor
  */
 function FemaleFilter() {
-    console.info('FemaleFilter');
+    Object.setPrototypeOf(this, Filter.prototype);
+    this.isValid = friend => friend.gender === 'female';
+}
+
+function selectWeddingGuests(friends, filter, maxLevelOfFriend) {
+    let invitedFriends = [];
+    let selectedFriends = friends.filter(friend => friend.best)
+        .map(friend => ({ info: friend, level: 1 }));
+
+    while (selectedFriends.length !== 0) {
+        let currentFriend = selectedFriends.shift();
+
+        if (currentFriend.level > maxLevelOfFriend) {
+            break;
+        }
+
+        invitedFriends.push(currentFriend);
+        let newGuests = currentFriend.info.friends
+            .filter(name => !invitedFriends
+                .concat(selectedFriends)
+                .some(friend => friend.info.name === name))
+            .map(friendName => ({
+                info: friends.find(friend => friend.name === friendName),
+                level: currentFriend.level + 1
+            }));
+        selectedFriends.push(...newGuests);
+    }
+
+    return invitedFriends
+        .filter(friend => filter.isValid(friend.info))
+        .sort(compareByLevelAndName)
+        .map(friend => friend.info);
+}
+
+function compareByLevelAndName(firstFriend, secondFriend) {
+    return firstFriend.level === secondFriend.level
+        ? firstFriend.info.name.localeCompare(secondFriend.info.name)
+        : firstFriend.level - secondFriend.level;
 }
 
 exports.Iterator = Iterator;
