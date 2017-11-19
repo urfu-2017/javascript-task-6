@@ -8,7 +8,7 @@
  */
 function Iterator(friends, filter) {
     if (!(filter instanceof Filter)) {
-        throw new TypeError();
+        throw new TypeError('argument filter is not instanse of Filter');
     }
 
     this.weddingGuests = selectWeddingGuests(friends, filter, Infinity);
@@ -66,13 +66,16 @@ function selectWeddingGuests(friends, filter, maxLevelOfFriend) {
 
     while (selectedFriends.length !== 0) {
         let currentFriend = selectedFriends.shift();
+
         if (currentFriend.level > maxLevelOfFriend) {
             break;
         }
 
         invitedFriends.push(currentFriend);
         let newGuests = currentFriend.info.friends
-            .filter(name => !invitedFriends.concat(selectedFriends).some(x => x.info.name === name))
+            .filter(name => !invitedFriends
+                .concat(selectedFriends)
+                .some(friend => friend.info.name === name))
             .map(friendName => ({
                 info: friends.find(friend => friend.name === friendName),
                 level: currentFriend.level + 1
@@ -88,7 +91,7 @@ function selectWeddingGuests(friends, filter, maxLevelOfFriend) {
 
 function compareByLevelAndName(firstFriend, secondFriend) {
     return firstFriend.level === secondFriend.level
-        ? firstFriend.info.name > secondFriend.info.name
+        ? firstFriend.info.name.localeCompare(secondFriend.info.name)
         : firstFriend.level - secondFriend.level;
 }
 
