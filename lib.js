@@ -6,10 +6,10 @@ const levels = {
     names: []
 };
 
-function functionCompareByName (friend, friendNext) {
+function functionCompareByName(friend, friendNext) {
 
     return friend.name > friendNext.name ? 1 : -1;
-};
+}
 
 function onlyConnectedFriends(allFriends) {
     const allFriendsFriends = [];
