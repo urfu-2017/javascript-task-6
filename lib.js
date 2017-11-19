@@ -1,13 +1,14 @@
 'use strict';
 
 function getFriends(graph, personInfo) {
-    return graph.filter(function (f) {
-        return personInfo.friends.includes(f.name);
+    return graph.filter(function (friend) {
+        return personInfo.friends.includes(friend.name);
     });
 }
 
-function makeBfsForOneLevel(res, graph, used, bfsParams) {
-    let queue = bfsParams.queue.sort((f1, f2) => f1.item.name.localeCompare(f2.item.name));
+function makeBFSForOneLevel(res, graph, used, bfsParams) {
+    let queue = bfsParams.queue.sort((friendInfo1, friendInfo2) =>
+        friendInfo1.item.name.localeCompare(friendInfo2.item.name));
 
     while (queue.length !== 0 && queue[0].depth === bfsParams.depth) {
         let curr = queue.shift();
@@ -22,17 +23,17 @@ function makeBfsForOneLevel(res, graph, used, bfsParams) {
     return queue;
 }
 
-function strangeBfs(graph, depth) {
+function bfsByLevels(graph, depth) {
     let res = [];
-    let queue = graph.filter(f => f.best)
-        .map(f => ({
-            item: f,
+    let queue = graph.filter(friend => friend.best)
+        .map(friend => ({
+            item: friend,
             depth: 0
         }));
-    let used = queue.map(i => i.item.name);
+    let used = queue.map(bfsItem => bfsItem.item.name);
 
     for (let currDepth = 0; currDepth < depth; currDepth++) {
-        queue = makeBfsForOneLevel(res, graph, used, { queue, depth: currDepth });
+        queue = makeBFSForOneLevel(res, graph, used, { queue, depth: currDepth });
 
         if (queue.length === 0) {
             break;
@@ -54,7 +55,7 @@ function Iterator(friends, filter) {
     }
 
     this.index = 0;
-    this.array = strangeBfs(friends, friends.length).filter(x => filter.filter(x));
+    this.array = bfsByLevels(friends, friends.length).filter(x => filter.filter(x));
 }
 
 Iterator.prototype = {
@@ -81,7 +82,7 @@ Iterator.prototype = {
 function LimitedIterator(friends, filter, maxLevel) {
     Object.setPrototypeOf(this, Iterator.prototype);
 
-    this.array = strangeBfs(friends, maxLevel).filter(x => filter.filter(x));
+    this.array = bfsByLevels(friends, maxLevel).filter(x => filter.filter(x));
     this.index = 0;
 }
 
