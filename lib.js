@@ -6,13 +6,14 @@ function getFriends(graph, personInfo) {
     });
 }
 
-function makeBFSForOneLevel(res, graph, used, bfsParams) {
-    let queue = bfsParams.queue.sort((friendInfo1, friendInfo2) =>
+function makeBFSForOneLevel(graph, used, queue, depth) {
+    let invited = [];
+    queue = queue.sort((friendInfo1, friendInfo2) =>
         friendInfo1.item.name.localeCompare(friendInfo2.item.name));
 
-    while (queue.length !== 0 && queue[0].depth === bfsParams.depth) {
+    while (queue.length !== 0 && queue[0].depth === depth) {
         let curr = queue.shift();
-        res.push(curr.item);
+        invited.push(curr.item);
 
         for (let f of getFriends(graph, curr.item).filter(friend => !used.includes(friend.name))) {
             used.push(f.name);
@@ -20,7 +21,7 @@ function makeBFSForOneLevel(res, graph, used, bfsParams) {
         }
     }
 
-    return queue;
+    return { queue, invited };
 }
 
 function bfsByLevels(graph, depth) {
@@ -33,7 +34,9 @@ function bfsByLevels(graph, depth) {
     let used = queue.map(bfsItem => bfsItem.item.name);
 
     for (let currDepth = 0; currDepth < depth; currDepth++) {
-        queue = makeBFSForOneLevel(res, graph, used, { queue, depth: currDepth });
+        let bfsResult = makeBFSForOneLevel(graph, used, queue, currDepth);
+        queue = bfsResult.queue;
+        res = res.concat(bfsResult.invited);
 
         if (queue.length === 0) {
             break;
