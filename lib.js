@@ -10,54 +10,45 @@ function compareNames(friend1, friend2) {
 
 function personIsFriendForCompany(person, company) {
     var isFriend = false;
-    var isMember = false;
-    company.forEach(function (companyMember) {
-        if (companyMember.friends.includes(person.name)) {
+    for (var i = 0; i < company.length; i++) {
+        if (company[i].friends.includes(person.name)) {
             isFriend = true;
         }
-        if (person.name === companyMember.name) {
-            isMember = true;
+        if (person.name === company[i].name) {
+            return false;
         }
-    });
+    }
 
-    return isFriend && !isMember;
+    return isFriend;
+}
+
+function findFirstCircle(friends) {
+    return friends
+        .filter(friend => friend.best)
+        .sort(compareNames);
 }
 
 function findNextCircle(friends, previousCircles) {
-    if (previousCircles === undefined) {
-        return friends
-            .filter(friend => friend.best)
-            .sort(compareNames);
-    }
-
     return friends
         .filter(person => personIsFriendForCompany(person, previousCircles))
         .sort(compareNames)
         .concat(previousCircles);
 }
 
-function findCirclesOfGuests(friends, maxCircle) {
+function findCircles(friends, condition, maxCircle = Infinity) {
     if (maxCircle < 1) {
         return [];
     }
 
-    var previousCircles = findNextCircle(friends);
-    if (maxCircle === Infinity) {
-        var nextCircles = findNextCircle(friends, previousCircles);
-        while (nextCircles.length !== previousCircles.length) {
-            previousCircles = nextCircles;
-            nextCircles = findNextCircle(friends, previousCircles);
-        }
-
-        return previousCircles;
-    }
-
-    while (maxCircle > 1) {
-        previousCircles = findNextCircle(friends, previousCircles);
+    var previousCircles = findFirstCircle(friends);
+    var nextCircles = findNextCircle(friends, previousCircles);
+    while (nextCircles.length !== previousCircles.length && maxCircle > 1) {
+        previousCircles = nextCircles;
+        nextCircles = findNextCircle(friends, previousCircles);
         maxCircle--;
     }
 
-    return previousCircles;
+    return previousCircles.filter(condition);
 }
 
 /**
@@ -70,8 +61,7 @@ function Iterator(friends, filter) {
     if (!(filter instanceof Filter)) {
         throw new TypeError('Not instance of Filter');
     }
-    this.guests = findCirclesOfGuests(friends, Infinity)
-        .filter(guest => filter.condition(guest));
+    this.guests = findCircles(friends, filter.condition);
 }
 
 Iterator.prototype.done = function () {
@@ -79,7 +69,7 @@ Iterator.prototype.done = function () {
 };
 
 Iterator.prototype.next = function () {
-    return (this.done()) ? null : this.guests.pop();
+    return this.done() ? null : this.guests.pop();
 };
 
 /**
@@ -93,8 +83,7 @@ Iterator.prototype.next = function () {
 function LimitedIterator(friends, filter, maxLevel) {
     Iterator.call(this, friends, filter);
 
-    this.guests = findCirclesOfGuests(friends, maxLevel)
-        .filter(guest => filter.condition(guest));
+    this.guests = findCircles(friends, filter.condition, maxLevel);
 }
 
 LimitedIterator.prototype = Object.create(Iterator.prototype);
