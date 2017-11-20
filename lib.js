@@ -5,14 +5,9 @@ function compareFriends(friend1, friend2) {
 }
 
 function removeRepetitions(array) {
-    let obj = {};
+    let mySet = new Set(array);
 
-    for (let i = 0; i < array.length; i++) {
-        let str = array[i];
-        obj[str] = true;
-    }
-
-    return Object.keys(obj);
+    return Array.from(mySet);
 }
 
 function newFriendsFilter(resultFriends) {
@@ -63,10 +58,10 @@ Iterator.prototype.next = function () {
     if (this.done()) {
         return null;
     }
-    let nextFtiend = this.filteredFriends[this.pointer];
+    let nextFriend = this.filteredFriends[this.pointer];
     this.pointer++;
 
-    return nextFtiend;
+    return nextFriend;
 };
 
 /**
@@ -78,7 +73,7 @@ Iterator.prototype.next = function () {
  * @param {Number} maxLevel – максимальный круг друзей
  */
 function LimitedIterator(friends, filter, maxLevel) {
-    Iterator.call(this, friends, filter);
+    this.pointer = 0;
     this.filteredFriends = filterFriends(friends, filter, maxLevel);
 }
 
