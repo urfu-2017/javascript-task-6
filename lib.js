@@ -36,6 +36,12 @@ function filterFriends(friends, filter, maxLevel = Infinity) {
     return resultFriends.filter(filter.filter);
 }
 
+function checkFilter(filter) {
+    if (!(filter instanceof Filter)) {
+        throw new TypeError('Вторым аргументом необходимо передать фильтр!');
+    }
+}
+
 /**
  * Итератор по друзьям
  * @constructor
@@ -43,9 +49,7 @@ function filterFriends(friends, filter, maxLevel = Infinity) {
  * @param {Filter} filter
  */
 function Iterator(friends, filter) {
-    if (!(filter instanceof Filter)) {
-        throw new TypeError('Вторым аргументом необходимо передать фильтр!');
-    }
+    checkFilter(filter);
     this.filteredFriends = filterFriends(friends, filter);
     this.pointer = 0;
 }
@@ -73,8 +77,9 @@ Iterator.prototype.next = function () {
  * @param {Number} maxLevel – максимальный круг друзей
  */
 function LimitedIterator(friends, filter, maxLevel) {
-    this.pointer = 0;
+    checkFilter(filter);
     this.filteredFriends = filterFriends(friends, filter, maxLevel);
+    this.pointer = 0;
 }
 
 LimitedIterator.prototype = Object.create(Iterator.prototype);
