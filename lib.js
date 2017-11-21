@@ -49,14 +49,16 @@ class Filter {
 }
 
 
-class MaleFilter {
+class MaleFilter extends Filter {
     constructor() {
+        super();
         this.smallFilter = friends => this.bigFilter(friends, 'gender', 'male');
     }
 }
 
-class FemaleFilter {
+class FemaleFilter extends Filter {
     constructor() {
+        super();
         this.smallFilter = friends => this.bigFilter(friends, 'gender', 'female');
     }
 }
@@ -107,9 +109,6 @@ class LimitedIterator extends Iterator {
     }
 }
 
-
-Object.setPrototypeOf(FemaleFilter.prototype, Filter.prototype);
-Object.setPrototypeOf(MaleFilter.prototype, Filter.prototype);
 
 exports.Iterator = Iterator;
 exports.LimitedIterator = LimitedIterator;
