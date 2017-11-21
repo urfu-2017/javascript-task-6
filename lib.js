@@ -12,25 +12,21 @@ function functionCompareByName(friend, friendNext) {
 }
 
 function onlyConnectedFriends(allFriends) {
-    const allFriendsFriends = [];
+    let allFriendsFriends = [];
     allFriends.forEach(function (item) {
-        // if (!item.friends || !item.friends.length) {
-        if (item.friends === undefined || item.friends.indexOf(undefined) !== -1) {
+        if (!item.friends || !item.friends.length) {
+        // if (item.friends === undefined || item.friends.indexOf(undefined) !== -1) {
             throw new TypeError('friends of ungefined');
         }
-        item.friends.forEach(function (friendItem) {
-            allFriendsFriends.push(friendItem);
-        });
+        allFriendsFriends = allFriendsFriends.concat(Array.from(item.friends));
     });
 
     return allFriendsFriends;
 }
 
-function findBestFriends(arg, allFriends, noInviteFriends) {
+function findBestFriends(namesAllPeople, sortFriends, allFriends, noInviteFriends) {
     const friendsOnLevel = Object.create(levels);
     friendsOnLevel.level = 0;
-    let namesAllPeople = arg[0];
-    const sortFriends = arg[1];
     friendsOnLevel.friends = allFriends.filter(function (item) {
         if (item.best) {
             choiceFriend(item, friendsOnLevel.names);
@@ -51,8 +47,7 @@ function choiceFriendsOnLevel(allFriends) {
     const sortFriends = [];
     let noInviteFriends = [];
     let namesAllPeople = onlyConnectedFriends(allFriends);
-    let argument1 = [namesAllPeople, sortFriends];
-    findBestFriends(argument1, allFriends, noInviteFriends);
+    findBestFriends(namesAllPeople, sortFriends, allFriends, noInviteFriends);
     if (sortFriends[0].friends.length === 0) {
 
         return [];
@@ -67,26 +62,22 @@ function findFriends(arg) {
     let noInviteFriends = arg[0];
     const sortFriends = arg[1];
     let iteration = 1;
-    while (noInviteFriends.length !== 0) {
+    while (noInviteFriends.length) {
         const friendsLevel = Object.create(levels);
         friendsLevel.level = iteration;
         let choiceFriends = [];
-        let argument = [noInviteFriends, sortFriends, friendsLevel];
-        inspection(argument, iteration, choiceFriends);
+        inspection(noInviteFriends, sortFriends, friendsLevel, iteration, choiceFriends);
         friendsLevel.friends = choiceFriends.sort(functionCompareByName);
         sortFriends.push(friendsLevel);
         iteration++;
     }
 }
 
-function inspection(arg, iteration, choiceFriends) {
-    let noInviteFriends = arg[0];
-    const sortFriends = arg[1];
-    let friendsLevel = arg[2];
+function inspection(noInviteFriends, sortFriends, friendsLevel, iteration, choiceFriends) {
     let namesFriends = [];
     for (let i = 0; i < noInviteFriends.length; i++) {
-        let indexNamePeople = sortFriends[iteration - 1].names.indexOf(noInviteFriends[i].name);
-        if (indexNamePeople !== -1) {
+        let indexNamePeople = sortFriends[iteration - 1].names.includes(noInviteFriends[i].name);
+        if (indexNamePeople) {
             choiceFriends.push(noInviteFriends[i]);
             choiceFriend(noInviteFriends[i], namesFriends);
             noInviteFriends.splice(i, 1);
@@ -124,11 +115,10 @@ function filterFriendsByGender(friends, filter, maxLevel) {
     let friendsFilter = [];
     friends.forEach(function (item) {
         if (item.level < maxLevel) {
-            item.friends.forEach(function (friend) {
-                if (filter.field(friend)) {
-                    friendsFilter.push(friend);
-                }
-            });
+            friendsFilter = friendsFilter.concat(item.friends.filter(function (friend) {
+
+                return filter.field(friend);
+            }));
         }
     });
 
@@ -162,11 +152,12 @@ function LimitedIterator(friends, filter, maxLevel) {
     if (typeof(maxLevel) !== 'number' || maxLevel < 1) {
         maxLevel = 0;
     }
-    Iterator.call(this, friends, filter, maxLevel);
+    this.super(friends, filter, maxLevel);
 }
 
 LimitedIterator.prototype = Object.create(Iterator.prototype);
 LimitedIterator.prototype.constructor = LimitedIterator;
+LimitedIterator.prototype.super = Iterator;
 
 let allFilters = {
     aFilter: function () {
