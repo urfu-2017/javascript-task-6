@@ -7,35 +7,36 @@ const sortByLevels = friends => friends.sort((a, b) => a.name.localeCompare(b.na
 const getNewFriends = (arr, visited) => arr.filter(friend => visited.indexOf(friend) === -1);
 
 const bfs = friends => {
-    let friendsInLevels = [];
+    const friendsInLevels = [];
     const besties = friends.filter(element => element.best);
     friendsInLevels.push(besties);
     let queue = besties.slice();
     let visited = besties.map(friend => friend.name);
-    let nextLevel = [];
+    const iterations = queue.length;
 
-    while (queue.length > 0) {
+    for (let i = 0; i < iterations; i++) {
         let namesArray = queue.reduce((acc, friend) => {
-            return [...acc, ...friend.friends];
+            acc.push(...friend.friends);
+
+            return acc;
         }, []);
         namesArray = getNewFriends(namesArray, visited);
-        nextLevel = namesArray.map(friend => findFriendByName(friend, friends));
-        queue = nextLevel;
+        queue = namesArray.map(friend => findFriendByName(friend, friends));
         visited = visited.concat(namesArray);
-        friendsInLevels.push(nextLevel);
+        friendsInLevels.push(queue);
     }
 
     return friendsInLevels;
 };
 
 const unpack = (arrays, maxLevel) => {
-    let arr = new Set();
+    let arr = [];
     maxLevel = maxLevel > arrays.length ? arrays.length : maxLevel;
     for (let i = 0; i < maxLevel; i++) {
-        arr = new Set([...arr, ...(sortByLevels(arrays[i]))]);
+        arr = [...arr, ...(sortByLevels(arrays[i]))];
     }
 
-    return [...arr];
+    return [...new Set(arr)];
 };
 
 function Iterator(friends, filter) {
