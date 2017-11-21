@@ -28,7 +28,7 @@ function findFirstCircle(friends) {
         .sort(compareNames);
 }
 
-function findNextCircle(friends, previousCircles) {
+function addNextCircle(friends, previousCircles) {
     return friends
         .filter(person => personIsFriendForCompany(person, previousCircles))
         .sort(compareNames)
@@ -41,10 +41,10 @@ function findCircles(friends, condition, maxCircle = Infinity) {
     }
 
     var previousCircles = findFirstCircle(friends);
-    var nextCircles = findNextCircle(friends, previousCircles);
+    var nextCircles = addNextCircle(friends, previousCircles);
     while (nextCircles.length !== previousCircles.length && maxCircle > 1) {
         previousCircles = nextCircles;
-        nextCircles = findNextCircle(friends, previousCircles);
+        nextCircles = addNextCircle(friends, previousCircles);
         maxCircle--;
     }
 
@@ -56,12 +56,13 @@ function findCircles(friends, condition, maxCircle = Infinity) {
  * @constructor
  * @param {Object[]} friends
  * @param {Filter} filter
+ * @param {Number} maxLevel
  */
-function Iterator(friends, filter) {
+function Iterator(friends, filter, maxLevel = Infinity) {
     if (!(filter instanceof Filter)) {
         throw new TypeError('Not instance of Filter');
     }
-    this.guests = findCircles(friends, filter.condition);
+    this.guests = findCircles(friends, filter.condition, maxLevel);
 }
 
 Iterator.prototype.done = function () {
@@ -81,9 +82,7 @@ Iterator.prototype.next = function () {
  * @param {Number} maxLevel – максимальный круг друзей
  */
 function LimitedIterator(friends, filter, maxLevel) {
-    Iterator.call(this, friends, filter);
-
-    this.guests = findCircles(friends, filter.condition, maxLevel);
+    Iterator.call(this, friends, filter, maxLevel);
 }
 
 LimitedIterator.prototype = Object.create(Iterator.prototype);
@@ -116,7 +115,6 @@ function FemaleFilter() {
     this.condition = friend => friend.gender === 'female';
 }
 
-LimitedIterator.prototype.constructor = LimitedIterator;
 FemaleFilter.prototype = Object.create(Filter.prototype);
 
 exports.Iterator = Iterator;
