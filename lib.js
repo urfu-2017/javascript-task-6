@@ -86,7 +86,7 @@ function FemaleFilter() {
 FemaleFilter.prototype = new Filter();
 
 function getAllGuests(friends, filter) {
-    let currentLevel = friends
+    let currentFriends = friends
         .filter(friend => filter.isBest(friend))
         .sort((a, b) => a.name > b.name)
         .map(friend => {
@@ -94,27 +94,27 @@ function getAllGuests(friends, filter) {
 
             return friend;
         });
-    let allGuests = currentLevel;
+    let allGuests = currentFriends;
     let level = 1;
-    while (currentLevel.length !== 0) {
+    while (currentFriends.length) {
         level++;
-        currentLevel = getCurrentLevel(currentLevel, friends, allGuests, level);
-        allGuests = allGuests.concat(currentLevel);
+        currentFriends = getCurrentFriends(currentFriends, friends, allGuests, level);
+        allGuests = allGuests.concat(currentFriends);
     }
 
     return allGuests;
 }
 
-function getFriendsOfFriends(currentLevel, friends) {
+function getFriendsOfFriends(currentFriends, friends) {
     let guests = [];
-    for (let friend of currentLevel) {
-        updateGuests(friend, guests, friends);
+    for (let friend of currentFriends) {
+        addGuests(friend, guests, friends);
     }
 
     return guests.sort((a, b) => a.name > b.name);
 }
 
-function updateGuests(friend, guests, friends) {
+function addGuests(friend, guests, friends) {
     for (let friendName of friend.friends) {
         let guest = friends.find(mate => mate.name === friendName);
         if (!guests.includes(guest)) {
@@ -123,8 +123,8 @@ function updateGuests(friend, guests, friends) {
     }
 }
 
-function getCurrentLevel(currentLevel, friends, allGuests, level) {
-    return getFriendsOfFriends(currentLevel, friends)
+function getCurrentFriends(currentFriends, friends, allGuests, level) {
+    return getFriendsOfFriends(currentFriends, friends)
         .filter(guest => !allGuests.includes(guest))
         .map(friend => {
             friend.level = level;
@@ -139,5 +139,3 @@ exports.LimitedIterator = LimitedIterator;
 exports.Filter = Filter;
 exports.MaleFilter = MaleFilter;
 exports.FemaleFilter = FemaleFilter;
-
-
