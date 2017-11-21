@@ -10,7 +10,7 @@ function Iterator(friends, filter) {
     if (!(filter instanceof Filter)) {
         throw new TypeError('Объект фильтра не является инстансом функции-конструктора Filter');
     }
-    this.allGuests = getAllGuests(friends, filter).filter(guest => filter.isSelect(guest));
+    this.allGuests = getAllGuests(friends, filter).filter(guest => filter.isSelectByGender(guest));
     this.index = 0;
 }
 
@@ -40,7 +40,7 @@ function LimitedIterator(friends, filter, maxLevel) {
         throw new TypeError('Объект фильтра не является инстансом функции-конструктора Filter');
     }
     this.allGuests = getAllGuests(friends, filter)
-        .filter(guest => filter.isSelect(guest) && guest.level <= maxLevel);
+        .filter(guest => filter.isSelectByGender(guest) && guest.level <= maxLevel);
     this.index = 0;
 }
 
@@ -51,8 +51,8 @@ LimitedIterator.prototype = Iterator.prototype;
  * @constructor
  */
 function Filter() {
-    this.isSelect = function (friend) {
-        if (this.gender !== undefined) {
+    this.isSelectByGender = function (friend) {
+        if (this.gender) {
             return friend.gender === this.gender;
         }
 
