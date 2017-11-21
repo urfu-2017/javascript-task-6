@@ -12,9 +12,8 @@ const bfs = friends => {
     friendsInLevels.push(besties);
     let queue = besties.slice();
     let visited = besties.map(friend => friend.name);
-    const iterations = queue.length;
 
-    for (let i = 0; i < iterations; i++) {
+    while (queue.length > 0) {
         let namesArray = queue.reduce((acc, friend) => {
             acc.push(...friend.friends);
 
@@ -30,13 +29,13 @@ const bfs = friends => {
 };
 
 const unpack = (arrays, maxLevel) => {
-    let arr = new Set();
+    let arr = [];
     maxLevel = maxLevel > arrays.length ? arrays.length : maxLevel;
     for (let i = 0; i < maxLevel; i++) {
-        arr = new Set([...arr, ...(sortByLevels(arrays[i]))]);
+        arr = [...arr, ...(sortByLevels(arrays[i]))];
     }
 
-    return [...arr];
+    return [...new Set(arr)];
 };
 
 function Iterator(friends, filter) {
