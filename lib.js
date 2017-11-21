@@ -5,10 +5,23 @@
  * @constructor
  * @param {Object[]} friends
  * @param {Filter} filter
+ * @param {Int} maxLevel
  */
-function Iterator(friends, filter) {
-    console.info(friends, filter);
+function Iterator(friends, filter, maxLevel = Infinity) {
+    if (!(filter instanceof Filter)) {
+        throw new TypeError();
+    }
+
+    this._queue = friendsQueueWith(friends, filter, maxLevel);
 }
+
+Iterator.prototype.done = function () {
+    return this._queue.length === 0;
+};
+
+Iterator.prototype.next = function () {
+    return this.done() ? null : this._queue.shift();
+};
 
 /**
  * Итератор по друзям с ограничением по кругу
@@ -19,7 +32,9 @@ function Iterator(friends, filter) {
  * @param {Number} maxLevel – максимальный круг друзей
  */
 function LimitedIterator(friends, filter, maxLevel) {
-    console.info(friends, filter, maxLevel);
+    Object.setPrototypeOf(this, Iterator.prototype);
+
+    Iterator.call(this, friends, filter, maxLevel);
 }
 
 /**
@@ -27,7 +42,7 @@ function LimitedIterator(friends, filter, maxLevel) {
  * @constructor
  */
 function Filter() {
-    console.info('Filter');
+    this.condition = () => true;
 }
 
 /**
@@ -36,7 +51,9 @@ function Filter() {
  * @constructor
  */
 function MaleFilter() {
-    console.info('MaleFilter');
+    Object.setPrototypeOf(this, Filter.prototype);
+
+    this.condition = friend => friend.gender === 'male';
 }
 
 /**
@@ -45,7 +62,51 @@ function MaleFilter() {
  * @constructor
  */
 function FemaleFilter() {
-    console.info('FemaleFilter');
+    Object.setPrototypeOf(this, Filter.prototype);
+
+    this.condition = friend => friend.gender === 'female';
+}
+
+function friendsQueueWith(friends, filter, maxLevel) {
+    let pool = friends
+        .filter(friend => friend.best)
+        .map(friend => {
+            return { record: friend, level: 1 };
+        });
+
+    let selected = [];
+
+    while (pool.length > 0) {
+        let current = pool.shift();
+
+        if (current.level > maxLevel) {
+            break;
+        }
+
+        selected.push(current);
+
+        let next = current.record.friends
+            .filter(name => selected.concat(pool).every(friend => friend.record.name !== name))
+            .map(name => {
+                return {
+                    record: friends.find(friend => friend.name === name),
+                    level: current.level + 1
+                };
+            });
+
+        pool.push(...next);
+    }
+
+    return selected
+        .filter(friend => filter.condition(friend.record))
+        .sort((first, second) => {
+            if (first.level === second.level) {
+                return first.record.name > second.record.name;
+            }
+
+            return first.level - second.level;
+        })
+        .map(friend => friend.record);
 }
 
 exports.Iterator = Iterator;
