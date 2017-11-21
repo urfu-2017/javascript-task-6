@@ -9,7 +9,7 @@ class Filter {
 class MaleFilter extends Filter {
     constructor() {
         super();
-        this.isInvitedFriend = function (friend) {
+        this.isInvitedFriend = friend => {
             return friend.gender === 'male';
         };
     }
@@ -18,48 +18,34 @@ class MaleFilter extends Filter {
 class FemaleFilter extends Filter {
     constructor() {
         super();
-        this.isInvitedFriend = function (friend) {
+        this.isInvitedFriend = friend => {
             return friend.gender === 'female';
         };
     }
 }
 
-/**
- * Итератор по друзьям
- * @constructor
- * @param {Object[]} friends
- * @param {Filter} filter
- */
-function Iterator(friends, filter) {
-    if (!(filter instanceof Filter)) {
-        throw new TypeError('filter should be instance of Filter');
+class Iterator {
+    constructor(friends, filter) {
+        if (!(filter instanceof Filter)) {
+            throw new TypeError('filter should be instance of Filter');
+        }
+        this._index = 0;
+        this._guests = getAllGuests(friends, filter);
     }
-
-    this._index = 0;
-    this._guests = getAllGuests(friends, filter);
+    done() {
+        return this._index === this._guests.length;
+    }
+    next() {
+        return (this.done()) ? null : this._guests[this._index++];
+    }
 }
 
-Iterator.prototype.done = function () {
-    return this._index === this._guests.length;
-};
-
-Iterator.prototype.next = function () {
-    return (this.done()) ? null : this._guests[this._index++];
-};
-
-/**
- * Итератор по друзям с ограничением по кругу
- * @extends Iterator
- * @constructor
- * @param {Object[]} friends
- * @param {Filter} filter
- * @param {Number} maxLevel – максимальный круг друзей
- */
-function LimitedIterator(friends, filter, maxLevel) {
-    Iterator.call(this, friends, filter);
-    this._guests = getAllGuests(friends, filter, maxLevel);
+class LimitedIterator extends Iterator {
+    constructor(friends, filter, maxLevel) {
+        super(friends, filter);
+        this._guests = getAllGuests(friends, filter, maxLevel);
+    }
 }
-Object.setPrototypeOf(LimitedIterator.prototype, Iterator.prototype);
 
 function getAllGuests(friends, filter, maxFriendsCircle = Infinity) {
     let currentFriendsCircle = friends
