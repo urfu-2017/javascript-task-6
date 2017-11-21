@@ -38,59 +38,78 @@ const unpack = (arrays, maxLevel) => {
     return [...new Set(arr)];
 };
 
-function Iterator(friends, filter) {
-    if (!(filter instanceof Filter)) {
-        throw new TypeError('Not instance of filter');
+
+class Filter {
+    constructor() {
+        this.smallFilter = friends => friends;
     }
-    const invitedFrineds = bfs(friends);
-    this.stack = filter.smallFilter(unpack(invitedFrineds, invitedFrineds.length));
-}
-
-function LimitedIterator(friends, filter, maxLevel) {
-    if (!(filter instanceof Filter)) {
-        throw new TypeError('Not instance of filter');
-    }
-    this.stack = [];
-    if (maxLevel > 0) {
-        this.stack = unpack(bfs(friends), maxLevel);
-        this.stack = filter.smallFilter(this.stack);
-    }
-}
-
-function Filter() {
-    this.smallFilter = friends => friends;
-}
-
-function MaleFilter() {
-    this.smallFilter = friends => this.bigFilter(friends, 'gender', 'male');
-}
-
-function FemaleFilter() {
-    this.smallFilter = friends => this.bigFilter(friends, 'gender', 'female');
-}
-
-Object.setPrototypeOf(FemaleFilter.prototype, Filter.prototype);
-Object.setPrototypeOf(MaleFilter.prototype, Filter.prototype);
-Object.setPrototypeOf(LimitedIterator.prototype, Iterator.prototype);
-
-Object.assign(Filter.prototype, {
     bigFilter(friends, param, value) {
         return friends.filter(friend => friend[param] === value);
     }
-});
+}
 
-Object.assign(Iterator.prototype, {
+
+class MaleFilter {
+    constructor() {
+        this.smallFilter = friends => this.bigFilter(friends, 'gender', 'male');
+    }
+}
+
+class FemaleFilter {
+    constructor() {
+        this.smallFilter = friends => this.bigFilter(friends, 'gender', 'female');
+    }
+}
+
+class Iterator {
+    constructor(friends, filter) {
+        if (!(filter instanceof Filter)) {
+            throw new TypeError('Not instance of filter');
+        }
+        this.friends = friends;
+        this.filter = filter;
+        this._invitedFriends = bfs(friends);
+        this._initialized = false;
+        this.stack = [];
+    }
     done() {
+        if (!this._initialized) {
+            this._initialize();
+        }
+
         return this.stack.length === 0;
-    },
+    }
     next() {
+        if (!this._initialized) {
+            this._initialize();
+        }
         if (this.stack.length > 0) {
             return this.stack.shift();
         }
 
         return null;
     }
-});
+
+    _initialize(length = this._invitedFriends.length) {
+        this.stack = this.filter.smallFilter(unpack(this._invitedFriends, length));
+        this._initialized = true;
+    }
+}
+
+class LimitedIterator extends Iterator {
+    constructor(friends, filter, maxLevel) {
+        super(friends, filter);
+        this.maxLevel = maxLevel;
+        this._initialized = true;
+        if (maxLevel > 0) {
+            this._initialize(maxLevel);
+        }
+    }
+}
+
+
+Object.setPrototypeOf(FemaleFilter.prototype, Filter.prototype);
+Object.setPrototypeOf(MaleFilter.prototype, Filter.prototype);
 
 exports.Iterator = Iterator;
 exports.LimitedIterator = LimitedIterator;
