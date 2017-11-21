@@ -3,12 +3,29 @@
 /**
  * Итератор по друзьям
  * @constructor
- * @param {Object[]} friends
+ * @param {Object[]} friends 
  * @param {Filter} filter
  */
 function Iterator(friends, filter) {
-    console.info(friends, filter);
+    if (!(filter instanceof Filter)) {
+        throw new TypeError('Объект фильтра не является инстансом функции-конструктора Filter');
+    }
+    this.allGuests = getAllGuests(friends, filter).filter(guest => filter.isSelectByGender(guest));
+    this.index = 0;
 }
+
+Iterator.prototype = {
+    done: function () {
+        return this.index === this.allGuests.length;
+    },
+    next: function () {
+        if (this.done()) {
+            return null;
+        }
+
+        return this.allGuests[this.index++];
+    }
+};
 
 /**
  * Итератор по друзям с ограничением по кругу
@@ -19,15 +36,31 @@ function Iterator(friends, filter) {
  * @param {Number} maxLevel – максимальный круг друзей
  */
 function LimitedIterator(friends, filter, maxLevel) {
-    console.info(friends, filter, maxLevel);
+    if (!(filter instanceof Filter)) {
+        throw new TypeError('Объект фильтра не является инстансом функции-конструктора Filter');
+    }
+    this.allGuests = getAllGuests(friends, filter)
+        .filter(guest => filter.isSelectByGender(guest) && guest.level <= maxLevel);
+    this.index = 0;
 }
+
+LimitedIterator.prototype = Iterator.prototype;
 
 /**
  * Фильтр друзей
  * @constructor
  */
 function Filter() {
-    console.info('Filter');
+    this.isSelectByGender = function (friend) {
+        if (this.gender) {
+            return friend.gender === this.gender;
+        }
+
+        return true;
+    };
+    this.isBest = function (friend) {
+        return friend.best === true;
+    };
 }
 
 /**
@@ -36,8 +69,10 @@ function Filter() {
  * @constructor
  */
 function MaleFilter() {
-    console.info('MaleFilter');
+    this.gender = 'male';
 }
+
+MaleFilter.prototype = new Filter();
 
 /**
  * Фильтр друзей-девушек
@@ -45,7 +80,57 @@ function MaleFilter() {
  * @constructor
  */
 function FemaleFilter() {
-    console.info('FemaleFilter');
+    this.gender = 'female';
+}
+
+FemaleFilter.prototype = new Filter();
+
+function getAllGuests(friends, filter) {
+    let currentFriends = friends
+        .filter(friend => filter.isBest(friend))
+        .sort((a, b) => a.name > b.name)
+        .map(friend => {
+            friend.level = 1;
+
+            return friend;
+        });
+    let allGuests = currentFriends;
+    let level = 1;
+    while (currentFriends.length) {
+        level++;
+        currentFriends = getCurrentFriends(currentFriends, friends, allGuests, level);
+        allGuests = allGuests.concat(currentFriends);
+    }
+
+    return allGuests;
+}
+
+function getFriendsOfFriends(currentFriends, friends) {
+    let guests = [];
+    for (let friend of currentFriends) {
+        addGuests(friend, guests, friends);
+    }
+
+    return guests.sort((a, b) => a.name > b.name);
+}
+
+function addGuests(friend, guests, friends) {
+    for (let friendName of friend.friends) {
+        let guest = friends.find(mate => mate.name === friendName);
+        if (!guests.includes(guest)) {
+            guests.push(guest);
+        }
+    }
+}
+
+function getCurrentFriends(currentFriends, friends, allGuests, level) {
+    return getFriendsOfFriends(currentFriends, friends)
+        .filter(guest => !allGuests.includes(guest))
+        .map(friend => {
+            friend.level = level;
+
+            return friend;
+        });
 }
 
 exports.Iterator = Iterator;
