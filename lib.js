@@ -90,12 +90,13 @@ function inspection(arg, iteration, choiceFriends) {
     friendsLevel.names = namesFriends;
 }
 
-function choiceFriend(item, friendsFriendsOnLevel) {
-    friendsFriendsOnLevel = friendsFriendsOnLevel.concat(item.friends.filter(function (nameFriendItem) {
+function choiceFriend(item, frFriendsOnLevel) {
+    frFriendsOnLevel = frFriendsOnLevel.concat(item.friends.filter(function (nameFriendItem) {
 
-        return !friendsFriendsOnLevel.includes(nameFriendItem);
+        return !frFriendsOnLevel.includes(nameFriendItem);
     }));
-    return friendsFriendsOnLevel;
+
+    return frFriendsOnLevel;
 }
 
 /**
