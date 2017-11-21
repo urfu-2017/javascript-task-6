@@ -66,14 +66,18 @@ function findFriends(arg) {
         const friendsLevel = Object.create(levels);
         friendsLevel.level = iteration;
         let choiceFriends = [];
-        inspection(noInviteFriends, sortFriends, friendsLevel, iteration, choiceFriends);
+        let argument = [noInviteFriends, sortFriends, friendsLevel];
+        inspection(argument, iteration, choiceFriends);
         friendsLevel.friends = choiceFriends.sort(functionCompareByName);
         sortFriends.push(friendsLevel);
         iteration++;
     }
 }
 
-function inspection(noInviteFriends, sortFriends, friendsLevel, iteration, choiceFriends) {
+function inspection(arg, iteration, choiceFriends) {
+    let noInviteFriends = arg[0];
+    const sortFriends = arg[1];
+    const friendsLevel = arg[2];
     let namesFriends = [];
     for (let i = 0; i < noInviteFriends.length; i++) {
         let indexNamePeople = sortFriends[iteration - 1].names.includes(noInviteFriends[i].name);
