@@ -4,12 +4,6 @@ var lib = require('./lib');
 
 var friends = [
     {
-        name: 'Samddd',
-        friends: [],
-        gender: 'male',
-        best: true
-    },
-    {
         name: 'Sam',
         friends: ['Mat', 'Sharon'],
         gender: 'male',

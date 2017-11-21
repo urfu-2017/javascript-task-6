@@ -1,5 +1,29 @@
 'use strict';
 
+class Filter {
+    constructor() {
+        this.isInvitedFriend = () => true;
+    }
+}
+
+class MaleFilter extends Filter {
+    constructor() {
+        super();
+        this.isInvitedFriend = function (friend) {
+            return friend.gender === 'male';
+        };
+    }
+}
+
+class FemaleFilter extends Filter {
+    constructor() {
+        super();
+        this.isInvitedFriend = function (friend) {
+            return friend.gender === 'female';
+        };
+    }
+}
+
 /**
  * Итератор по друзьям
  * @constructor
@@ -8,7 +32,7 @@
  */
 function Iterator(friends, filter) {
     if (!(filter instanceof Filter)) {
-        throw new TypeError();
+        throw new TypeError('filter should be instance of Filter');
     }
 
     this._index = 0;
@@ -36,34 +60,6 @@ function LimitedIterator(friends, filter, maxLevel) {
     this._guests = getAllGuests(friends, filter, maxLevel);
 }
 Object.setPrototypeOf(LimitedIterator.prototype, Iterator.prototype);
-
-/**
- * Фильтр друзей
- * @constructor
- */
-function Filter() {
-    this.isInvitedFriend = () => true;
-}
-
-/**
- * Фильтр друзей
- * @extends Filter
- * @constructor
- */
-function MaleFilter() {
-    this.isInvitedFriend = friend => friend.gender === 'male';
-}
-Object.setPrototypeOf(MaleFilter.prototype, Filter.prototype);
-
-/**
- * Фильтр друзей-девушек
- * @extends Filter
- * @constructor
- */
-function FemaleFilter() {
-    this.isInvitedFriend = friend => friend.gender === 'female';
-}
-Object.setPrototypeOf(FemaleFilter.prototype, Filter.prototype);
 
 function getAllGuests(friends, filter, maxFriendsCircle = Infinity) {
     let currentFriendsCircle = friends
