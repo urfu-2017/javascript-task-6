@@ -1,6 +1,6 @@
 'use strict';
 
-function sortByAlphabet(first, second) {
+function compareNames(first, second) {
     return first.name.localeCompare(second.name);
 }
 
@@ -19,47 +19,52 @@ function Iterator(friends, filter) {
     this._filter = filter;
     this._invitedFriends = [];
     this._friendsNames = new Set();
-    this._activeLvl = [];
+    this._activeLevel = [];
+    this._level = 1;
 
-    this._init();
-    this._addLvls();
-    this._invitedFriends = this._filter.filterFriends(this._invitedFriends);
+    this
+        ._init()
+        ._addLvls()
+        ._filterFriends();
 }
 
 Iterator.prototype._init = function () {
     if (this._maxLevel === undefined) {
-        this._maxLevel = Number.MAX_SAFE_INTEGER;
+        this._maxLevel = Infinity;
     }
-    this._activeLvl = this._friends
+    this._activeLevel = this._friends
         .filter(friend => friend.best)
-        .sort(sortByAlphabet);
-    this._activeLvl.forEach(friend => {
+        .sort(compareNames);
+    this._activeLevel.forEach(friend => {
         this._friendsNames.add(friend.name);
     });
+
+    return this;
 };
 
 Iterator.prototype._addLvls = function () {
-    while (this._maxLevel > 0 && this._activeLvl.length !== 0) {
-        this._invitedFriends = this._invitedFriends.concat(this._activeLvl);
-        this._maxLevel--;
-        this._activeLvl = this._activeLvl
+    while (this._maxLevel >= this._level && this._activeLevel.length !== 0) {
+        this._invitedFriends = this._invitedFriends.concat(this._activeLevel);
+        this._level++;
+        this._activeLevel = this._activeLevel
             .reduce((newLvlNames, friend) =>
                 newLvlNames.concat(
-                    friend.friends.filter(name =>
-                        !this._friendsNames.has(name) &&
-                        !newLvlNames.includes(name)
-                    )), [])
+                    friend.friends.filter(name => {
+                        let isFriendInvited = this._friendsNames.has(name);
+                        this._friendsNames.add(name);
+
+                        return !isFriendInvited;
+                    })), [])
             .map(friendName => this._friends.find(friend => friendName === friend.name))
-            .sort(sortByAlphabet);
-        this._activeLvl.forEach(friend => {
-            this._friendsNames.add(friend.name);
-        });
+            .sort(compareNames);
     }
+
+    return this;
 };
 
 Iterator.prototype._filterFriends = function () {
     this._invitedFriends = this._invitedFriends
-        .filter(friend => this._filter.check(friend.gender));
+        .filter(friend => this._filter._checkFriend(friend));
 };
 
 Iterator.prototype.next = function () {
@@ -80,25 +85,21 @@ Iterator.prototype.done = function () {
  */
 function LimitedIterator(friends, filter, maxLevel) {
     this._maxLevel = maxLevel;
-    Iterator.call(this, friends, filter);
+    Iterator.apply(this, arguments);
 }
 
-Object.setPrototypeOf(LimitedIterator.prototype, Iterator.prototype);
+LimitedIterator.prototype = Object.create(Iterator.prototype);
 
 /**
  * Фильтр друзей
  * @constructor
  */
 function Filter() {
-    this.fltr = 'everyone';
+    this._checkFriend = () => true;
 }
 
-Filter.prototype.filterFriends = function (friends) {
-    if (this.fltr === 'everyone') {
-        return friends;
-    }
-
-    return friends.filter(friend => friend.gender === this.fltr);
+Filter.prototype._checkFriend = function (friend) {
+    return friend.gender === this._filter;
 };
 
 /**
@@ -107,10 +108,10 @@ Filter.prototype.filterFriends = function (friends) {
  * @constructor
  */
 function MaleFilter() {
-    this.fltr = 'male';
+    this._filter = 'male';
 }
 
-Object.setPrototypeOf(MaleFilter.prototype, Filter.prototype);
+MaleFilter.prototype = Object.create(Filter.prototype);
 
 /**
  * Фильтр друзей-девушек
@@ -118,10 +119,10 @@ Object.setPrototypeOf(MaleFilter.prototype, Filter.prototype);
  * @constructor
  */
 function FemaleFilter() {
-    this.fltr = 'female';
+    this._filter = 'female';
 }
 
-Object.setPrototypeOf(FemaleFilter.prototype, Filter.prototype);
+FemaleFilter.prototype = Object.create(Filter.prototype);
 
 exports.Iterator = Iterator;
 exports.LimitedIterator = LimitedIterator;
