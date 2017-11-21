@@ -30,13 +30,13 @@ const bfs = friends => {
 };
 
 const unpack = (arrays, maxLevel) => {
-    let arr = [];
+    let arr = new Set();
     maxLevel = maxLevel > arrays.length ? arrays.length : maxLevel;
     for (let i = 0; i < maxLevel; i++) {
-        arr = [...arr, ...(sortByLevels(arrays[i]))];
+        arr = new Set([...arr, ...(sortByLevels(arrays[i]))]);
     }
 
-    return [...new Set(arr)];
+    return [...arr];
 };
 
 function Iterator(friends, filter) {
