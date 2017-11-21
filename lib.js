@@ -28,7 +28,7 @@ function findBestFriends(namesAllPeople, sortFriends, allFriends, noInviteFriend
     friendsOnLevel.level = 0;
     friendsOnLevel.friends = allFriends.filter(function (item) {
         if (item.best) {
-            choiceFriend(item, friendsOnLevel.names);
+            friendsOnLevel.names = choiceFriend(item, friendsOnLevel.names);
 
             return true;
         }
@@ -82,7 +82,7 @@ function inspection(arg, iteration, choiceFriends) {
         let indexNamePeople = sortFriends[iteration - 1].names.includes(noInviteFriends[i].name);
         if (indexNamePeople) {
             choiceFriends.push(noInviteFriends[i]);
-            choiceFriend(noInviteFriends[i], namesFriends);
+            namesFriends = choiceFriend(noInviteFriends[i], namesFriends);
             noInviteFriends.splice(i, 1);
             i--;
         }
@@ -91,11 +91,11 @@ function inspection(arg, iteration, choiceFriends) {
 }
 
 function choiceFriend(item, friendsFriendsOnLevel) {
-    item.friends.forEach(function (nameFriendItem) {
-        if (!friendsFriendsOnLevel.includes(nameFriendItem)) {
-            friendsFriendsOnLevel.push(nameFriendItem);
-        }
-    });
+    friendsFriendsOnLevel = friendsFriendsOnLevel.concat(item.friends.filter(function (nameFriendItem) {
+
+        return !friendsFriendsOnLevel.includes(nameFriendItem);
+    }));
+    return friendsFriendsOnLevel;
 }
 
 /**
