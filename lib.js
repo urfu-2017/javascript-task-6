@@ -6,23 +6,26 @@ const sortByLevels = friends => friends.sort((a, b) => a.name.localeCompare(b.na
 
 const getNewFriends = (arr, visited) => arr.filter(friend => visited.indexOf(friend) === -1);
 
-const bfs = friends => {
-    const friendsInLevels = [];
+const bfs = (friends, friendsInLevels = [], queue = [], visited = []) => {
     const besties = friends.filter(element => element.best);
-    friendsInLevels.push(besties);
-    let queue = besties.slice();
-    let visited = besties.map(friend => friend.name);
+    if (queue.length === 0) {
+        friendsInLevels.push(besties);
+        queue = besties.slice();
+        visited = besties.map(friend => friend.name);
+    }
 
-    while (queue.length > 0) {
-        let namesArray = queue.reduce((acc, friend) => {
-            acc.push(...friend.friends);
+    let namesArray = queue.reduce((acc, friend) => {
+        acc.push(...friend.friends);
 
-            return acc;
-        }, []);
-        namesArray = getNewFriends(namesArray, visited);
-        queue = namesArray.map(friend => findFriendByName(friend, friends));
-        visited = visited.concat(namesArray);
-        friendsInLevels.push(queue);
+        return acc;
+    }, []);
+    namesArray = getNewFriends(namesArray, visited);
+    queue = namesArray.map(friend => findFriendByName(friend, friends));
+    visited = visited.concat(namesArray);
+    friendsInLevels.push(queue);
+
+    if (queue.length > 0) {
+        bfs(friends, friendsInLevels, queue, visited);
     }
 
     return friendsInLevels;
@@ -32,7 +35,7 @@ const unpack = (arrays, maxLevel) => {
     let arr = [];
     maxLevel = maxLevel > arrays.length ? arrays.length : maxLevel;
     for (let i = 0; i < maxLevel; i++) {
-        arr = [...arr, ...(sortByLevels(arrays[i]))];
+        arr.push(...(sortByLevels(arrays[i])));
     }
 
     return [...new Set(arr)];
