@@ -1,5 +1,76 @@
 'use strict';
 
+function translateCirclesToNames(nameToCircle) {
+    let circlesToNames = {};
+    for (let name in nameToCircle) {
+        if (nameToCircle[name] in circlesToNames) {
+            circlesToNames[nameToCircle[name]].push(name);
+        } else {
+            circlesToNames[nameToCircle[name]] = [name];
+        }
+    }
+
+    return circlesToNames;
+}
+
+function sortNamesInCircles(circlesToNames) {
+    Object.values(circlesToNames).forEach(names => names.sort());
+}
+
+function findCircles(friends, maxLevel = Infinity) {
+    let friendsQueue = friends.filter(friend => friend.best);
+
+    let nameToFriends = friends.reduce((accumulator, friend) => {
+        accumulator[friend.name] = friend;
+
+        return accumulator;
+    }, {});
+
+    let visitedFriends = [];
+
+    let nameToCircle = friendsQueue.reduce((accumulator, bestFriend) => {
+        accumulator[bestFriend.name] = 1;
+
+        return accumulator;
+    }, {});
+
+    while (friendsQueue.length) {
+        let friend = friendsQueue.shift();
+        if (visitedFriends.includes(friend.name)) {
+            continue;
+        }
+
+        friend.friends.forEach(name => {
+            if (name in nameToCircle) {
+                return;
+            }
+            nameToCircle[name] = nameToCircle[friend.name] + 1;
+            friendsQueue.push(nameToFriends[name]);
+        });
+        visitedFriends.push(friend.name);
+    }
+
+    let circlesToNames = translateCirclesToNames(nameToCircle);
+    sortNamesInCircles(circlesToNames);
+    let sortedNames = concatCircles(circlesToNames, maxLevel);
+
+    let sortedFriends = sortedNames.map(name =>nameToFriends[name]);
+
+    return sortedFriends;
+}
+
+function concatCircles(circlesToNames, maxLevel) {
+    let sortedFriends = [];
+    Object.keys(circlesToNames).sort((a, b) => a - b)
+        .forEach(numberOfCurcle => {
+            if (numberOfCurcle <= maxLevel) {
+                sortedFriends = sortedFriends.concat(circlesToNames[numberOfCurcle]);
+            }
+        });
+
+    return sortedFriends;
+}
+
 /**
  * Итератор по друзьям
  * @constructor
@@ -7,7 +78,24 @@
  * @param {Filter} filter
  */
 function Iterator(friends, filter) {
-    console.info(friends, filter);
+    if (!(filter instanceof Filter)) {
+        throw new TypeError('The filter must be instance of Filter');
+    }
+
+    this.sortedFriends = findCircles(friends).filter(filter.filter);
+
+    this.index = 0;
+    this.done = function () {
+        return this.index >= this.sortedFriends.length;
+    };
+
+    this.next = function () {
+        if (!this.done()) {
+            return this.sortedFriends[this.index++];
+        }
+
+        return null;
+    };
 }
 
 /**
@@ -19,15 +107,21 @@ function Iterator(friends, filter) {
  * @param {Number} maxLevel – максимальный круг друзей
  */
 function LimitedIterator(friends, filter, maxLevel) {
-    console.info(friends, filter, maxLevel);
+    Iterator.call(this, friends, filter);
+    this.sortedFriends = findCircles(friends, maxLevel).filter(filter.filter);
 }
+
+LimitedIterator.prototype = Object.create(Iterator.prototype);
+LimitedIterator.prototype.constructor = Filter;
 
 /**
  * Фильтр друзей
  * @constructor
  */
 function Filter() {
-    console.info('Filter');
+    this.filter = function () {
+        return true;
+    };
 }
 
 /**
@@ -36,8 +130,14 @@ function Filter() {
  * @constructor
  */
 function MaleFilter() {
-    console.info('MaleFilter');
+    Filter.call(this);
+    this.filter = function (friend) {
+        return friend.gender === 'male';
+    };
 }
+
+MaleFilter.prototype = Object.create(Filter.prototype);
+MaleFilter.prototype.constructor = Filter;
 
 /**
  * Фильтр друзей-девушек
@@ -45,8 +145,14 @@ function MaleFilter() {
  * @constructor
  */
 function FemaleFilter() {
-    console.info('FemaleFilter');
+    Filter.call(this);
+    this.filter = function (friend) {
+        return friend.gender === 'female';
+    };
 }
+
+FemaleFilter.prototype = Object.create(Filter.prototype);
+FemaleFilter.prototype.constructor = Filter;
 
 exports.Iterator = Iterator;
 exports.LimitedIterator = LimitedIterator;
