@@ -1,11 +1,8 @@
 'use strict';
 
 
-function getFriends(friends, filter) {
-    var friendsToInvite;
-    friendsToInvite = friends.filter(filter.filterF);
-
-    return friendsToInvite;
+function applyFilter(friends, compareFunction) {
+    return friends.filter(compareFunction);
 }
 
 function collectAllFrineds(storage, friend, friends) {
@@ -67,7 +64,7 @@ function Iterator(friends, filter) {
         throw new TypeError('not a filter!');
     }
     var allFriendsPossible = getFriendsUpToLvl(friends, Infinity);
-    this.friendsToInvite = getFriends(allFriendsPossible, filter);
+    this.friendsToInvite = applyFilter(allFriendsPossible, filter.compareFunction);
     this.count = 0;
     this.next = function () {
         var nextFriend = null;
@@ -100,7 +97,7 @@ function LimitedIterator(friends, filter, maxLevel) {
     Iterator.call(this, friends, filter);
     this.count = 0;
     var allFriendsUpToLvl = getFriendsUpToLvl(friends, maxLevel);
-    this.friendsToInvite = getFriends(allFriendsUpToLvl, filter);
+    this.friendsToInvite = applyFilter(allFriendsUpToLvl, filter.compareFunction);
 }
 
 LimitedIterator.prototype = Object.create(Iterator.prototype);
@@ -110,7 +107,7 @@ LimitedIterator.prototype = Object.create(Iterator.prototype);
  * @constructor
  */
 function Filter() {
-    this.filterF = function () {
+    this.compareFunction = function () {
         return true;
     };
 
@@ -122,7 +119,7 @@ function Filter() {
  * @constructor
  */
 function MaleFilter() {
-    this.filterF = function (friend) {
+    this.compareFunction = function (friend) {
         return friend.gender === 'male';
     };
 }
@@ -135,7 +132,7 @@ MaleFilter.prototype = Object.create(Filter.prototype);
  * @constructor
  */
 function FemaleFilter() {
-    this.filterF = function (friend) {
+    this.compareFunction = function (friend) {
         return friend.gender === 'female';
     };
 }
