@@ -10,40 +10,34 @@ function Iterator(friends, filter) {
     if (!(filter instanceof Filter)) {
         throw new TypeError('Фильтр не является инстансом функции-конструктора Filter');
     }
-
-    this.orderedFriendsByLevel = orderFriends(friends)
+    this._allFriendsByLevel = divideFriendsIntoLevels(friends);
+    this._friendsQueue = this._allFriendsByLevel
         .reduce((allFriends, level) => allFriends.concat(level), []);
-    this.filteredFriends = filter.filter(this.orderedFriendsByLevel);
+    this._filteredFriends = filter.filter(this._friendsQueue);
 
-    this.done = () => this.filteredFriends.length === 0;
-    this.next = () => {
-        if (this.done()) {
-            return null;
-        }
-
-        return this.filteredFriends.shift();
-    };
+    this.done = () => this._filteredFriends.length === 0;
+    this.next = () => this.done() ? null : this._filteredFriends.shift();
 }
 
-function orderFriends(friends) {
+function divideFriendsIntoLevels(friends) {
     const queue = [];
-    const allLevels = [];
+    const allFriendsByLevels = [];
     const visited = [];
     let nextLevel = friends
         .filter(friend => friend.best);
-    while (getUnvisited(friends, visited).length !== 0) {
-        if (allLevels.length !== 0) {
+    while (hasUnvisited(friends, visited)) {
+        if (allFriendsByLevels.length !== 0) {
             nextLevel = createNewLevel(queue, visited, friends);
         }
         if (nextLevel.length === 0) {
             break;
         }
         nextLevel.sort(sortByName);
-        allLevels.push(nextLevel);
+        allFriendsByLevels.push(nextLevel);
         nextLevel.forEach(friend => queue.push(friend));
     }
 
-    return allLevels;
+    return allFriendsByLevels;
 }
 
 function createNewLevel(queue, visited, friends) {
@@ -69,8 +63,8 @@ function getFriendObj(name, friends) {
     return friends.find(friend => friend.name === name);
 }
 
-function getUnvisited(friends, visited) {
-    return friends.filter(friend => !visited.includes(friend));
+function hasUnvisited(friends, visited) {
+    return friends.filter(friend => !visited.includes(friend)).length !== 0;
 }
 
 function sortByName(a, b) {
@@ -94,10 +88,10 @@ function LimitedIterator(friends, filter, maxLevel) {
     maxLevel = maxLevel < 0 ? 0 : maxLevel;
 
     Iterator.call(this, friends, filter);
-    this.orderedFriendsByLevel = orderFriends(friends)
+    this._friendsQueue = this._allFriendsByLevel
         .slice(0, maxLevel)
         .reduce((allFriends, level) => allFriends.concat(level), []);
-    this.filteredFriends = filter.filter(this.orderedFriendsByLevel);
+    this._filteredFriends = filter.filter(this._friendsQueue);
 }
 LimitedIterator.prototype = Object.create(Iterator.prototype);
 LimitedIterator.prototype.constructor = LimitedIterator;
