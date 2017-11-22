@@ -61,11 +61,11 @@ Iterator.prototype = {
     }
 };
 
-function getNextLevelFriends(visited, friends, prevFriends) {
+function getNextLevelFriends(visited, friendsMap, prevFriends) {
     let allNextLevelFriends = prevFriends.reduce((curr, friend) => curr.concat(friend.friends), []);
     let friends = allNextLevelFriends
         .filter(friendName => visited.indexOf(friendName) === -1)
-        .map(friendName => friends[friendName])
+        .map(friendName => friendsMap[friendName])
         .sort(compareFriends);
     for (let friend of friends) {
         visited.push(friend.name);
