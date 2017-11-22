@@ -6,27 +6,37 @@
  * @constructor
  * @param {Object[]} friends
  * @param {Filter} filter
- * @param {Number} maxLevel
  */
-function Iterator(friends, filter, maxLevel = Infinity) {
-    if (!(filter instanceof Filter)) {
-        throw new TypeError();
-    }
-    this._pointer = 0;
-    this._friends = [].concat(..._getCircles(friends, maxLevel))
-        .filter(filter.satisfiesCondition);
+function Iterator(friends, filter) {
+    this._friendsGenerator = _iterFriends(friends);
+    this._filter = filter;
+    this._current = this._nextFiltered();
 }
 
+Iterator.prototype._nextFiltered = function () {
+    let result;
+    do {
+        const next = this._friendsGenerator.next();
+        if (next.done || this._filter.check(next.value)) {
+            result = next;
+        }
+    } while (!result);
+
+    return result;
+};
+
 Iterator.prototype.done = function () {
-    return this._pointer === this._friends.length;
+    return this._current.done;
 };
 
 Iterator.prototype.next = function () {
     if (this.done()) {
         return null;
     }
+    const result = this._current;
+    this._current = this._nextFiltered();
 
-    return this._friends[this._pointer++];
+    return result.value;
 };
 
 /**
@@ -38,18 +48,19 @@ Iterator.prototype.next = function () {
  * @param {Number} maxLevel – максимальный круг друзей
  */
 function LimitedIterator(friends, filter, maxLevel) {
-    Iterator.call(this, friends, filter, maxLevel >= 0 ? maxLevel : 0);
+    this._friendsGenerator = _iterFriends(friends, maxLevel);
+    this._filter = filter;
+    this._current = this._nextFiltered();
 }
 
 LimitedIterator.prototype = Object.create(Iterator.prototype);
-LimitedIterator.prototype.constructor = LimitedIterator;
 
 /**
  * Фильтр друзей
  * @constructor
  */
 function Filter() {
-    this.satisfiesCondition = () => true;
+    this.check = () => true;
 }
 
 /**
@@ -59,7 +70,7 @@ function Filter() {
  */
 function MaleFilter() {
     Object.setPrototypeOf(this, Filter.prototype);
-    this.satisfiesCondition = friend => friend.gender === 'male';
+    this.check = friend => friend.gender === 'male';
 }
 
 /**
@@ -69,8 +80,7 @@ function MaleFilter() {
  */
 function FemaleFilter() {
     Object.setPrototypeOf(this, Filter.prototype);
-    this.satisfiesCondition = friend => friend.gender === 'female';
-
+    this.check = friend => friend.gender === 'female';
 }
 
 exports.Iterator = Iterator;
@@ -81,21 +91,33 @@ exports.MaleFilter = MaleFilter;
 exports.FemaleFilter = FemaleFilter;
 
 
-function* _getCircles(friends, maxLevel) {
+const _getFriendsByNames = (friends) =>
+    new Map(friends.map(f => [f.name, f]));
+
+
+const _getNextCircle = (friends, friendsByNames, visited) =>
+    friends.map(f => f.friends)
+        .filter(Boolean)
+        .reduce((acc, curr) => acc.concat(curr), [])
+        .filter(fName => !visited.has(fName))
+        .sort((a, b) => a.localeCompare(b))
+        .map(fName => friendsByNames.get(fName));
+
+
+function* _iterFriends(friends, maxCircle = Infinity) {
+    const friendsByNames = _getFriendsByNames(friends);
     const visited = new Set();
-    const friendsByName = new Map(friends.map(f => [f.name, f]));
-    let circle = friends
-        .filter(f => f.best);
-    let level = 0;
-    while (circle.length && level < maxLevel) {
-        circle.sort((a, b) => a.name.localeCompare(b.name))
-            .forEach(f => visited.add(f.name));
-        yield circle;
-        circle = circle
-            .filter(f => f.friends)
-            .reduce((acc, curr) => acc.concat(curr.friends), [])
-            .map(fName => friendsByName.get(fName))
-            .filter(f => !visited.has(f.name));
-        level += 1;
-    }
+    const billy = {
+        name: 'Billy',
+        friends: friends.filter(f => f.best)
+            .map(f => f.name)
+    };
+    let circleNum = 0;
+    let currentCircle = [billy];
+    do {
+        currentCircle = _getNextCircle(currentCircle, friendsByNames, visited);
+        currentCircle.forEach(f => visited.add(f.name));
+        yield* currentCircle;
+        circleNum += 1;
+    } while (circleNum < maxCircle && currentCircle.length > 0);
 }
