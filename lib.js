@@ -6,9 +6,13 @@
  * @constructor
  * @param {Object[]} friends
  * @param {Filter} filter
+ * @param {Number} maxLevel – максимальный круг друзей
  */
-function Iterator(friends, filter) {
-    this._friendsGenerator = _iterFriends(friends);
+function Iterator(friends, filter, maxLevel = Infinity) {
+    if (!(filter instanceof Filter)) {
+        throw new TypeError();
+    }
+    this._friendsGenerator = _iterFriends(friends, maxLevel < 0 ? 0 : maxLevel);
     this._filter = filter;
     this._current = this._nextFiltered();
 }
@@ -48,12 +52,11 @@ Iterator.prototype.next = function () {
  * @param {Number} maxLevel – максимальный круг друзей
  */
 function LimitedIterator(friends, filter, maxLevel) {
-    this._friendsGenerator = _iterFriends(friends, maxLevel);
-    this._filter = filter;
-    this._current = this._nextFiltered();
+    Iterator.call(this, friends, filter, maxLevel);
 }
 
 LimitedIterator.prototype = Object.create(Iterator.prototype);
+
 
 /**
  * Фильтр друзей
