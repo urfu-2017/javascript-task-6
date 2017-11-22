@@ -62,18 +62,16 @@ Iterator.prototype = {
 };
 
 function getNextLevelFriends(visited, friends, prevFriends) {
-    let result = [];
     let allNextLevelFriends = prevFriends.reduce((curr, friend) => curr.concat(friend.friends), []);
-    for (let friend of allNextLevelFriends) {
-        if (visited.indexOf(friend) !== -1) {
-            continue;
-        }
-        visited.push(friend);
-        result.push(friends[friend]);
+    let friends = allNextLevelFriends
+        .filter(friendName => visited.indexOf(friendName) === -1)
+        .map(friendName => friends[friendName])
+        .sort(compareFriends);
+    for (let friend of friends) {
+        visited.push(friend.name);
     }
-    result.sort(compareFriends);
 
-    return result;
+    return friends;
 }
 
 function compareFriends(friendA, friendB) {
