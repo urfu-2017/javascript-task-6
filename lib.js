@@ -5,40 +5,39 @@ function compareFriends(friend1, friend2) {
     return (friend1.name > friend2.name);
 }
 
-function getListFriends(friends) {
-    let bestFriend = [];
-    let lessBestFriend = [];
+function getFriendsList(friends) {
+    let bestFriends = [];
+    let otherFriend = [];
     for (let i = 0; i < friends.length; i++) {
         if (friends[i].best) {
-            bestFriend.push(friends[i]);
+            bestFriends.push(friends[i]);
         } else {
-            lessBestFriend.push(friends[i]);
+            otherFriend.push(friends[i]);
         }
     }
     let result = [];
-    result.push(bestFriend);
-    while (lessBestFriend.length !== 0) {
-        let leng = lessBestFriend.length;
-        let newBestFriend = [];
-        for (let i = 0; i < bestFriend.length; i++) {
-            let friendsFriend = bestFriend[i].friends;
-            let halfResult = lessBestFriend.reduce(function (accum, elem) {
-                if (friendsFriend.includes(elem.name)) {
-                    accum[0].push(elem);
-                } else {
-                    accum[1].push(elem);
-                }
-
-                return accum;
-            }, [[], []]);
-            newBestFriend = newBestFriend.concat(halfResult[0]);
-            lessBestFriend = halfResult[1];
+    result.push(bestFriends);
+    while (otherFriend.length !== 0) {
+        let length = otherFriend.length;
+        let friendsFriend = [];
+        for (let i = 0; i < bestFriends.length; i++) {
+            friendsFriend = friendsFriend.concat(bestFriends[i].friends);
         }
-        if (leng === lessBestFriend.length) {
+        let halfResult = otherFriend.reduce(function (accum, elem) {
+            if (friendsFriend.includes(elem.name)) {
+                accum[0].push(elem);
+            } else {
+                accum[1].push(elem);
+            }
+
+            return accum;
+        }, [[], []]);
+        bestFriends = halfResult[0];
+        otherFriend = halfResult[1];
+        if (length === otherFriend.length) {
             return result;
         }
-        bestFriend = newBestFriend;
-        result.push(bestFriend);
+        result.push(bestFriends);
     }
 
     return result;
@@ -54,10 +53,10 @@ function Iterator(friends, filter) {
     if (!(filter instanceof Filter)) {
         throw new TypeError('Bad filter(');
     }
-    friends = getListFriends(friends);
+    let newFriends = getFriendsList(friends);
     let result = [];
-    for (let i = 0; i < friends.length; i++) {
-        let halfResult = friends[i].filter(filter.filter).sort(compareFriends);
+    for (let i = 0; i < newFriends.length; i++) {
+        let halfResult = newFriends[i].filter(filter.filter).sort(compareFriends);
         result = result.concat(halfResult);
     }
     this.friends = result;
@@ -85,13 +84,14 @@ function LimitedIterator(friends, filter, maxLevel) {
         throw new TypeError('Bad filter(');
     }
 
-    friends = getListFriends(friends);
+    let newFriends = getFriendsList(friends);
     let result = [];
-    if (maxLevel > friends.length) {
-        maxLevel = friends.length;
+    let newMaxLevel = maxLevel;
+    if (maxLevel > newFriends.length) {
+        newMaxLevel = newFriends.length;
     }
-    for (let i = 0; i < maxLevel; i++) {
-        let halfResult = friends[i].filter(filter.filter).sort(compareFriends);
+    for (let i = 0; i < newMaxLevel; i++) {
+        let halfResult = newFriends[i].filter(filter.filter).sort(compareFriends);
         result = result.concat(halfResult);
     }
     this.friends = result;
@@ -138,3 +138,4 @@ exports.LimitedIterator = LimitedIterator;
 exports.Filter = Filter;
 exports.MaleFilter = MaleFilter;
 exports.FemaleFilter = FemaleFilter;
+exports.isStar = true;
