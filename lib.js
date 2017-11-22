@@ -1,13 +1,83 @@
 'use strict';
 
+
+function applyFilter(friends, compareFunction) {
+    return friends.filter(compareFunction);
+}
+
+function collectUniqueFriends(storage, friend, friends) {
+    var friendsToAdd = friend.friends;
+    for (var q = 0; q < friendsToAdd.length; q ++) {
+        storage.add(getFriendByName(friends, friendsToAdd[q]));
+
+    }
+
+    return storage;
+}
+
+function getFriendByName(friends, name) {
+    var lookup = friends.filter((friend) => {
+        return friend.name === name;
+    });
+
+    return lookup[0];
+}
+
+function getFriendsUpToLvl(friends, lvl) { // eslint-disable-line max-statements
+    var box1 = []; // мне правда проще с цифрами
+    var friendsUpToLvl = [];
+    box1 = friends.filter((friend) => {
+        return friend.best;
+    });
+    box1.sort(function (a, b) {
+        return a.name > b.name;
+    });
+    while (lvl > 0 && box1.length > 0) {
+        var box2 = new Set();
+        box1.sort(function (a, b) {
+            return a.name > b.name;
+        });
+        box1.forEach((friend) => { // eslint-disable-line no-loop-func
+            if (!friendsUpToLvl.includes(friend)) {
+                friendsUpToLvl.push(friend);
+                box2 = collectUniqueFriends(box2, friend, friends);
+            }
+        });
+        box1 = Array.from(box2);
+        lvl -= 1;
+    }
+
+    return friendsUpToLvl;
+}
+
 /**
  * Итератор по друзьям
  * @constructor
  * @param {Object[]} friends
  * @param {Filter} filter
+ * @param {Number} maxLevel – максимальный круг друзей
  */
-function Iterator(friends, filter) {
-    console.info(friends, filter);
+function Iterator(friends, filter, maxLevel = Infinity) {
+    if (!(filter instanceof Filter)) {
+        throw new TypeError('not a filter!');
+    }
+    var allFriendsPossible = getFriendsUpToLvl(friends, maxLevel);
+    this.friendsToInvite = applyFilter(allFriendsPossible, filter.compareFunction);
+    this.count = 0;
+    this.next = function () {
+        var nextFriend = null;
+        if (!this.done()) {
+            nextFriend = this.friendsToInvite[this.count];
+            this.count++;
+
+            return nextFriend;
+        }
+
+        return nextFriend;
+    };
+    this.done = function () {
+        return this.count >= this.friendsToInvite.length;
+    };
 }
 
 /**
@@ -19,15 +89,23 @@ function Iterator(friends, filter) {
  * @param {Number} maxLevel – максимальный круг друзей
  */
 function LimitedIterator(friends, filter, maxLevel) {
-    console.info(friends, filter, maxLevel);
+    if (!(filter instanceof Filter)) {
+        throw new TypeError('not a filter!');
+    }
+    Iterator.call(this, friends, filter, maxLevel);
 }
+
+LimitedIterator.prototype = Object.create(Iterator.prototype);
 
 /**
  * Фильтр друзей
  * @constructor
  */
 function Filter() {
-    console.info('Filter');
+    this.compareFunction = function () {
+        return true;
+    };
+
 }
 
 /**
@@ -36,8 +114,12 @@ function Filter() {
  * @constructor
  */
 function MaleFilter() {
-    console.info('MaleFilter');
+    this.compareFunction = function (friend) {
+        return friend.gender === 'male';
+    };
 }
+
+MaleFilter.prototype = Object.create(Filter.prototype);
 
 /**
  * Фильтр друзей-девушек
@@ -45,8 +127,12 @@ function MaleFilter() {
  * @constructor
  */
 function FemaleFilter() {
-    console.info('FemaleFilter');
+    this.compareFunction = function (friend) {
+        return friend.gender === 'female';
+    };
 }
+
+FemaleFilter.prototype = Object.create(Filter.prototype);
 
 exports.Iterator = Iterator;
 exports.LimitedIterator = LimitedIterator;
