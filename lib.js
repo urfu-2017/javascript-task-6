@@ -4,28 +4,26 @@ const findFriendByName = (name, friends) => friends.find(friend => friend.name =
 
 const sortByLevels = friends => friends.sort((a, b) => a.name.localeCompare(b.name));
 
-const getNewFriends = (arr, visited) => arr.filter(friend => visited.indexOf(friend) === -1);
-
 const bfs = (friends, friendsInLevels = [], queue = [], visited = []) => {
-    const besties = friends.filter(element => element.best);
     if (queue.length === 0) {
+        const besties = friends.filter(element => element.best);
         friendsInLevels.push(besties);
         queue = besties.slice();
         visited = besties.map(friend => friend.name);
     }
 
-    let namesArray = queue.reduce((acc, friend) => {
-        acc.push(...friend.friends);
+    const newQueue = queue.reduce((acc, friend) => {
+        acc.push(...friend.friends
+            .filter(friendName => !(visited.includes(friendName)))
+            .map(friendName => findFriendByName(friendName, friends)));
 
         return acc;
     }, []);
-    namesArray = getNewFriends(namesArray, visited);
-    queue = namesArray.map(friend => findFriendByName(friend, friends));
-    visited = visited.concat(namesArray);
-    friendsInLevels.push(queue);
+    visited = visited.concat(newQueue.map(friend => friend.name));
+    friendsInLevels.push(newQueue);
 
-    if (queue.length > 0) {
-        bfs(friends, friendsInLevels, queue, visited);
+    if (newQueue.length > 0) {
+        bfs(friends, friendsInLevels, newQueue, visited);
     }
 
     return friendsInLevels;
@@ -111,7 +109,6 @@ class LimitedIterator extends Iterator {
         }
     }
 }
-
 
 exports.Iterator = Iterator;
 exports.LimitedIterator = LimitedIterator;
