@@ -56,13 +56,12 @@ function findCircles(friends, condition, maxCircle = Infinity) {
  * @constructor
  * @param {Object[]} friends
  * @param {Filter} filter
- * @param {Number} maxLevel
  */
-function Iterator(friends, filter, maxLevel = Infinity) {
+function Iterator(friends, filter) {
     if (!(filter instanceof Filter)) {
         throw new TypeError('Not instance of Filter');
     }
-    this.guests = findCircles(friends, filter.condition, maxLevel);
+    this.guests = this._prepare.apply(this, arguments);
 }
 
 Iterator.prototype.done = function () {
@@ -81,11 +80,19 @@ Iterator.prototype.next = function () {
  * @param {Filter} filter
  * @param {Number} maxLevel – максимальный круг друзей
  */
-function LimitedIterator(friends, filter, maxLevel) {
-    Iterator.call(this, friends, filter, maxLevel);
+function LimitedIterator() {
+    Iterator.apply(this, arguments);
 }
 
 LimitedIterator.prototype = Object.create(Iterator.prototype);
+
+Iterator.prototype._prepare = function (friends, filter) {
+    return findCircles(friends, filter.condition, Infinity);
+};
+
+LimitedIterator.prototype._prepare = function (friends, filter, maxLevel) {
+    return findCircles(friends, filter.condition, maxLevel);
+};
 
 /**
  * Фильтр друзей
