@@ -1,7 +1,7 @@
 'use strict';
 
-function compareNames(first, second) {
-    return first.name.localeCompare(second.name);
+function compareNames(a, b) {
+    return a.name.localeCompare(b.name);
 }
 
 /**
