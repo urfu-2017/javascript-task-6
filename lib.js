@@ -14,15 +14,11 @@ function translateCirclesToNames(nameToCircle) {
 }
 
 function sortNamesInCircles(circlesToNames) {
-    Object.values(circlesToNames).forEach(names => {
-        names.sort();
-    });
+    Object.values(circlesToNames).forEach(names => names.sort());
 }
 
 function findCircles(friends, maxLevel = Infinity) {
-    let friendsQueue = friends.filter(friend => {
-        return friend.best;
-    });
+    let friendsQueue = friends.filter(friend => friend.best);
 
     let nameToFriends = friends.reduce((accumulator, friend) => {
         accumulator[friend.name] = friend;
@@ -58,9 +54,7 @@ function findCircles(friends, maxLevel = Infinity) {
     sortNamesInCircles(circlesToNames);
     let sortedNames = concatCircles(circlesToNames, maxLevel);
 
-    let sortedFriends = sortedNames.map(name => {
-        return nameToFriends[name];
-    });
+    let sortedFriends = sortedNames.map(name =>nameToFriends[name]);
 
     return sortedFriends;
 }
@@ -88,9 +82,7 @@ function Iterator(friends, filter) {
         throw new TypeError('The filter must be instance of Filter');
     }
 
-    this.sortedFriends = findCircles(friends).filter(friend => {
-        return filter.filter(friend);
-    });
+    this.sortedFriends = findCircles(friends).filter(friend => filter.filter(friend));
 
     this.index = 0;
     this.done = function () {
