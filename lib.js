@@ -38,7 +38,7 @@ function getFriendsUpToLvl(friends, lvl) { // eslint-disable-line max-statements
         box1.sort(function (a, b) {
             return a.name > b.name;
         });
-        box1.forEach((friend) => {
+        box1.forEach((friend) => { // eslint-disable-line no-loop-func
             if (!friendsUpToLvl.includes(friend)) {
                 friendsUpToLvl.push(friend);
                 box2 = collectUniqueFriends(box2, friend, friends);
