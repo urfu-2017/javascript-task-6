@@ -5,7 +5,7 @@ function applyFilter(friends, compareFunction) {
     return friends.filter(compareFunction);
 }
 
-function collectAllFrineds(storage, friend, friends) {
+function collectUniqueFriends(storage, friend, friends) {
     var friendsToAdd = friend.friends;
     for (var q = 0; q < friendsToAdd.length; q ++) {
         if (!storage.includes(friendsToAdd[q])) {
@@ -17,13 +17,11 @@ function collectAllFrineds(storage, friend, friends) {
 }
 
 function getFriendByName(friends, name) {
-    for (var fr = 0; fr < friends.length; fr++) {
-        if (friends[fr].name === name) {
-            return friends[fr];
-        }
-    }
+    var lookup = friends.filter(function (friend) {
+        return friend.name === name;
+    });
 
-    return null;
+    return lookup[0];
 }
 
 function getFriendsUpToLvl(friends, lvl) { // eslint-disable-line max-statements
@@ -43,7 +41,7 @@ function getFriendsUpToLvl(friends, lvl) { // eslint-disable-line max-statements
         box1.map(function (friend) { // eslint-disable-line array-callback-return, no-loop-func
             if (!friendsUpToLvl.includes(friend)) {
                 friendsUpToLvl.push(friend);
-                box2 = collectAllFrineds(box2, friend, friends);
+                box2 = collectUniqueFriends(box2, friend, friends);
             }
         });
         box1 = box2.slice(0);
