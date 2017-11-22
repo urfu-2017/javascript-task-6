@@ -1,7 +1,7 @@
 'use strict';
 
-function compareNames(a, b) {
-    return a.name.localeCompare(b.name);
+function compareNames(first, second) {
+    return first.name.localeCompare(second.name);
 }
 
 /**
@@ -24,7 +24,7 @@ function Iterator(friends, filter) {
 
     this
         ._init()
-        ._addLvls()
+        ._addLevels()
         ._filterFriends();
 }
 
@@ -42,7 +42,7 @@ Iterator.prototype._init = function () {
     return this;
 };
 
-Iterator.prototype._addLvls = function () {
+Iterator.prototype._addLevels = function () {
     while (this._maxLevel >= this._level && this._activeLevel.length !== 0) {
         this._invitedFriends = this._invitedFriends.concat(this._activeLevel);
         this._level++;
@@ -64,7 +64,7 @@ Iterator.prototype._addLvls = function () {
 
 Iterator.prototype._filterFriends = function () {
     this._invitedFriends = this._invitedFriends
-        .filter(friend => this._filter._checkFriend(friend));
+        .filter(friend => this._filter.checkFriend(friend));
 };
 
 Iterator.prototype.next = function () {
@@ -89,6 +89,7 @@ function LimitedIterator(friends, filter, maxLevel) {
 }
 
 LimitedIterator.prototype = Object.create(Iterator.prototype);
+LimitedIterator.prototype.constructor = LimitedIterator;
 
 /**
  * Фильтр друзей
@@ -98,8 +99,8 @@ function Filter() {
     this._checkFriend = () => true;
 }
 
-Filter.prototype._checkFriend = function (friend) {
-    return friend.gender === this._filter;
+Filter.prototype.checkFriend = function (friend) {
+    return this._checkFriend(friend);
 };
 
 /**
@@ -108,10 +109,12 @@ Filter.prototype._checkFriend = function (friend) {
  * @constructor
  */
 function MaleFilter() {
-    this._filter = 'male';
+    Filter.apply(this, arguments);
+    this._checkFriend = friend => friend.gender === 'male';
 }
 
 MaleFilter.prototype = Object.create(Filter.prototype);
+MaleFilter.prototype.constructor = MaleFilter;
 
 /**
  * Фильтр друзей-девушек
@@ -119,10 +122,12 @@ MaleFilter.prototype = Object.create(Filter.prototype);
  * @constructor
  */
 function FemaleFilter() {
-    this._filter = 'female';
+    Filter.apply(this, arguments);
+    this._checkFriend = friend => friend.gender === 'female';
 }
 
 FemaleFilter.prototype = Object.create(Filter.prototype);
+FemaleFilter.prototype.constructor = FemaleFilter;
 
 exports.Iterator = Iterator;
 exports.LimitedIterator = LimitedIterator;
