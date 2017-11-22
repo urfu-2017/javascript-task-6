@@ -25,9 +25,9 @@ function getNewLevel(friends, currentLevel, visited, queue) {
         .sort(sortFriendsByName);
 }
 
-function getFriendsQueue(friends, filterObject, maxLevel) {
-    if (maxLevel === undefined) {
-        maxLevel = Number.POSITIVE_INFINITY;
+function getFriendsQueue(friends, filterObject, maxLevel = Number.POSITIVE_INFINITY) {
+    if (maxLevel === 0) {
+        return [];
     }
     const queue = [];
     let visited = [];
