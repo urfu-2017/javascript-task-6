@@ -33,7 +33,7 @@ function getFriendsUpToLvl(friends, lvl) { // eslint-disable-line max-statements
         return a.name > b.name;
     });
     while (lvl > 0 && box1.length > 0) {
-        var box2 =  new Set();
+        var box2 = new Set();
         box1.sort(function (a, b) {
             return a.name > b.name;
         });
@@ -43,7 +43,7 @@ function getFriendsUpToLvl(friends, lvl) { // eslint-disable-line max-statements
                 box2 = collectUniqueFriends(box2, friend, friends);
             }
         });
-        box1 =  Array.from(box2);
+        box1 = Array.from(box2);
         lvl -= 1;
     }
 
