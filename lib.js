@@ -1,10 +1,10 @@
 'use strict';
 
 /**
- * Сортировка друзей по именам
+ * Возвращает результат сравнения двух друзей по имени
  * @param {Object} friend1 - Друг 1
  * @param {Object} friend2 - Друг 2
- * @returns {Number} - Порядок сортировки
+ * @returns {Number}
  */
 function friendsSort(friend1, friend2) {
     let name1 = friend1.name;
@@ -14,14 +14,13 @@ function friendsSort(friend1, friend2) {
     }
 
     return (name1 > name2) ? 1 : -1; // по возрастанию
-
 }
 
 /**
- * Найти не приглашенных друзей
- * @param {Object} friendsToFind - Друзья, которых мы ищем
- * @param {Object} invitedFriends - Список приглашённых
- * @returns {Object} - Друзья, которых ещё не пригласили
+ * Возвращает подмножество друзей, которых ещё не пригласили
+ * @param {Array} friendsToFind - Друзья, которых мы ищем
+ * @param {Array} invitedFriends - Список приглашённых
+ * @returns {Array}
  */
 function findUnvisitedFriends(friendsToFind, invitedFriends) {
 
@@ -37,15 +36,22 @@ function findUnvisitedFriends(friendsToFind, invitedFriends) {
  */
 function getFriends(friends, filter, maxLevel = Infinity) {
     let invitedFriends = [];
+    if (maxLevel === 0) {
+        return invitedFriends;
+    }
     let currentLevelFriends = friends
         .filter(friend => friend.best)
         .sort(friendsSort);
     while (currentLevelFriends.length > 0 && maxLevel > 0) {
         invitedFriends = invitedFriends.concat(currentLevelFriends);
         currentLevelFriends = currentLevelFriends
-            .reduce((accum, friend) => accum
-                .concat(findUnvisitedFriends(friend.friends, accum)), [])
-            .map(name => friends.find(friend => friend.name === name));
+            .reduce(
+                (collectedFriends, friend) => collectedFriends.concat(
+                    findUnvisitedFriends(friend.friends, collectedFriends)
+                ),
+                []
+            )
+            .map(name => friends.find(allFriends => allFriends.name === name));
         currentLevelFriends = findUnvisitedFriends(currentLevelFriends, invitedFriends)
             .sort(friendsSort);
 
@@ -65,16 +71,17 @@ function Iterator(friends, filter) {
     if (!(filter instanceof Filter)) {
         throw new TypeError('Неправильный формат фильтра');
     }
-    this.friends = getFriends(friends, filter);
+    this._index = 0;
+    this._friends = getFriends(friends, filter);
 }
 
 /**
- * Следующая итерация
- * @returns {null|Object} - Вернет null, если обход закончен или Друга в противном случае 
+ * Возвращает следующего друга или null, если обход закончен
+ * @returns {null|Object}
  */
 Iterator.prototype.next = function () {
 
-    return this.done() ? null : this.friends.shift();
+    return this.done() ? null : this._friends[this._index++];
 };
 
 /**
@@ -83,7 +90,7 @@ Iterator.prototype.next = function () {
  */
 Iterator.prototype.done = function () {
 
-    return this.friends.length === 0;
+    return this._index === this._friends.length;
 };
 
 /**
@@ -96,7 +103,7 @@ Iterator.prototype.done = function () {
  */
 function LimitedIterator(friends, filter, maxLevel) {
     Iterator.call(this, friends, filter);
-    this.friends = getFriends(friends, filter, maxLevel);
+    this._friends = getFriends(friends, filter, maxLevel);
 }
 Object.setPrototypeOf(LimitedIterator.prototype, Iterator.prototype);
 
