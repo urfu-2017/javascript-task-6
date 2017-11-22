@@ -33,7 +33,7 @@ Iterator.prototype = {
             return null;
         }
         let result = this._currentLevelFriends[this._currentIndex];
-        while (this._next()) {
+        while (this._enumerateToNextElement()) {
             if (this.done()) {
                 return result;
             }
@@ -42,7 +42,7 @@ Iterator.prototype = {
         return result;
     },
 
-    _next: function () {
+    _enumerateToNextElement: function () {
         this._currentIndex++;
         if (this._currentIndex >= this._currentLevelFriends.length) {
             this._currentLevel++;
