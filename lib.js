@@ -17,7 +17,7 @@ function collectUniqueFriends(storage, friend, friends) {
 }
 
 function getFriendByName(friends, name) {
-    var lookup = friends.filter(function (friend) {
+    var lookup = friends.filter((friend) => {
         return friend.name === name;
     });
 
@@ -27,8 +27,8 @@ function getFriendByName(friends, name) {
 function getFriendsUpToLvl(friends, lvl) { // eslint-disable-line max-statements
     var box1 = []; // мне правда проще с цифрами
     var friendsUpToLvl = [];
-    box1 = friends.filter(function (friend) {
-        return friend.best === true;
+    box1 = friends.filter((friend) => {
+        return friend.best;
     });
     box1.sort(function (a, b) {
         return a.name > b.name;
@@ -38,7 +38,7 @@ function getFriendsUpToLvl(friends, lvl) { // eslint-disable-line max-statements
         box1.sort(function (a, b) {
             return a.name > b.name;
         });
-        box1.map(function (friend) { // eslint-disable-line array-callback-return, no-loop-func
+        box1.forEach(function (friend) {
             if (!friendsUpToLvl.includes(friend)) {
                 friendsUpToLvl.push(friend);
                 box2 = collectUniqueFriends(box2, friend, friends);
