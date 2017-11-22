@@ -8,9 +8,8 @@ function applyFilter(friends, compareFunction) {
 function collectUniqueFriends(storage, friend, friends) {
     var friendsToAdd = friend.friends;
     for (var q = 0; q < friendsToAdd.length; q ++) {
-        if (!storage.includes(friendsToAdd[q])) {
-            storage.push(getFriendByName(friends, friendsToAdd[q]));
-        }
+        storage.add(getFriendByName(friends, friendsToAdd[q]));
+
     }
 
     return storage;
@@ -34,7 +33,7 @@ function getFriendsUpToLvl(friends, lvl) { // eslint-disable-line max-statements
         return a.name > b.name;
     });
     while (lvl > 0 && box1.length > 0) {
-        var box2 = [];
+        var box2 =  new Set();
         box1.sort(function (a, b) {
             return a.name > b.name;
         });
@@ -44,7 +43,7 @@ function getFriendsUpToLvl(friends, lvl) { // eslint-disable-line max-statements
                 box2 = collectUniqueFriends(box2, friend, friends);
             }
         });
-        box1 = box2.slice(0);
+        box1 =  Array.from(box2);
         lvl -= 1;
     }
 
