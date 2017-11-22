@@ -55,12 +55,13 @@ function getFriendsUpToLvl(friends, lvl) { // eslint-disable-line max-statements
  * @constructor
  * @param {Object[]} friends
  * @param {Filter} filter
+ * @param {Number} maxLevel – максимальный круг друзей
  */
-function Iterator(friends, filter) {
+function Iterator(friends, filter, maxLevel = Infinity) {
     if (!(filter instanceof Filter)) {
         throw new TypeError('not a filter!');
     }
-    var allFriendsPossible = getFriendsUpToLvl(friends, Infinity);
+    var allFriendsPossible = getFriendsUpToLvl(friends, maxLevel);
     this.friendsToInvite = applyFilter(allFriendsPossible, filter.compareFunction);
     this.count = 0;
     this.next = function () {
@@ -91,10 +92,7 @@ function LimitedIterator(friends, filter, maxLevel) {
     if (!(filter instanceof Filter)) {
         throw new TypeError('not a filter!');
     }
-    Iterator.call(this, friends, filter);
-    this.count = 0;
-    var allFriendsUpToLvl = getFriendsUpToLvl(friends, maxLevel);
-    this.friendsToInvite = applyFilter(allFriendsUpToLvl, filter.compareFunction);
+    Iterator.call(this, friends, filter, maxLevel);
 }
 
 LimitedIterator.prototype = Object.create(Iterator.prototype);
