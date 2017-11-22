@@ -2,28 +2,34 @@
 
 /* eslint-disable max-statements*/
 function compareFriends(friend1, friend2) {
-    return (friend1.name > friend2.name);
+    if (friend1.name > friend2.name) {
+        return 1;
+    } else if (friend1.name === friend2.name) {
+        return 0;
+    }
+
+    return -1;
 }
 
 function getFriendsList(friends) {
     let bestFriends = [];
-    let otherFriend = [];
+    let otherFriends = [];
     for (let i = 0; i < friends.length; i++) {
         if (friends[i].best) {
             bestFriends.push(friends[i]);
         } else {
-            otherFriend.push(friends[i]);
+            otherFriends.push(friends[i]);
         }
     }
     let result = [];
     result.push(bestFriends);
-    while (otherFriend.length !== 0) {
-        let length = otherFriend.length;
+    while (otherFriends.length !== 0) {
+        let length = otherFriends.length;
         let friendsFriend = [];
         for (let i = 0; i < bestFriends.length; i++) {
             friendsFriend = friendsFriend.concat(bestFriends[i].friends);
         }
-        let halfResult = otherFriend.reduce(function (accum, elem) {
+        let halfResult = otherFriends.reduce(function (accum, elem) {
             if (friendsFriend.includes(elem.name)) {
                 accum[0].push(elem);
             } else {
@@ -33,8 +39,8 @@ function getFriendsList(friends) {
             return accum;
         }, [[], []]);
         bestFriends = halfResult[0];
-        otherFriend = halfResult[1];
-        if (length === otherFriend.length) {
+        otherFriends = halfResult[1];
+        if (length === otherFriends.length) {
             return result;
         }
         result.push(bestFriends);
