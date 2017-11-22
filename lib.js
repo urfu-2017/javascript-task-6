@@ -5,7 +5,7 @@ const findFriendByName = (name, friends) => friends.find(friend => friend.name =
 const sortByLevels = friends => friends.sort((a, b) => a.name.localeCompare(b.name));
 
 const bfs = (friends, friendsInLevels = [], queue = [], visited = []) => {
-    if (queue.length === 0) {
+    if (!queue.length) {
         const besties = friends.filter(element => element.best);
         friendsInLevels.push(besties);
         queue = besties.slice();
@@ -22,7 +22,7 @@ const bfs = (friends, friendsInLevels = [], queue = [], visited = []) => {
     visited = visited.concat(newQueue.map(friend => friend.name));
     friendsInLevels.push(newQueue);
 
-    if (newQueue.length > 0) {
+    if (newQueue.length) {
         bfs(friends, friendsInLevels, newQueue, visited);
     }
 
