@@ -82,7 +82,7 @@ function Iterator(friends, filter) {
         throw new TypeError('The filter must be instance of Filter');
     }
 
-    this.sortedFriends = findCircles(friends).filter(friend => filter.filter(friend));
+    this.sortedFriends = findCircles(friends).filter(filter.filter);
 
     this.index = 0;
     this.done = function () {
@@ -108,9 +108,7 @@ function Iterator(friends, filter) {
  */
 function LimitedIterator(friends, filter, maxLevel) {
     Iterator.call(this, friends, filter);
-    this.sortedFriends = findCircles(friends, maxLevel).filter(friend => {
-        return filter.filter(friend);
-    });
+    this.sortedFriends = findCircles(friends, maxLevel).filter(filter.filter);
 }
 
 LimitedIterator.prototype = Object.create(Iterator.prototype);
