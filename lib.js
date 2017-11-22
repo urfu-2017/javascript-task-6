@@ -1,14 +1,8 @@
 'use strict';
 
-/**
- * Итератор по друзьям
- * @constructor
- * @param {Object[]} friends
- * @param {Filter} filter
- */
-function Iterator(friends, filter) {
+function Iterator(friends, filter, maxLevel) {
     if (!(filter instanceof Filter)) {
-        throw new TypeError();
+        throw new TypeError('Передан плохой фильтр!');
     }
     this._filter = filter;
     this._friends = {};
@@ -16,7 +10,10 @@ function Iterator(friends, filter) {
     for (let friend of friends) {
         this._friends[friend.name] = friend;
     }
-    this._maxLevel = Infinity;
+    if (maxLevel === undefined) {
+        maxLevel = Infinity;
+    }
+    this._maxLevel = maxLevel;
     this._currentLevel = 1;
     this._currentIndex = -1;
     this._currentLevelFriends = friends
@@ -92,23 +89,7 @@ function compareFriends(friendA, friendB) {
  * @param {Number} maxLevel – максимальный круг друзей
  */
 function LimitedIterator(friends, filter, maxLevel) {
-    if (!(filter instanceof Filter)) {
-        throw new TypeError();
-    }
-    this._filter = filter;
-    this._friends = {};
-
-    for (let friend of friends) {
-        this._friends[friend.name] = friend;
-    }
-    this._maxLevel = maxLevel;
-    this._currentLevel = 1;
-    this._currentIndex = -1;
-    this._currentLevelFriends = friends
-        .filter(friend => friend.best)
-        .sort(compareFriends);
-    this._visited = this._currentLevelFriends.map(friend => friend.name);
-    this.next();
+    Iterator.apply(this, [friends, filter, maxLevel]);
 }
 
 Object.setPrototypeOf(LimitedIterator.prototype, Iterator.prototype);
