@@ -2,10 +2,10 @@
 /* eslint no-loop-func:  */
 
 function sortNames(name1, name2) {
-    if (name1 < name2) {
+    if (name1.toLowerCase() < name2.toLowerCase()) {
         return -1;
     }
-    if (name1 > name2) {
+    if (name1.toLowerCase() > name2.toLowerCase()) {
         return 1;
     }
 
@@ -68,14 +68,7 @@ class Iterator {
         }
         this.friendList = friends.sort(sortByNames);
         this.filter = filter;
-        this.unchecked = friends.filter(friend => !friend.best);
         this.inviteList = this.getInviteList();
-    }
-    isChecked(friend) {
-        return this.unchecked.indexOf(friend) === -1;
-    }
-    check(friend) {
-        this.unchecked.splice(this.unchecked.indexOf(friend), 1);
     }
     findFriend(name) {
         return this.friendList.find(friend => friend.name === name);
@@ -86,13 +79,14 @@ class Iterator {
         while (toInvite[i]) {
             toInvite[i].friends.sort(sortNames).forEach(function (name) {
                 let friend = this.findFriend(name);
-                let checked = this.isChecked(friend);
-                if (!checked) {
-                    this.check(friend);
+                if (!isInvited(friend)) {
                     toInvite.push(friend);
                 }
             }.bind(this));
             i++;
+        }
+        function isInvited(friend) {
+            return toInvite.includes(friend);
         }
 
         return toInvite.filter(this.filter.check);
@@ -117,7 +111,6 @@ class LimitedIterator extends Iterator {
      */
     constructor(friends, filter, maxLevel) {
         super(friends, filter);
-        this.unchecked = friends.filter(friend => !friend.best);
         this.inviteList = this.getInviteList(maxLevel);
     }
 
@@ -129,9 +122,7 @@ class LimitedIterator extends Iterator {
         while (i < maxLevel - 1) {
             currentWave.forEach(person => person.friends.sort(sortNames).forEach(function (name) {
                 let friend = this.findFriend(name);
-                let checked = this.isChecked(friend);
-                if (!checked) {
-                    this.check(friend);
+                if (!isInvited(friend)) {
                     nextWave.push(friend);
                 }
             }.bind(this)));
@@ -139,6 +130,9 @@ class LimitedIterator extends Iterator {
             currentWave = [...nextWave];
             nextWave = [];
             i++;
+        }
+        function isInvited(friend) {
+            return toInvite.includes(friend);
         }
 
         return toInvite.filter(this.filter.check);
