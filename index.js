@@ -1,11 +1,11 @@
 'use strict';
 
-var lib = require('./lib');
+let lib = require('./lib');
 
-var friends = [
+let friends = [
     {
         name: 'Sam',
-        friends: ['Mat', 'Sharon'],
+        friends: ['Mat', 'Sharon', 'Julia'],
         gender: 'male',
         best: true
     },
@@ -48,16 +48,16 @@ var friends = [
 ];
 
 // Создаем фильтры парней и девушек
-var maleFilter = new lib.MaleFilter();
-var femaleFilter = new lib.FemaleFilter();
+let maleFilter = new lib.MaleFilter();
+let femaleFilter = new lib.FemaleFilter();
 
 // Создаем итераторы
-var femaleIterator = new lib.Iterator(friends, femaleFilter);
+let femaleIterator = new lib.Iterator(friends, femaleFilter);
 
 // Среди парней приглашаем только луших друзей и друзей лучших друзей
-var maleIterator = new lib.LimitedIterator(friends, maleFilter, 2);
+let maleIterator = new lib.LimitedIterator(friends, maleFilter, 2);
 
-var invitedFriends = [];
+let invitedFriends = [];
 
 // Собираем пары «парень + девушка»
 while (!maleIterator.done() && !femaleIterator.done()) {
