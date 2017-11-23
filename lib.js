@@ -9,7 +9,7 @@ function sortFriendsByName(first, second) {
 }
 
 function isNotVisited(friend, visited, queue) {
-    return !visited.includes(friend) && queue.every(circle => !circle.includes(friend));
+    return !visited.includes(friend) && queue.every(level => !level.includes(friend));
 }
 
 function hasUnvisitedFriends(friends, visited) {
@@ -31,16 +31,16 @@ function getFriendsQueue(friends, filterObject, maxLevel = Number.POSITIVE_INFIN
     }
     const queue = [];
     let visited = [];
-    let circleCount = 0;
+    let levelCount = 0;
     queue.push(friends.filter(friend => friend.best).sort(sortFriendsByName));
-    while (hasUnvisitedFriends(friends, visited) && circleCount < maxLevel - 1) {
-        const newCircle = getNewLevel(friends, queue[circleCount], visited, queue);
-        if (!newCircle.length) {
+    while (hasUnvisitedFriends(friends, visited) && levelCount < maxLevel - 1) {
+        const newLevel = getNewLevel(friends, queue[levelCount], visited, queue);
+        if (!newLevel.length) {
             break;
         }
-        queue.push(newCircle);
-        visited = visited.concat(queue[circleCount]);
-        circleCount++;
+        queue.push(newLevel);
+        visited = visited.concat(queue[levelCount]);
+        levelCount++;
     }
 
     return queue.map(circle => circle.filter(filterObject.filter));
@@ -60,7 +60,7 @@ function checkFilter(filter) {
  */
 function Iterator(friends, filter) {
     checkFilter(filter);
-    this._friendsQueue = getFriendsQueue(friends, filter)
+    this._friendsQueue = getFriendsQueue(friends, filter, this._maxLevel)
         .reduce((result, level) => result.concat(level), []);
 }
 
@@ -85,12 +85,11 @@ Iterator.prototype.next = function () {
  * @param {Number} maxLevel – максимальный круг друзей
  */
 function LimitedIterator(friends, filter, maxLevel) {
-    checkFilter(filter);
     if (maxLevel < 0) {
         maxLevel = 0;
     }
-    this._friendsQueue = getFriendsQueue(friends, filter, maxLevel)
-        .reduce((result, level) => result.concat(level), []);
+    this._maxLevel = maxLevel;
+    Iterator.call(this, friends, filter);
 }
 
 LimitedIterator.prototype = Object.create(Iterator.prototype);
