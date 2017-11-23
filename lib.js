@@ -1,5 +1,5 @@
 'use strict';
-function listOfSelectedFriends(friends, bestFriends, level) {
+function createListOfFriends(friends, bestFriends, level) {
     var firstLevel = bestFriends;
     var secondLevel = [];
     var selectedFriends = [];
@@ -27,10 +27,12 @@ function listOfSelectedFriends(friends, bestFriends, level) {
 
     return selectedFriends;
 }
+createListOfFriends.prototype = Object.create(iterateByFriends.prototype);
 
 function sortFriends(a, b) {
     return a.name > b.name;
 }
+sortFriends.prototype = Object.create(createListOfFriends.prototype);
 
 function searchFriends(friends, newFriendName) {
     var invitedFriends = {};
@@ -45,6 +47,8 @@ function searchFriends(friends, newFriendName) {
     return invitedFriends;
 }
 
+searchFriends.prototype = Object.create(LimitedIterator.prototype);
+
 function iterateByFriends(friends, filter, maxLevel) {
     var checkedLevel = (!isNaN(parseInt(maxLevel))) ? maxLevel : Infinity;
     var bestFriends = [];
@@ -56,13 +60,14 @@ function iterateByFriends(friends, filter, maxLevel) {
         }
     });
 
-    return listOfSelectedFriends(friends, bestFriends, checkedLevel)
+    return createListOfFriends(friends, bestFriends, checkedLevel)
         .filter(function (selectFriend) {
 
             return filter.gender(selectFriend);
         });
 
 }
+iterateByFriends.prototype = Object.create(Iterator.prototype);
 
 /**
  * Итератор по друзьям
@@ -90,7 +95,7 @@ Iterator.prototype.next = function () {
 /**
  * Итератор по друзям с ограничением по кругу
  * @extends Iterator
- * @constructor Iterator
+ * @constructor
  * @param {Object[]} friends
  * @param {Filter} filter
  * @param {Number} maxLevel – максимальный круг друзей
@@ -105,6 +110,7 @@ function LimitedIterator(friends, filter, maxLevel) {
 }
 
 LimitedIterator.prototype = Object.create(Iterator.prototype);
+LimitedIterator.prototype.constructor = LimitedIterator;
 
 /**
  * Фильтр друзей
@@ -117,6 +123,8 @@ function Filter() {
         return true;
     };
 }
+
+Filter.prototype = Object.create(Iterator.prototype);
 
 /**
  * Фильтр друзей
