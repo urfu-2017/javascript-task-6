@@ -120,12 +120,13 @@ class LimitedIterator extends Iterator {
         let toInvite = [...currentWave];
         let i = 0;
         while (i < maxLevel - 1) {
-            currentWave.forEach(person => person.friends.sort(sortNames).forEach(function (name) {
+            currentWave.forEach(person => person.friends.forEach(function (name) {
                 let friend = this.findFriend(name);
                 if (!isInvited(friend)) {
                     nextWave.push(friend);
                 }
             }.bind(this)));
+            nextWave.sort(sortByNames);
             toInvite.push(...nextWave);
             currentWave = [...nextWave];
             nextWave = [];
