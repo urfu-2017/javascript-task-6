@@ -1,7 +1,5 @@
 'use strict';
 
-exports.isStar = true;
-
 function sortFunc(a, b) {
     return a.name < b.name;
 }
