@@ -43,6 +43,9 @@ Iterator.prototype = {
         this._currentIndex++;
         if (this._currentIndex >= this._currentLevelFriends.length) {
             this._currentLevel++;
+            if (this._currentLevel > this.maxLevel) {
+                return false;
+            }
             this._currentIndex = 0;
             this._currentLevelFriends = getNextLevelFriends(
                 this._visitedNames,
