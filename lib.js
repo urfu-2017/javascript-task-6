@@ -49,7 +49,7 @@ function createNewLevel(queue, visited, friends) {
     while (queue.length !== 0) {
         const currentFriend = queue.shift();
         const nextFriendsNames = currentFriend.friends.filter(filterFarFriends);
-        
+
         nextLevel = nextLevel.concat(nextFriendsNames.map(name => getFriendObj(name, friends)));
         visited.push(currentFriend);
     }
