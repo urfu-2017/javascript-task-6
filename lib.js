@@ -30,13 +30,17 @@ Iterator.prototype = {
             return null;
         }
         let result = this._currentLevelFriends[this._currentIndex];
-        while (this._enumerateToNextElement()) {
-            if (this.done()) {
-                return result;
-            }
-        }
+        this._enumerateToNextValidElement();
 
         return result;
+    },
+
+    _enumerateToNextValidElement: function () {
+        while (this._enumerateToNextElement() && !this.done()) {
+            if (this._filter.isMatched(this._currentLevelFriends[this._currentIndex])) {
+                break;
+            }
+        }
     },
 
     _enumerateToNextElement: function () {
@@ -57,7 +61,7 @@ Iterator.prototype = {
             return false;
         }
 
-        return !this._filter.isMatched(this._currentLevelFriends[this._currentIndex]);
+        return true;
     }
 };
 
