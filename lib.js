@@ -11,9 +11,9 @@ function Iterator(friends, filter) {
         throw new TypeError('Фильтр не является инстансом функции-конструктора Filter');
     }
     this._allFriendsByLevel = divideFriendsIntoLevels(friends);
-    this._friendsQueue = this._allFriendsByLevel
+    const friendsQueue = this._allFriendsByLevel
         .reduce((allFriends, level) => allFriends.concat(level), []);
-    this._filteredFriends = filter.filter(this._friendsQueue);
+    this._filteredFriends = filter.filter(friendsQueue);
 
     this.done = () => this._filteredFriends.length === 0;
     this.next = () => this.done() ? null : this._filteredFriends.shift();
@@ -23,12 +23,10 @@ function divideFriendsIntoLevels(friends) {
     const queue = [];
     const allFriendsByLevels = [];
     const visited = [];
-    let nextLevel = friends
-        .filter(friend => friend.best);
     while (hasUnvisited(friends, visited)) {
-        if (allFriendsByLevels.length !== 0) {
-            nextLevel = createNewLevel(queue, visited, friends);
-        }
+        const nextLevel = (allFriendsByLevels.length !== 0)
+            ? createNewLevel(queue, visited, friends) : friends.filter(friend => friend.best);
+
         if (nextLevel.length === 0) {
             break;
         }
@@ -51,8 +49,8 @@ function createNewLevel(queue, visited, friends) {
     while (queue.length !== 0) {
         const currentFriend = queue.shift();
         const nextFriendsNames = currentFriend.friends.filter(filterFarFriends);
+        
         nextLevel = nextLevel.concat(nextFriendsNames.map(name => getFriendObj(name, friends)));
-
         visited.push(currentFriend);
     }
 
@@ -88,10 +86,10 @@ function LimitedIterator(friends, filter, maxLevel) {
     maxLevel = maxLevel < 0 ? 0 : maxLevel;
 
     Iterator.call(this, friends, filter);
-    this._friendsQueue = this._allFriendsByLevel
+    const friendsQueue = this._allFriendsByLevel
         .slice(0, maxLevel)
         .reduce((allFriends, level) => allFriends.concat(level), []);
-    this._filteredFriends = filter.filter(this._friendsQueue);
+    this._filteredFriends = filter.filter(friendsQueue);
 }
 LimitedIterator.prototype = Object.create(Iterator.prototype);
 LimitedIterator.prototype.constructor = LimitedIterator;
