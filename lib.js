@@ -1,17 +1,14 @@
 'use strict';
 
-function Iterator(friends, filter, maxLevel) {
+function Iterator(friends, filter, maxLevel = Infinity) {
     if (!(filter instanceof Filter)) {
         throw new TypeError('Передан плохой фильтр!');
     }
     this._filter = filter;
-    this._friends = {};
+    this._friendsMap = {};
 
     for (let friend of friends) {
-        this._friends[friend.name] = friend;
-    }
-    if (maxLevel === undefined) {
-        maxLevel = Infinity;
+        this._friendsMap[friend.name] = friend;
     }
     this._maxLevel = maxLevel;
     this._currentLevel = 1;
@@ -19,7 +16,7 @@ function Iterator(friends, filter, maxLevel) {
     this._currentLevelFriends = friends
         .filter(friend => friend.best)
         .sort(compareFriends);
-    this._visited = this._currentLevelFriends.map(friend => friend.name);
+    this._visitedNames = this._currentLevelFriends.map(friend => friend.name);
     this.next();
 }
 
@@ -48,8 +45,8 @@ Iterator.prototype = {
             this._currentLevel++;
             this._currentIndex = 0;
             this._currentLevelFriends = getNextLevelFriends(
-                this._visited,
-                this._friends,
+                this._visitedNames,
+                this._friendsMap,
                 this._currentLevelFriends
             );
         }
