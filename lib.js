@@ -86,8 +86,8 @@ function compareFriends(friendA, friendB) {
  * @param {Filter} filter
  * @param {Number} maxLevel – максимальный круг друзей
  */
-function LimitedIterator(friends, filter, maxLevel) {
-    Iterator.apply(this, [friends, filter, maxLevel]);
+function LimitedIterator() {
+    Iterator.apply(this, [].slice.call(arguments));
 }
 
 Object.setPrototypeOf(LimitedIterator.prototype, Iterator.prototype);
