@@ -36,32 +36,25 @@ Iterator.prototype = {
     },
 
     _enumerateToNextValidElement: function () {
-        while (this._enumerateToNextElement() && !this.done()) {
-            if (this._filter.isMatched(this._currentLevelFriends[this._currentIndex])) {
-                break;
-            }
-        }
+        do {
+            this._enumerateToNextElement();
+        } while (!this.done() &&
+            !this._filter.isMatched(this._currentLevelFriends[this._currentIndex]));
     },
 
     _enumerateToNextElement: function () {
         this._currentIndex++;
         if (this._currentIndex >= this._currentLevelFriends.length) {
             this._currentLevel++;
-            if (this._currentLevel > this.maxLevel) {
-                return false;
-            }
             this._currentIndex = 0;
-            this._currentLevelFriends = getNextLevelFriends(
-                this._visitedNames,
-                this._friendsMap,
-                this._currentLevelFriends
-            );
+            if (this._currentLevel <= this._maxLevel) {
+                this._currentLevelFriends = getNextLevelFriends(
+                    this._visitedNames,
+                    this._friendsMap,
+                    this._currentLevelFriends
+                );
+            }
         }
-        if (this.done()) {
-            return false;
-        }
-
-        return true;
     }
 };
 
