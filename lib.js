@@ -1,5 +1,51 @@
 'use strict';
 
+function getFriends(graph, personInfo) {
+    return graph.filter(function (friend) {
+        return personInfo.friends.includes(friend.name);
+    });
+}
+
+function makeBFSForOneLevel(graph, used, queue, depth) {
+    let invited = [];
+    queue = queue.sort((friendInfo1, friendInfo2) =>
+        friendInfo1.item.name.localeCompare(friendInfo2.item.name));
+
+    while (queue.length !== 0 && queue[0].depth === depth) {
+        let curr = queue.shift();
+        invited.push(curr.item);
+
+        for (let f of getFriends(graph, curr.item).filter(friend => !used.includes(friend.name))) {
+            used.push(f.name);
+            queue.push({ item: f, depth: curr.depth + 1 });
+        }
+    }
+
+    return { queue, invited };
+}
+
+function bfsByLevels(graph, depth) {
+    let res = [];
+    let queue = graph.filter(friend => friend.best)
+        .map(friend => ({
+            item: friend,
+            depth: 0
+        }));
+    let used = queue.map(bfsItem => bfsItem.item.name);
+
+    for (let currDepth = 0; currDepth < depth; currDepth++) {
+        let bfsResult = makeBFSForOneLevel(graph, used, queue, currDepth);
+        queue = bfsResult.queue;
+        res = res.concat(bfsResult.invited);
+
+        if (queue.length === 0) {
+            break;
+        }
+    }
+
+    return res;
+}
+
 /**
  * Итератор по друзьям
  * @constructor
@@ -7,8 +53,26 @@
  * @param {Filter} filter
  */
 function Iterator(friends, filter) {
-    console.info(friends, filter);
+    if (!(filter instanceof Filter)) {
+        throw new TypeError('filter in not instance of Filter');
+    }
+
+    this.index = 0;
+    this.array = bfsByLevels(friends, friends.length).filter(x => filter.filter(x));
 }
+
+Iterator.prototype = {
+    done() {
+        return this.index >= this.array.length;
+    },
+    next() {
+        if (this.done()) {
+            return null;
+        }
+
+        return this.array[this.index++];
+    }
+};
 
 /**
  * Итератор по друзям с ограничением по кругу
@@ -19,16 +83,26 @@ function Iterator(friends, filter) {
  * @param {Number} maxLevel – максимальный круг друзей
  */
 function LimitedIterator(friends, filter, maxLevel) {
-    console.info(friends, filter, maxLevel);
+    Object.setPrototypeOf(this, Iterator.prototype);
+
+    this.array = bfsByLevels(friends, maxLevel).filter(x => filter.filter(x));
+    this.index = 0;
 }
+
 
 /**
  * Фильтр друзей
  * @constructor
  */
 function Filter() {
-    console.info('Filter');
+    this.condition = () => true;
 }
+
+Filter.prototype = {
+    filter(item) {
+        return this.condition(item);
+    }
+};
 
 /**
  * Фильтр друзей
@@ -36,8 +110,11 @@ function Filter() {
  * @constructor
  */
 function MaleFilter() {
-    console.info('MaleFilter');
+    Object.setPrototypeOf(this, Filter.prototype);
+
+    this.condition = (person) => person.gender === 'male';
 }
+
 
 /**
  * Фильтр друзей-девушек
@@ -45,8 +122,11 @@ function MaleFilter() {
  * @constructor
  */
 function FemaleFilter() {
-    console.info('FemaleFilter');
+    Object.setPrototypeOf(this, Filter.prototype);
+
+    this.condition = (person) => person.gender === 'female';
 }
+
 
 exports.Iterator = Iterator;
 exports.LimitedIterator = LimitedIterator;
