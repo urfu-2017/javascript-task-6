@@ -134,4 +134,10 @@ function* _iterFriends(friends, maxCircle) {
         yield* currentCircle;
         circleNum += 1;
     } while (circleNum < maxCircle && currentCircle.length > 0);
+
+    if (circleNum < maxCircle) {
+        yield* [...friendsByNames.keys()]
+            .filter(fName => !visited.has(fName))
+            .map(fName => friendsByNames.get(fName));
+    }
 }
