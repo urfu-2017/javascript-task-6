@@ -1,5 +1,75 @@
 'use strict';
 
+function sortByDepthThenByName(depths) {
+    return function (a, b) {
+        if (depths[a.name] < depths[b.name]) {
+            return -1;
+        } else if (depths[a.name] > depths[b.name]) {
+            return 1;
+        }
+        if (a.name < b.name) {
+            return -1;
+        } else if (a.name > b.name) {
+            return 1;
+        }
+
+        return 0;
+    };
+}
+
+function getFriendsDepths(allFriends) {
+    var depths = {};
+    allFriends.forEach(function (friend) {
+        depths[friend.name] = Infinity;
+    });
+    var best = allFriends
+        .filter(function (friend) {
+            return friend.best;
+        })
+        .map(function (friend) {
+            return friend.name;
+        });
+    var nextLevel = [];
+    nextLevel = nextLevel.concat(best);
+    processFriendsLevels(nextLevel, depths, allFriends);
+
+    return depths;
+}
+
+function findByName(currentName) {
+    return function (friend) {
+        return friend.name === currentName;
+    };
+}
+
+function filterNotVisited(visitedNames, currentLevel) {
+    return function (friendName) {
+        return !visitedNames.includes(friendName) &&
+            !currentLevel.includes(friendName);
+    };
+}
+
+function processFriendsLevels(nextLevel, depths, allFriends) {
+    var visitedNames = [];
+    var currentDepth = 0;
+    while (nextLevel.length) {
+        var currentLevel = nextLevel;
+        currentDepth += 1;
+        nextLevel = [];
+        while (currentLevel.length) {
+            var currentName = currentLevel.shift();
+            depths[currentName] = currentDepth;
+            visitedNames.push(currentName);
+            var currentFriends = allFriends
+                .find(findByName(currentName))
+                .friends
+                .filter(filterNotVisited(visitedNames,
+                    currentLevel));
+            nextLevel = nextLevel.concat(currentFriends);
+        }
+    }
+}
+
 /**
  * Итератор по друзьям
  * @constructor
@@ -8,7 +78,36 @@
  */
 function Iterator(friends, filter) {
     console.info(friends, filter);
+    if (!(filter instanceof Filter)) {
+        throw new TypeError('filter argument is not instance of Filter.');
+    }
+    var depths = getFriendsDepths(friends);
+    this.friends = friends.filter(function (friend) {
+        return depths[friend.name] < Infinity &&
+            filter.condition(friend);
+    })
+        .sort(sortByDepthThenByName(depths));
+    this.filter = filter;
 }
+Iterator.prototype.currentIndex = 0;
+Iterator.prototype.bestWereIterated = false;
+Iterator.prototype.next = function () {
+    this.currentIndex += 1;
+    if (this.currentIndex > this.friends.length) {
+        return null;
+    }
+
+    return this.friends[this.currentIndex - 1];
+};
+Iterator.prototype.done = function () {
+    var oldIndex = this.currentIndex;
+    var done = this.next() === null;
+    this.currentIndex = oldIndex;
+
+    return done;
+};
+LimitedIterator.prototype = Object.create(Iterator.prototype);
+LimitedIterator.prototype.constructor = Iterator;
 
 /**
  * Итератор по друзям с ограничением по кругу
@@ -20,6 +119,15 @@ function Iterator(friends, filter) {
  */
 function LimitedIterator(friends, filter, maxLevel) {
     console.info(friends, filter, maxLevel);
+    if (!(filter instanceof Filter)) {
+        throw new TypeError();
+    }
+    var depths = getFriendsDepths(friends);
+    this.friends = friends.filter(function (friend) {
+        return depths[friend.name] <= maxLevel &&
+            filter.condition(friend);
+    }).sort(sortByDepthThenByName(depths));
+    this.filter = filter;
 }
 
 /**
@@ -30,6 +138,15 @@ function Filter() {
     console.info('Filter');
 }
 
+Filter.prototype.condition = function () {
+    return true;
+};
+
+MaleFilter.prototype = Object.create(Filter.prototype);
+MaleFilter.prototype.constructor = MaleFilter;
+FemaleFilter.prototype = Object.create(Filter.prototype);
+FemaleFilter.prototype.constructor = FemaleFilter;
+
 /**
  * Фильтр друзей
  * @extends Filter
@@ -37,6 +154,9 @@ function Filter() {
  */
 function MaleFilter() {
     console.info('MaleFilter');
+    this.condition = function (item) {
+        return item.gender === 'male';
+    };
 }
 
 /**
@@ -46,6 +166,9 @@ function MaleFilter() {
  */
 function FemaleFilter() {
     console.info('FemaleFilter');
+    this.condition = function (item) {
+        return item.gender === 'female';
+    };
 }
 
 exports.Iterator = Iterator;
