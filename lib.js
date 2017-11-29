@@ -1,47 +1,88 @@
 'use strict';
 
+/**
+ * Фильтр друзей
+ * @constructor
+ */
+class Filter {
+    constructor(gender) {
+        this._gender = gender;
+    }
+
+    check(friend) {
+        return friend.gender === this._gender;
+    }
+}
+
+/**
+ * Фильтр друзей
+ * @extends Filter
+ * @constructor
+ */
+class MaleFilter extends Filter {
+    constructor() {
+        super('male');
+    }
+}
+
+/**
+ * Фильтр друзей-девушек
+ * @extends Filter
+ * @constructor
+ */
+class FemaleFilter extends Filter {
+    constructor() {
+        super('female');
+    }
+}
 
 /**
  * Итератор по друзьям
  * @constructor
  * @param {Object[]} friends
  * @param {Filter} filter
- * @param {Number} maxLevel – максимальный круг друзей
  */
-function Iterator(friends, filter, maxLevel = Infinity) {
-    if (!(filter instanceof Filter)) {
-        throw new TypeError();
-    }
-    this._friendsGenerator = _iterFriends(friends, maxLevel < 0 ? 0 : maxLevel);
-    this._filter = filter;
-    this._current = this._nextFiltered();
-}
-
-Iterator.prototype._nextFiltered = function () {
-    let result;
-    do {
-        const next = this._friendsGenerator.next();
-        if (next.done || this._filter.check(next.value)) {
-            result = next;
+class Iterator {
+    constructor(friends, filter) {
+        if (!(filter instanceof Filter)) {
+            throw new TypeError();
         }
-    } while (!result);
-
-    return result;
-};
-
-Iterator.prototype.done = function () {
-    return this._current.done;
-};
-
-Iterator.prototype.next = function () {
-    if (this.done()) {
-        return null;
+        this._init(...arguments);
     }
-    const result = this._current;
-    this._current = this._nextFiltered();
 
-    return result.value;
-};
+    _init(friends, filter, maxLevel) {
+        this._filter = filter;
+        this._friendsGenerator = _iterFriends(
+            friends, maxLevel ? maxLevel : Infinity);
+        this._current = this._nextFiltered(friends);
+    }
+
+    done() {
+        return this._current.done;
+    }
+
+    next() {
+        if (this.done()) {
+            return null;
+        }
+        const result = this._current;
+        this._current = this._nextFiltered();
+
+        return result.value;
+    }
+
+    _nextFiltered() {
+        let result;
+        do {
+            const next = this._friendsGenerator.next();
+            if (next.done || this._filter.check(next.value)) {
+                result = next;
+            }
+        } while (!result);
+
+        return result;
+    }
+}
 
 /**
  * Итератор по друзям с ограничением по кругу
@@ -51,39 +92,10 @@ Iterator.prototype.next = function () {
  * @param {Filter} filter
  * @param {Number} maxLevel – максимальный круг друзей
  */
-function LimitedIterator(friends, filter, maxLevel) {
-    Iterator.call(this, friends, filter, maxLevel);
-}
-
-LimitedIterator.prototype = Object.create(Iterator.prototype);
-
-
-/**
- * Фильтр друзей
- * @constructor
- */
-function Filter() {
-    this.check = () => true;
-}
-
-/**
- * Фильтр друзей
- * @extends Filter
- * @constructor
- */
-function MaleFilter() {
-    Object.setPrototypeOf(this, Filter.prototype);
-    this.check = friend => friend.gender === 'male';
-}
-
-/**
- * Фильтр друзей-девушек
- * @extends Filter
- * @constructor
- */
-function FemaleFilter() {
-    Object.setPrototypeOf(this, Filter.prototype);
-    this.check = friend => friend.gender === 'female';
+class LimitedIterator extends Iterator {
+    constructor(friends, filter, maxLevel) {
+        super(friends, filter, maxLevel < 0 ? 0 : maxLevel);
+    }
 }
 
 exports.Iterator = Iterator;
@@ -102,12 +114,12 @@ const _getNextCircle = (friends, friendsByNames, visited) =>
     friends.map(f => f.friends)
         .filter(Boolean)
         .reduce((acc, curr) => acc.concat(curr), [])
-        .filter(fName => !visited.has(fName))
-        .sort((a, b) => a.localeCompare(b))
+        .filter(fName => !visited.has(fName) && visited.add(fName))
+        .sort()
         .map(fName => friendsByNames.get(fName));
 
 
-function* _iterFriends(friends, maxCircle = Infinity) {
+function* _iterFriends(friends, maxCircle) {
     const friendsByNames = _getFriendsByNames(friends);
     const visited = new Set();
     const billy = {
@@ -119,7 +131,6 @@ function* _iterFriends(friends, maxCircle = Infinity) {
     let currentCircle = [billy];
     do {
         currentCircle = _getNextCircle(currentCircle, friendsByNames, visited);
-        currentCircle.forEach(f => visited.add(f.name));
         yield* currentCircle;
         circleNum += 1;
     } while (circleNum < maxCircle && currentCircle.length > 0);
