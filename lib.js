@@ -115,7 +115,7 @@ const _getNextCircle = (friends, friendsByNames, visited) =>
         .filter(Boolean)
         .reduce((acc, curr) => acc.concat(curr), [])
         .filter(fName => !visited.has(fName) && visited.add(fName))
-        .sort()
+        .sort((a, b) => a.localeCompare(b))
         .map(fName => friendsByNames.get(fName));
 
 
