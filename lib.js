@@ -1,6 +1,6 @@
 'use strict';
 
-function defaultSort(depths) {
+function sortByDepthThenByName(depths) {
     return function (a, b) {
         if (depths[a.name] < depths[b.name]) {
             return -1;
@@ -22,11 +22,13 @@ function getFriendsDepths(allFriends) {
     allFriends.forEach(function (friend) {
         depths[friend.name] = Infinity;
     });
-    var best = allFriends.filter(function (friend) {
-        return friend.best;
-    }).map(function (friend) {
-        return friend.name;
-    });
+    var best = allFriends
+        .filter(function (friend) {
+            return friend.best;
+        })
+        .map(function (friend) {
+            return friend.name;
+        });
     var nextLevel = [];
     nextLevel = nextLevel.concat(best);
     processFriendsLevels(nextLevel, depths, allFriends);
@@ -77,14 +79,14 @@ function processFriendsLevels(nextLevel, depths, allFriends) {
 function Iterator(friends, filter) {
     console.info(friends, filter);
     if (!(filter instanceof Filter)) {
-        throw new TypeError();
+        throw new TypeError("filter argument is not instance of Filter.");
     }
     var depths = getFriendsDepths(friends);
     this.friends = friends.filter(function (friend) {
         return depths[friend.name] < Infinity &&
             filter.condition(friend);
     })
-        .sort(defaultSort(depths));
+        .sort(sortByDepthThenByName(depths));
     this.filter = filter;
 }
 Iterator.prototype.currentIndex = 0;
@@ -124,7 +126,7 @@ function LimitedIterator(friends, filter, maxLevel) {
     this.friends = friends.filter(function (friend) {
         return depths[friend.name] <= maxLevel &&
             filter.condition(friend);
-    }).sort(defaultSort(depths));
+    }).sort(sortByDepthThenByName(depths));
     this.filter = filter;
 }
 

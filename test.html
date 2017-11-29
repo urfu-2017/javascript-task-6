@@ -53,7 +53,7 @@
         return function (friendName) {
             return !visitedNames.includes(friendName) &&
                 !currentLevel.includes(friendName);
-        }
+        };
     }
 
     function processFriendsLevels(nextLevel, depths, allFriends) {
@@ -71,7 +71,7 @@
                     .find(findByName(currentName))
                     .friends
                     .filter(filterNotVisited(visitedNames,
-                    currentLevel));
+                        currentLevel));
                 nextLevel = nextLevel.concat(currentFriends);
             }
         }
@@ -89,7 +89,10 @@
             throw new TypeError();
         }
         var depths = getFriendsDepths(friends);
-        this.friends = friends.filter(filter.condition)
+        this.friends = friends.filter(function (friend) {
+            return depths[friend.name] < Infinity &&
+                filter.condition(friend);
+        })
             .sort(defaultSort(depths));
         this.filter = filter;
     }
@@ -123,6 +126,9 @@
      */
     function LimitedIterator(friends, filter, maxLevel) {
         console.info(friends, filter, maxLevel);
+        if (!(filter instanceof Filter)) {
+            throw new TypeError();
+        }
         var depths = getFriendsDepths(friends);
         this.friends = friends.filter(function (friend) {
             return depths[friend.name] <= maxLevel &&
