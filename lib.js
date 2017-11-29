@@ -79,7 +79,7 @@ function processFriendsLevels(nextLevel, depths, allFriends) {
 function Iterator(friends, filter) {
     console.info(friends, filter);
     if (!(filter instanceof Filter)) {
-        throw new TypeError("filter argument is not instance of Filter.");
+        throw new TypeError('filter argument is not instance of Filter.');
     }
     var depths = getFriendsDepths(friends);
     this.friends = friends.filter(function (friend) {
