@@ -8,7 +8,7 @@
  */
 function Iterator(friends, filter) {
     if (!(filter instanceof Filter)) {
-        throw new TypeError();
+        throw new TypeError('filter is not instance of Filter');
     }
 
     this._friends = {};
@@ -51,13 +51,16 @@ Object.assign(Iterator.prototype, {
     },
     _moveNextLevel() {
         this._visitedFriends.push(...this._currentLevelFriends);
-        this._currentLevelFriends = this._currentLevelFriends
-            .map(friend => friend.friends)
-            .reduce((a, b) => a.concat(b), [])
-            .filter((friend, index, arr) => arr.indexOf(friend) === index)
+        this._currentLevelFriends = this._getNextLevelFriends()
             .map(friendName => this._friends[friendName])
             .filter(friend => !this._visitedFriends.includes(friend))
             .sort(compareFriends);
+    },
+    _getNextLevelFriends() {
+        return this._currentLevelFriends
+            .map(friend => friend.friends)
+            .reduce((a, b) => a.concat(b), [])
+            .filter((friend, index, arr) => arr.indexOf(friend) === index);
     },
     _getCurrentFriend() {
         return this._currentLevelFriends[this._position];
