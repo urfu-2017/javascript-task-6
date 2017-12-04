@@ -76,6 +76,10 @@ class Iterator {
                     this.count += 1;
                 }
             }
+
+            if (this.friends.filter((_friend) => _friend.best).length === 0) {
+                this.end = 1;
+            }
         };
 
         this.calculateCount();
