@@ -173,6 +173,9 @@ class Iterator {
 class LimitedIterator extends Iterator {
     constructor(friends, filter, maxLevel) {
         super(friends, filter);
+        if (this.maxLevel <= 0) {
+            this.end = 1;
+        }
         this.checkFinish = function () {
             if (this.friendOfFriends.length === 0 ||
                 this.circle > maxLevel) {
