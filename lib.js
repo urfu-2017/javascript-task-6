@@ -32,11 +32,8 @@ function getListInvitedFriends(friends, filter, maxLevel) {
 }
 
 function sortName(a, b) {
-    if (a.name === b.name) {
-        return 0;
-    }
 
-    return (a.name < b.name) ? -1 : 1;
+    return a.name.localeCompare(b.name);
 }
 
 function getFriendsBestFriends(bestFriends) {
@@ -91,7 +88,7 @@ function LimitedIterator(friends, filter, maxLevel) {
     }
 
     Iterator.call(this, friends, filter);
-    if (maxLevel < 0) {
+    if (maxLevel <= 0) {
         this.listInvitedFriends = [];
     } else {
         this.listInvitedFriends = getListInvitedFriends(friends, filter, maxLevel);
