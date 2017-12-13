@@ -17,7 +17,8 @@ function getListInvitedFriends(friends, filter, maxLevel) {
                     return friend.name === name;
                 });
             });
-        bestFriends = isDuplicate(listInvitedFriends, friendsBestFriends);
+        bestFriends = isDuplicate(listInvitedFriends, friendsBestFriends)
+            .sort(sortName);
         maxLevel--;
     }
 
