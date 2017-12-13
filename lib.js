@@ -62,8 +62,8 @@ function Iterator(friends, filter) {
         throw new TypeError('Фильтр не является инстансом функции-конструктора Filter');
     }
 
-    this.currentIndex = 0;
     this.listInvitedFriends = getListInvitedFriends(friends, filter);
+    this.currentIndex = 0;
 }
 
 Iterator.prototype.done = function () {
@@ -91,7 +91,12 @@ function LimitedIterator(friends, filter, maxLevel) {
     }
 
     Iterator.call(this, friends, filter);
-    this.listInvitedFriends = getListInvitedFriends(friends, filter, maxLevel);
+    if (maxLevel < 0) {
+        this.listInvitedFriends = [];
+    } else {
+        this.listInvitedFriends = getListInvitedFriends(friends, filter, maxLevel);
+    }
+    this.currentIndex = 0;
 }
 
 LimitedIterator.prototype = Object.create(Iterator.prototype);
@@ -101,7 +106,6 @@ LimitedIterator.prototype = Object.create(Iterator.prototype);
  * @constructor
  */
 function Filter() {
-    // console.info('Filter');
     this.friendsByGender = function () {
 
         return true;
@@ -114,7 +118,6 @@ function Filter() {
  * @constructor
  */
 function MaleFilter() {
-    // console.info('MaleFilter');
     this.friendsByGender = function (friend) {
 
         return friend.gender === 'male';
@@ -129,7 +132,6 @@ MaleFilter.prototype = Object.create(Filter.prototype);
  * @constructor
  */
 function FemaleFilter() {
-    // console.info('FemaleFilter');
     this.friendsByGender = function (friend) {
 
         return friend.gender === 'female';
