@@ -9,6 +9,11 @@ function getListInvitedFriends(friends, filter, maxLevel) {
         })
         .sort(sortName);
 
+    var isDuplicate = function (friend) {
+
+        return !listInvitedFriends.includes(friend);
+    };
+
     while (bestFriends.length > 0 && maxLevel > 0) {
         listInvitedFriends = listInvitedFriends.concat(bestFriends);
         var friendsBestFriends = getFriendsBestFriends(bestFriends)
@@ -17,7 +22,8 @@ function getListInvitedFriends(friends, filter, maxLevel) {
                     return friend.name === name;
                 });
             });
-        bestFriends = isDuplicate(listInvitedFriends, friendsBestFriends)
+        bestFriends = friendsBestFriends
+            .filter(isDuplicate)
             .sort(sortName);
         maxLevel--;
     }
@@ -33,18 +39,12 @@ function sortName(a, b) {
     return (a.name < b.name) ? -1 : 1;
 }
 
-function isDuplicate(listInvitedFriends, friendsBestFriends) {
-    return friendsBestFriends.filter(function (friend) {
-        return listInvitedFriends.indexOf(friend) === -1;
-    });
-}
-
 function getFriendsBestFriends(bestFriends) {
 
     return bestFriends.reduce(function (friendsBestFriends, bestFriend) {
         return friendsBestFriends.concat(bestFriend.friends
             .filter(function (name) {
-                return friendsBestFriends.indexOf(name) === -1;
+                return !friendsBestFriends.includes(name);
             })
         );
     }, []);
