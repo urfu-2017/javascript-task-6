@@ -7,9 +7,7 @@ function getListInvitedFriends(friends, filter, maxLevel) {
         .filter(function (friend) {
             return friend.best;
         })
-        .sort(function (a, b) {
-            return (a.name < b.name) ? -1 : (a.name > b.name) ? 1 : 0;
-        });
+        .sort(sortName);
 
     while (bestFriends.length > 0 && maxLevel > 0) {
         listInvitedFriends = listInvitedFriends.concat(bestFriends);
@@ -19,11 +17,19 @@ function getListInvitedFriends(friends, filter, maxLevel) {
                     return friend.name === name;
                 });
             });
-        bestFriends = isDuplicate(listInvitedFriends, friendsBestFriends)
+        bestFriends = isDuplicate(listInvitedFriends, friendsBestFriends);
         maxLevel--;
     }
 
     return listInvitedFriends.filter(filter.friendsByGender);
+}
+
+function sortName(a, b) {
+    if (a.name === b.name) {
+        return 0;
+    }
+
+    return (a.name < b.name) ? -1 : 1;
 }
 
 function isDuplicate(listInvitedFriends, friendsBestFriends) {
@@ -62,7 +68,7 @@ Iterator.prototype.done = function () {
 
 Iterator.prototype.next = function () {
 
-    return this.done() ? null : this.listInvitedFriends[this.currentIndex++].name;
+    return this.done() ? null : this.listInvitedFriends[this.currentIndex++];
 };
 
 /**
