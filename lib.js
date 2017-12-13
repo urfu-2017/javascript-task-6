@@ -42,7 +42,11 @@ function isDuplicate(listInvitedFriends, friendsBestFriends) {
 function getFriendsBestFriends(bestFriends) {
 
     return bestFriends.reduce(function (friendsBestFriends, bestFriend) {
-        return friendsBestFriends.concat(bestFriend.friends);
+        return friendsBestFriends.concat(bestFriend.friends
+            .filter(function (name) {
+                return friendsBestFriends.indexOf(name) === -1;
+            })
+        );
     }, []);
 }
 
